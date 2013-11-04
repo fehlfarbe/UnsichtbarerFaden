@@ -1,0 +1,9 @@
+
+<div ng-controller="App.articleList">
+	{{ articles.length }} Einträge vorhanden
+	<ul ng-repeat="article in articles">
+		<li><strong>{{article.name}}:</strong> <span>{{article.text}}</span>
+		</li>
+	</ul>
+
+</div>

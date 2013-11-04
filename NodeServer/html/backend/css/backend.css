@@ -1,0 +1,24 @@
+body {
+	font-family: Arial;
+	
+}
+
+div#menu{
+	top: 0px;
+	width: 100%;
+	height: 40px;
+	position: fixed;
+	border-bottom: 1px solid #000;
+	background-color: #fff;
+	padding: 5px;
+}
+
+div#menu li{
+	list-style: none;
+	display: inline;
+}
+
+div#view{
+	padding-top: 45px;
+	
+}
