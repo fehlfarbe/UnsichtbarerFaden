@@ -1,38 +1,75 @@
-//var connect = require('connect');
-//
-////start server
-//var server = connect().
-//	use(connect.static(__dirname+'/html')).
-//	listen(8080);
-//
-//console.log("Server started and listen to http://127.0.0.1:8080");
-
 var express = require('express');
-var app = express();
+var mysql = require('mysql');
 
+/******************************************************************
+ * 
+ *  setup mySQL connection 
+ *  
+ *  **************************************************************/
+var connection = mysql.createConnection({
+	  host     : 'localhost',
+	  user     : 'faden',
+	  password : 'unsichtbar',
+	  database : 'derunsichtbarefaden',
+});
+
+connection.connect(function(err) {
+	if( err ){
+		console.log("Database error!");
+		console.log(err);
+	}
+});
+
+/******************************************************************
+ * 
+ *  setup server 
+ *  
+ *  **************************************************************/
+var app = express();
 app.use(express.compress()); // compress content
 app.use(express.static(__dirname + '/html'));
 
-app.get('/get/articles', function(req, res) {
+/******************************************************************
+ * 
+ *  sites 
+ *  
+ *  **************************************************************/
 
-	articles = [ {
-		id : 1,
-		name : 'So ist das Leben',
-		text : 'Hallo Leute. So ist das Leben..',
-	}, {
-		id : 2,
-		name : 'So ist das Leben 2',
-		text : 'Hallo Leute. So ist das Leben..eben!',
-	}, {
-		id : 3,
-		name : 'So ist das Leben immer noch',
-		text : 'Hallo Leute. So ist das Leben..und weiter gehts',
-	}, ];
+/*** articels ***/
+app.get('/get/articles', function(req, res) {
 	
-	console.log("get articles list");
-	console.log(articles);
-	
-	res.send(articles);
+	connection.query('SELECT articleid AS id, name, text FROM articles', function(err, articles, fields) {
+		  if (err) throw err;
+
+		  console.log(articles);
+		  res.send(articles);
+	});
 });
 
+/*** relations ***/
+app.get('/get/nodes', function(req, res) {
+	
+	connection.query('SELECT nodeid AS id, nodes.name AS name FROM nodes', function(err, nodes, fields) {
+		if (err) throw err;
+		
+		connection.query('SELECT src AS source, dst AS target FROM noderelations', function(err, links, fields) {
+			if (err) throw err;
+			
+			var list = new Object();
+			list.nodes = nodes;
+			list.links = links;
+			
+			console.log(list);
+			res.send(list);
+			
+		});
+	});
+});
+
+
+/******************************************************************
+ * 
+ *  start server 
+ *  
+ *  **************************************************************/
 app.listen(8888);
