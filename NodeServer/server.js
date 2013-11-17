@@ -46,7 +46,7 @@ app.get('/get/articles', function(req, res) {
 	});
 });
 
-/*** relations ***/
+/*** nodes ***/
 app.get('/get/nodes', function(req, res) {
 	
 	connection.query('SELECT nodeid AS id, nodes.name AS name FROM nodes', function(err, nodes, fields) {
@@ -64,6 +64,13 @@ app.get('/get/nodes', function(req, res) {
 			
 		});
 	});
+});
+
+app.post('/set/nodes', function(req, res) {
+	
+	console.log('TODO: set nodes...');
+	
+	res.send('OK');
 });
 
 

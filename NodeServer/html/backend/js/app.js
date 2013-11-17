@@ -15,6 +15,10 @@ App.config(function($routeProvider) {
 		templateUrl : 'partials/new_article.html',
 		controller : 'newarticle',
 	});
+	$routeProvider.when('/nodeeditor', {
+		templateUrl : 'partials/nodeeditor.html',
+		controller : 'newarticle',
+	});
 	$routeProvider.otherwise({
 		redirectTo : '/frontpage'
 	});
@@ -37,6 +41,10 @@ App.controller('newarticle', function($scope) {
 	console.log('Hello from the newarticle Controller');
 });
 
+App.controller('nodeditor', function($scope) {
+	console.log('Hello from the node editor Controller');
+});
+
 
 /********* FUNCTIONS *****************/
 
@@ -47,13 +55,36 @@ App.articleList = function($scope, $http) {
          //resolve the promise as the data
          return result.data;
      });
-}
+};
 
-App.getRelations = function($scope, $http) {
+App.saveNodes = function($scope, $http) {
+	alert("save nodes");
+	console.log("save");
+	
+};
+
+App.initNodes = function($scope, $http) {
+	
+	$scope.nodes = null;
+	
+	
+	//save nodes
+	$scope.saveNodes = function() {
+		alert("save nodes");
+		console.log($scope.nodes);
+		var data = $scope.nodes;
+		$http.post('/set/nodes', data)
+		.success(function(data, status, headers, config){
+			alert("OK");
+		}).error(function(data, status, headers, config){
+			alert("I can't do this, Dave!");
+		});
+	};
 
 	$scope.relations = $http.get('/get/nodes')
 	.then(function(result) {
          console.log(result.data);
+         $scope.nodes = result.data;
          
       // set up SVG for D3
          var width  = jQuery('#grapheditor').width(),
@@ -70,7 +101,7 @@ App.getRelations = function($scope, $http) {
          //  - reflexive edges are indicated on the node (as a bold black circle).
          //  - links are always source < target; edge directions are set by 'left' and 'right'.
          var nodes = result.data.nodes;
-         var lastNodeId = 1;
+         var lastNodeId = result.data.nodes.length;
          var links = [];
          for(var i = 0; i < result.data.links.length; i++){
         	 var link = result.data.links[i];
@@ -137,6 +168,16 @@ App.getRelations = function($scope, $http) {
              mousedown_link = null,
              mousedown_node = null,
              mouseup_node = null;
+         
+         function nodeExists(name){
+             for(var i=0; i<nodes.length; i++){
+          	   if(nodes[i].name == name){
+          		   return true;
+          	   }
+             }
+             
+             return false;
+         }
 
          function resetMouseVars() {
            mousedown_node = null;
@@ -206,8 +247,8 @@ App.getRelations = function($scope, $http) {
            // update existing nodes (reflexive & selected visual states)
            circle.selectAll('circle')
              .style('fill', function(d) { return (d === selected_node) ? d3.rgb(colors(d.id)).brighter().toString() : colors(d.id); })
-             .classed('reflexive', function(d) { return d.reflexive; });
-
+             
+             
            // add new nodes
            var g = circle.enter().append('svg:g');
 
@@ -292,12 +333,21 @@ App.getRelations = function($scope, $http) {
              });
 
            // show node IDs
-           g.append('svg:text')
+           console.log("append text", g);
+           circle.selectAll('text').remove();
+           circle.append('text')
                .attr('x', 0)
                .attr('y', 4)
                .attr('class', 'id')
                .text(function(d) { return d.name; });
-
+           
+           //resize circles by textsize
+           var c = 0;
+           circle.selectAll("text").each(function () {
+        	   //console.log(circle.selectAll("circle"));
+        	   circle.selectAll("circle")[c++][0].setAttribute('r', this.getComputedTextLength()/2+2);
+           });
+           
            // remove old nodes
            circle.exit().remove();
 
@@ -311,12 +361,20 @@ App.getRelations = function($scope, $http) {
            
            // because :active only works in WebKit?
            svg.classed('active', true);
-
+           
            if(d3.event.ctrlKey || mousedown_node || mousedown_link) return;
 
            // insert new node at point
+           var name = prompt("Name","Neuer Knoten");
+           if(name == '' || name == null)
+        	   return;
+           if(nodeExists(name)){
+        	   alert("Name existiert bereits!");
+    		   return;
+           }
+           
            var point = d3.mouse(this),
-               node = {id: ++lastNodeId, reflexive: false};
+               node = {id: ++lastNodeId, reflexive: false, name: name};
            node.x = point[0];
            node.y = point[1];
            nodes.push(node);
@@ -361,7 +419,7 @@ App.getRelations = function($scope, $http) {
          var lastKeyDown = -1;
 
          function keydown() {
-           d3.event.preventDefault();
+//           d3.event.preventDefault();
 
            if(lastKeyDown !== -1) return;
            lastKeyDown = d3.event.keyCode;
@@ -385,33 +443,20 @@ App.getRelations = function($scope, $http) {
                selected_link = null;
                selected_node = null;
                restart();
+               d3.event.preventDefault();
                break;
-             case 66: // B
-               if(selected_link) {
-                 // set link direction to both left and right
-                 selected_link.left = true;
-                 selected_link.right = true;
-               }
-               restart();
-               break;
-             case 76: // L
-               if(selected_link) {
-                 // set link direction to left only
-                 selected_link.left = true;
-                 selected_link.right = false;
-               }
-               restart();
-               break;
-             case 82: // R
+             case 82: // rename
                if(selected_node) {
                  // toggle node reflexivity
-                 selected_node.reflexive = !selected_node.reflexive;
-               } else if(selected_link) {
-                 // set link direction to right only
-                 selected_link.left = false;
-                 selected_link.right = true;
+            	 var name = prompt("Neuer Name", selected_node.name);
+            	 if(name != '' && name != null && !nodeExists(name)){
+            		 selected_node.name = name;
+            		 //console.log(name);
+            		 console.log("nodes", nodes);
+            		 restart();
+            	 }
                }
-               restart();
+               d3.event.preventDefault();
                break;
            }
          }
@@ -432,15 +477,15 @@ App.getRelations = function($scope, $http) {
          svg.on('mousedown', mousedown)
            .on('mousemove', mousemove)
            .on('mouseup', mouseup);
-         /*
+         
          d3.select(window)
            .on('keydown', keydown)
            .on('keyup', keyup);
-         */
+         
          restart();
 
          
          
          return result.data;
      });
-}
+};

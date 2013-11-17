@@ -23,7 +23,7 @@ path.link {
 	fill: none;
 	stroke: #000;
 	stroke-width: 4px;
-	cursor: default;
+	cursor: pointer;
 }
 
 svg:not (.active ):not (.ctrl ) path.link {
@@ -32,10 +32,12 @@ svg:not (.active ):not (.ctrl ) path.link {
 
 path.link.selected {
 	stroke-dasharray: 10, 2;
+	cursor: pointer;
 }
 
 path.link.dragline {
 	pointer-events: none;
+	cursor: pointer;
 }
 
 path.link.hidden {
@@ -43,14 +45,11 @@ path.link.hidden {
 }
 
 circle.node {
-	min-width: 50px;
-	
 	stroke-width: 1.5px;
 	cursor: pointer;
 }
 
 circle.node.reflexive {
-	min-width: 50px;
 	stroke: #000 !important;
 	stroke-width: 2.5px;
 }
