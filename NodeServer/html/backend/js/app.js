@@ -70,12 +70,12 @@ App.initNodes = function($scope, $http) {
 	
 	//save nodes
 	$scope.saveNodes = function() {
-		alert("save nodes");
-		console.log($scope.nodes);
+
 		var data = $scope.nodes;
+		console.log("send data", data);
 		$http.post('/set/nodes', data)
 		.success(function(data, status, headers, config){
-			alert("OK");
+			console.log("Nodes saved!");
 		}).error(function(data, status, headers, config){
 			alert("I can't do this, Dave!");
 		});
@@ -85,6 +85,7 @@ App.initNodes = function($scope, $http) {
 	.then(function(result) {
          console.log(result.data);
          $scope.nodes = result.data;
+         $scope.nodes.deletedNodes = Array();
          
       // set up SVG for D3
          var width  = jQuery('#grapheditor').width(),
@@ -101,7 +102,10 @@ App.initNodes = function($scope, $http) {
          //  - reflexive edges are indicated on the node (as a bold black circle).
          //  - links are always source < target; edge directions are set by 'left' and 'right'.
          var nodes = result.data.nodes;
-         var lastNodeId = result.data.nodes.length;
+         var lastNodeId = 0;
+         for(var i = 0; i < nodes.length; i++)
+        	 if( nodes[i].id > lastNodeId )
+        		 lastNodeId = nodes[i].id;
          var links = [];
          for(var i = 0; i < result.data.links.length; i++){
         	 var link = result.data.links[i];
@@ -120,6 +124,7 @@ App.initNodes = function($scope, $http) {
         	 if(src != null && dst != null)
         		 links.push({source: src, target: dst, left: false, right: true, type: link.type});
          }
+         result.data.links = links;
          
          // init D3 force layout
          var force = d3.layout.force()
@@ -321,7 +326,8 @@ App.initNodes = function($scope, $http) {
                if(link) {
                  link[direction] = true;
                } else {
-                 link = {source: source, target: target, left: false, right: false};
+            	   //TODO: set Link type
+                 link = {source: source, target: target, left: false, right: false, type: 1};
                  link[direction] = true;
                  links.push(link);
                }
@@ -333,7 +339,7 @@ App.initNodes = function($scope, $http) {
              });
 
            // show node IDs
-           console.log("append text", g);
+           //console.log("append text", g);
            circle.selectAll('text').remove();
            circle.append('text')
                .attr('x', 0)
@@ -378,6 +384,7 @@ App.initNodes = function($scope, $http) {
            node.x = point[0];
            node.y = point[1];
            nodes.push(node);
+           console.log("Node", nodes);
 
            restart();
          }
@@ -435,6 +442,7 @@ App.initNodes = function($scope, $http) {
              case 8: // backspace
              case 46: // delete
                if(selected_node) {
+            	   $scope.nodes.deletedNodes.push(selected_node);
                  nodes.splice(nodes.indexOf(selected_node), 1);
                  spliceLinksForNode(selected_node);
                } else if(selected_link) {
