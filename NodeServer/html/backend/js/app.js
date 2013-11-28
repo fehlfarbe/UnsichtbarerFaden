@@ -76,6 +76,7 @@ App.initNodes = function($scope, $http) {
 		$http.post('/set/nodes', data)
 		.success(function(data, status, headers, config){
 			console.log("Nodes saved!");
+			alert("Gespeichert!");
 		}).error(function(data, status, headers, config){
 			alert("I can't do this, Dave!");
 		});
@@ -122,7 +123,7 @@ App.initNodes = function($scope, $http) {
         	 }
         	 
         	 if(src != null && dst != null)
-        		 links.push({source: src, target: dst, left: false, right: true, type: link.type});
+        		 links.push({source: src, target: dst, left: false, right: true});
          }
          result.data.links = links;
          
@@ -326,8 +327,7 @@ App.initNodes = function($scope, $http) {
                if(link) {
                  link[direction] = true;
                } else {
-            	   //TODO: set Link type
-                 link = {source: source, target: target, left: false, right: false, type: 1};
+                 link = {source: source, target: target, left: false, right: false};
                  link[direction] = true;
                  links.push(link);
                }
