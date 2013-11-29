@@ -82,10 +82,8 @@ App.initNodes = function($scope, $http) {
 		});
 	};
 
-	$scope.relations = $http.get('/get/nodes')
-	.then(function(result) {
-         console.log(result.data);
-         $scope.nodes = result.data;
+	$scope.relations = $http.get('/get/nodes').then(function(result) {
+		 $scope.nodes = result.data;
          $scope.nodes.deletedNodes = Array();
          
       // set up SVG for D3
@@ -134,30 +132,7 @@ App.initNodes = function($scope, $http) {
              .size([width, height])
              .linkDistance(150)
              .charge(-500)
-             .on('tick', tick)
-
-         // define arrow markers for graph links
-         svg.append('svg:defs').append('svg:marker')
-             .attr('id', 'end-arrow')
-             .attr('viewBox', '0 -5 10 10')
-             .attr('refX', 6)
-             .attr('markerWidth', 3)
-             .attr('markerHeight', 3)
-             .attr('orient', 'auto')
-           .append('svg:path')
-             .attr('d', 'M0,-5L10,0L0,5')
-             .attr('fill', '#000');
-
-         svg.append('svg:defs').append('svg:marker')
-             .attr('id', 'start-arrow')
-             .attr('viewBox', '0 -5 10 10')
-             .attr('refX', 4)
-             .attr('markerWidth', 3)
-             .attr('markerHeight', 3)
-             .attr('orient', 'auto')
-           .append('svg:path')
-             .attr('d', 'M10,-5L0,0L10,5')
-             .attr('fill', '#000');
+             .on('tick', tick);
 
          // line displayed when dragging new nodes
          var drag_line = svg.append('svg:path')
