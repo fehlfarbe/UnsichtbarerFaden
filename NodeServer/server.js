@@ -26,15 +26,25 @@ connection.connect(function(err) {
  *  setup server 
  *  
  *  **************************************************************/
+var port = 8888;
 var app = express();
 app.use(express.compress()); // compress content
 app.use(express.static(__dirname + '/html'));
 
 /******************************************************************
  * 
- *  sites 
+ *  API
  *  
  *  **************************************************************/
+
+/******** AGENT *********/
+app.post('agent', function(req, res) {
+	
+	// ToDo: implement agent
+	
+	
+	
+});
 
 /*** articels ***/
 app.get('/get/articles', function(req, res) {
@@ -50,10 +60,10 @@ app.get('/get/articles', function(req, res) {
 /*** nodes ***/
 app.get('/get/nodes', function(req, res) {
 	
-	connection.query('SELECT nodeid AS id, nodes.name AS name FROM nodes', function(err, nodes, fields) {
+	connection.query('SELECT nodeid AS id, nodes.name AS name, x, y FROM nodes', function(err, nodes, fields) {
 		if (err) throw err;
 		
-		connection.query('SELECT src AS source, dst AS target, relation AS type FROM noderelations', function(err, links, fields) {
+		connection.query('SELECT * FROM links', function(err, links, fields) {
 			if (err) throw err;
 			
 			var list = new Object();
@@ -77,13 +87,15 @@ app.post('/set/nodes', function(req, res) {
         req.on('data', function (data) {
             body += data;
         });
+        
         req.on('end', function () {
             var data = JSON.parse(body);
             
             var datalength = data.nodes.length + data.deletedNodes.length + data.links.length;
+            
             //call this for every successful query
             function decraseDatalength(){
-            	console.log(--datalength);
+            	datalength--;
             	if(datalength <= 0){
             		console.log("data saved!");
             		res.send('OK');
@@ -93,33 +105,33 @@ app.post('/set/nodes', function(req, res) {
             //update nodes
             for(var i = 0; i < data.nodes.length; i++){
             		console.log("node: " + data.nodes[i].id + ": " + data.nodes[i].name );
-            		var node = {nodeid: data.nodes[i].id, name: data.nodes[i].name};
+            		var node = {nodeid: data.nodes[i].id, name: data.nodes[i].name, x: data.nodes[i].x, y:  data.nodes[i].y};
             		connection.query("REPLACE INTO nodes SET ?", node, function(err, result) {
             			if(err) throw err;
-            			decraseDatalength()
-            		});            	
+            			decraseDatalength();
+            		});
             }
+            
             //deleted nodes
             for(var i = 0; i < data.deletedNodes.length; i++){
             	console.log("deleted: " + data.deletedNodes[i].id + ": " + data.deletedNodes[i].name );
-            	//var node = {nodeid: data.nodes[i].id, name: data.nodes[i].name};
         		connection.query("DELETE FROM nodes WHERE nodeid = ?", data.deletedNodes[i].id, function(err, result) {
         			if(err) throw err;
-        			decraseDatalength()
-        		}); 
+        			decraseDatalength();
+        		});
             }
-            
-            
+
             //update links
             console.log(data.links);
             for(var i = 0; i < data.links.length; i++){
             	console.log(data.links[i].source.id + "-> " + data.links[i].target.id + "(" + data.links[i] + ")");
-            	var link = {src: data.links[i].source.id, dst: data.links[i].target.id, relation: data.links[i].type};
-        		connection.query("REPLACE INTO noderelations SET ?", link, function(err, result) {
+            	var link = {source: data.links[i].source.id, target: data.links[i].target.id};
+        		connection.query("REPLACE INTO links SET ?", link, function(err, result) {
         			if(err) throw err;
-        			decraseDatalength()
+        			decraseDatalength();
         		});
             }
+            
         });
     }
 });
@@ -130,4 +142,5 @@ app.post('/set/nodes', function(req, res) {
  *  start server 
  *  
  *  **************************************************************/
-app.listen(8888);
+app.listen(port);
+console.log("Server started on port " + port);
