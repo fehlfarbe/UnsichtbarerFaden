@@ -66,19 +66,22 @@ App.saveNodes = function($scope, $http) {
 App.initNodes = function($scope, $http) {
 	
 	$scope.nodes = null;
+	$('#grapheditor').block();
 	
 	
 	//save nodes
 	$scope.saveNodes = function() {
-
+		$('#grapheditor').block();
+		
 		var data = $scope.nodes;
 		console.log("send data", data);
 		$http.post('/set/nodes', data)
 		.success(function(data, status, headers, config){
 			console.log("Nodes saved!");
-			alert("Gespeichert!");
+			$('#grapheditor').unblock();
 		}).error(function(data, status, headers, config){
 			alert("I can't do this, Dave!");
+			$('#grapheditor').unblock();
 		});
 	};
 
@@ -87,8 +90,8 @@ App.initNodes = function($scope, $http) {
          $scope.nodes.deletedNodes = Array();
          
       // set up SVG for D3
-         var width  = jQuery('#grapheditor').width(),
-             height = jQuery('#grapheditor').height(),
+         var width  = $('#grapheditor').width(),
+             height = $('#grapheditor').height(),
              colors = d3.scale.category10();
 
          var svg = d3.select('#grapheditor')
@@ -133,6 +136,9 @@ App.initNodes = function($scope, $http) {
              .linkDistance(150)
              .charge(-500)
              .on('tick', tick);
+         
+         //unblock element
+         $('#grapheditor').unblock();
 
          // line displayed when dragging new nodes
          var drag_line = svg.append('svg:path')
