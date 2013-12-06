@@ -1,6 +1,9 @@
 var express = require('express');
 var mysql = require('mysql');
 var qs = require('querystring');
+var fs = require('fs');
+var connect = require('connect');
+var multiparty = require('multiparty');
 
 /******************************************************************
  * 
@@ -11,7 +14,7 @@ var connection = mysql.createConnection({
 	  host     : 'localhost',
 	  user     : 'faden',
 	  password : 'unsichtbar',
-	  database : 'derunsichtbarefaden',
+	  database : 'derunsichtbarefaden'
 });
 
 connection.connect(function(err) {
@@ -31,6 +34,8 @@ var app = express();
 app.use(express.compress()); // compress content
 app.use(express.static(__dirname + '/html'));
 
+
+
 /******************************************************************
  * 
  *  API
@@ -42,9 +47,32 @@ app.post('agent', function(req, res) {
 	
 	// ToDo: implement agent
 	
-	
-	
 });
+
+/**** Image Upload ******/
+
+app.post('/upload', function(req, res) {
+	
+	var form = new multiparty.Form({uploadDir: __dirname + '/html/upload/images'});
+    form.parse(req, function(err, fields, files) {
+    	var path = files.image[0].path;
+    	var imageName = path.substr(path.lastIndexOf('/') +1);
+      	fs.readFile(path, function (err, data) {
+			if (!imageName) {
+				console.log("Error Image Upload");
+				res.redirect("/");
+				res.end();
+			} else {
+				var newPath = __dirname + "/images/" + imageName;
+				fs.writeFile(newPath, data, function(err) {
+					//TODO Fehlermeldung ausgeben
+				});
+			};
+      	});
+        res.send("<script>top.$('.mce-btn.mce-open').parent().find('.mce-textbox').val('"+ req.protocol + "://" + req.get('host') + '/upload/images/' + imageName + "').closest('.mce-window').find('.mce-primary').click();</script>");
+    });
+});
+
 
 /*** articels ***/
 app.get('/get/articles', function(req, res) {

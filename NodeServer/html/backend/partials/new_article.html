@@ -1,3 +1,7 @@
 Neuen Artikel schreiben
 
 <textarea></textarea>
+<iframe id = "form_target" name="form_target" style="display:none"></iframe>
+<form id ="upload_form" method="post" action="/upload" target="form_target"  enctype="multipart/form-data" style="width:0px;height:0px;overflow:hidden">
+	<input name="image" type="file" onchange="$('#upload_form').submit();this.value='';">
+</form>

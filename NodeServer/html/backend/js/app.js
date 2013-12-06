@@ -19,6 +19,11 @@ App.config(function($routeProvider) {
 		templateUrl : 'partials/nodeeditor.html',
 		controller : 'newarticle',
 	});
+	$routeProvider.when('/uploads', {
+		templateUrl : 'uploads/images/test.html',
+		controller : 'newarticle',
+	});
+	
 	$routeProvider.otherwise({
 		redirectTo : '/frontpage'
 	});
@@ -40,7 +45,11 @@ App.controller('articleoverview', function($scope) {
 App.controller('newarticle', function($scope) {
 	tinymce.init({
 	    selector: "textarea",
-	    plugins: "save",
+	    plugins: "save image", image_advtab:true, 
+	    file_browser_callback: 
+	    	function(field_name, url, type, win) {
+	    		if (type=='image') $('#upload_form input').click();
+	    	},
 	    toolbar: "save",
 	    body_id: "sad",
 	    save_enablewhendirty: false,
