@@ -4,28 +4,25 @@
 var nodeEditor = angular.module('nodeeditor',[]);
 
 
-nodeEditor.saveNodes = function($scope, $http) {
-	alert("save nodes");
-	console.log("save");
-	
-};
-
 nodeEditor.initNodes = function($scope, $http) {
 	
 	$scope.nodes = null;
+	$('#grapheditor').block();
 	
 	
 	//save nodes
 	$scope.saveNodes = function() {
-
+		$('#grapheditor').block();
+		
 		var data = $scope.nodes;
 		console.log("send data", data);
 		$http.post('/set/nodes', data)
 		.success(function(data, status, headers, config){
 			console.log("Nodes saved!");
-			alert("Gespeichert!");
+			$('#grapheditor').unblock();
 		}).error(function(data, status, headers, config){
 			alert("I can't do this, Dave!");
+			$('#grapheditor').unblock();
 		});
 	};
 
@@ -34,12 +31,12 @@ nodeEditor.initNodes = function($scope, $http) {
          $scope.nodes.deletedNodes = Array();
          
       // set up SVG for D3
-         var width  = jQuery('#grapheditor').width(),
-             height = jQuery('#grapheditor').height(),
+         var width  = $('#grapheditor').width(),
+             height = $('#grapheditor').height(),
              colors = d3.scale.category10();
 
          var svg = d3.select('#grapheditor')
-           .nodeEditorend('svg')
+           .append('svg')
            .attr('width', width)
            .attr('height', height);
 
@@ -80,15 +77,18 @@ nodeEditor.initNodes = function($scope, $http) {
              .linkDistance(150)
              .charge(-500)
              .on('tick', tick);
+         
+         //unblock element
+         $('#grapheditor').unblock();
 
          // line displayed when dragging new nodes
-         var drag_line = svg.nodeEditorend('svg:path')
+         var drag_line = svg.append('svg:path')
            .attr('class', 'link dragline hidden')
            .attr('d', 'M0,0L0,0');
 
          // handles to link and node element groups
-         var path = svg.nodeEditorend('svg:g').selectAll('path'),
-             circle = svg.nodeEditorend('svg:g').selectAll('g');
+         var path = svg.append('svg:g').selectAll('path'),
+             circle = svg.append('svg:g').selectAll('g');
 
          // mouse event vars
          var selected_node = null,
@@ -148,7 +148,7 @@ nodeEditor.initNodes = function($scope, $http) {
 
 
            // add new links
-           path.enter().nodeEditorend('svg:path')
+           path.enter().append('svg:path')
              .attr('class', 'link')
              .classed('selected', function(d) { return d === selected_link; })
              .style('marker-start', function(d) { return d.left ? 'url(#start-arrow)' : ''; })
@@ -178,9 +178,9 @@ nodeEditor.initNodes = function($scope, $http) {
              
              
            // add new nodes
-           var g = circle.enter().nodeEditorend('svg:g');
+           var g = circle.enter().append('svg:g');
 
-           g.nodeEditorend('svg:circle')
+           g.append('svg:circle')
              .attr('class', 'node')
              .attr('r', 15)
              .style('fill', function(d) { return (d === selected_node) ? d3.rgb(colors(d.id)).brighter().toString() : colors(d.id); })
@@ -261,9 +261,9 @@ nodeEditor.initNodes = function($scope, $http) {
              });
 
            // show node IDs
-           //console.log("nodeEditorend text", g);
+           //console.log("append text", g);
            circle.selectAll('text').remove();
-           circle.nodeEditorend('text')
+           circle.append('text')
                .attr('x', 0)
                .attr('y', 4)
                .attr('class', 'id')
@@ -403,7 +403,7 @@ nodeEditor.initNodes = function($scope, $http) {
            }
          }
 
-         // nodeEditor starts here
+         // app starts here
          svg.on('mousedown', mousedown)
            .on('mousemove', mousemove)
            .on('mouseup', mouseup);
@@ -413,8 +413,6 @@ nodeEditor.initNodes = function($scope, $http) {
            .on('keyup', keyup);
          
          restart();
-
-         
          
          return result.data;
      });

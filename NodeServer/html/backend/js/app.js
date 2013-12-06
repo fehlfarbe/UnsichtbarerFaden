@@ -82,4 +82,3 @@ App.articleList = function($scope, $http) {
          return result.data;
      });
 };
-
