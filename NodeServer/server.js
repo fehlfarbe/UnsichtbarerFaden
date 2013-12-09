@@ -11,16 +11,19 @@ var multiparty = require('multiparty');
  *  
  *  **************************************************************/
 var connection = mysql.createConnection({
-	  host     : 'localhost',
-	  user     : 'faden',
-	  password : 'unsichtbar',
-	  database : 'derunsichtbarefaden'
+	  	host     	: 'kolbe.no-ip.org',
+		user     	: 'faden',
+		password 	: 'unsichtbar',
+		database 	: 'derunsichtbarefaden'
 });
 
 connection.connect(function(err) {
 	if( err ){
 		console.log("Database error!");
 		console.log(err);
+		throw err;
+	} else {
+		console.log("Connected to Database");
 	}
 });
 
