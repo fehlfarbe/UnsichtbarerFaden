@@ -1,7 +1,13 @@
 <div ng-controller="App.articleList">
 	{{ articles.length }} Einträge vorhanden
-	<ul ng-repeat="article in articles">
-		<li><strong>{{article.name}}:</strong> <span>{{article.text}}</span>
+	<ul>
+		<li ng-repeat="article in articles">
+			<strong>{{article.name}}:</strong>
+			<span ng-bind-html-unsafe="article.text"></span>
+			<br />
+			<b>Kategorien:</b>
+			<span ng-repeat="cat in article.category">{{cat.name}} </span>
+			<img ng-src="{{article.screen}}" />
 		</li>
 	</ul>
 </div>

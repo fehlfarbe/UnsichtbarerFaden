@@ -42,7 +42,7 @@ App.controller('articleoverview', function($scope) {
 });
 
 //backend new article controller
-App.controller('newarticle', function($scope) {
+App.controller('newarticle', function($scope, $http) {
 	tinymce.init({
 	    selector: "textarea",
 	    plugins: "save image", image_advtab:true, 
@@ -57,12 +57,58 @@ App.controller('newarticle', function($scope) {
 	    	function() {
 		    	html2canvas(tinymce.activeEditor.getBody(),  {
 		    		onrendered: function(canvas) {
-		    			document.body.appendChild(canvas);
+		    			$('#editor').block();
+		    			//document.body.appendChild(canvas);
+		    			//setup data
+		    			var article = new Object();
+		    			article.screen = canvas.toDataURL();
+		    			article.headline = $('#headline').val();
+		    			article.content = tinymce.activeEditor.getContent();
+		    			article.categories = $("#category").val();
+		    					    			
+		    			console.log(article);
+		    			
+		    			if( article.headline == ""){
+		    				alert("Keine Überschrift!");
+		    				$('#editor').unblock();
+		    				return;
+		    			} else if ( article.content == "" ){
+		    				alert("Kein Text!");
+		    				$('#editor').unblock();
+		    				return;
+		    			} else if( article.categories == null ){
+		    				alert("Achtung! Keine Kategorien gewählt");
+		    			}
+		    			
+		    			$http.post('/save/article', article)
+		    			.success(function(data, status, headers, config){
+		    				console.log("article saved!");
+		    				$('#editor').unblock();
+		    			}).error(function(data, status, headers, config){
+		    				alert("I can't do this, Dave!");
+		    				console.log(data, status, headers);
+		    				$('#editor').unblock();
+		    			});
+		    			console.log("saved!");
 		    		}
 		    	});
-//	    	console.log("Save");
 	    }
 	 });
+	
+	// chosen init
+	$("#category").chosen();
+	$("#categoryContainer").block({message : "Lade Kategorien...", css : ""});
+	$http.get('/get/nodes').then(function(result) {
+		console.log(result);
+		var categories = result.data.nodes;
+		
+		for(var i=0; i<categories.length; i++)
+			$("#category").append("<option value='" + categories[i].id + "'>" + categories[i].name + "</option>");
+		
+		$("#category").trigger("chosen:updated");
+		
+		$("#categoryContainer").unblock();
+	});
 
 	console.log('Hello from the newarticle Controller');
 });
@@ -78,7 +124,7 @@ App.articleList = function($scope, $http) {
 	//Testarticles
 	$scope.articles = $http.get('/get/articles')
 	.then(function(result) {
-         //resolve the promise as the data
+		console.log(result.data);
          return result.data;
      });
 };

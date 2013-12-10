@@ -49,7 +49,55 @@ app.use(express.static(__dirname + '/html'));
 app.post('agent', function(req, res) {
 	
 	// ToDo: implement agent
+	console.log("implement the fuckling agent!");
 	
+});
+
+/**** Save article ******/
+app.post('/save/article', function(req, res) {
+	console.log("save the fuck!");
+	
+    if (req.method == 'POST') {
+        var body = '';
+        
+        req.on('data', function (data) {
+            body += data;
+        });
+        
+        req.on('end', function () {
+        	
+        	var data = JSON.parse(body);
+        	var catLength = data.categories.length;
+        	
+        	if( data.id != null){
+        		//update
+        		
+        		
+        	} else {
+        		//new article
+        		var article = { name : data.headline, text : data.content, screen : data.screen };
+        		connection.query("INSERT INTO articles SET ?", article, function(err, result) {
+        			if(err) throw err;
+        			
+        			var id = result.insertId;
+        			for(var i=0; i<data.categories.length; i++){
+        				var c = { articleid : id, nodeid : data.categories[i]};
+        				connection.query("INSERT INTO articlenodes SET ?", c, function(err, result) {
+        					if(err) throw err;
+        					
+        					if( --catLength <= 0)
+        						res.send("OK");        						
+        				});
+        			}
+        			
+        			//console.log("article " + data.headline + " saved!");
+        			//res.send("OK");
+        		});       		
+        	}        	
+        });
+    } else {
+    	res.send("Error", 500);
+    }
 });
 
 /**** Image Upload ******/
@@ -80,11 +128,48 @@ app.post('/upload', function(req, res) {
 /*** articels ***/
 app.get('/get/articles', function(req, res) {
 	
-	connection.query('SELECT articleid AS id, name, text FROM articles', function(err, articles, fields) {
+	var query = 'SELECT articles.articleid AS id, articles.name AS name, text, screen, nodes.nodeid AS nodeid, nodes.name AS category ' +
+				'FROM articles ' +
+				'LEFT JOIN 	articlenodes 	ON articles.articleid = articlenodes.articleid ' +
+				'LEFT JOIN  nodes 			ON articlenodes.nodeid = nodes.nodeid '
+		
+		;
+	connection.query(query, function(err, articles, fields) {
 		  if (err) throw err;
 
-		  console.log(articles);
-		  res.send(articles);
+		  var filteredArticles = Array();
+		  var lastId = -1;
+		  for(var i=0; i<articles.length; i++){
+			  if( articles[i].id == lastId ){
+				  filteredArticles[filteredArticles.length-1].category.push({
+					  				id: articles[i].nodeid,
+					  				name : articles[i].category
+				  });
+			  } else {
+				  lastId = articles[i].id;
+				  var article = articles[i];
+				  
+				  if( Object.prototype.toString.call( article.category ) !== '[object Array]' ) {
+					  if( article.category != null)
+						  article.category = Array({ id: article.nodeid,name : article.category});
+				  }
+				  filteredArticles.push(article);
+			  }
+		  }
+		  
+		  for(var i=0; i<filteredArticles.length; i++){
+			  delete filteredArticles[i].nodeid;
+			  if( filteredArticles[i].screen == "" )
+				  filteredArticles[i].screen = null;
+			  
+			  console.log(filteredArticles[i].id + " " + filteredArticles[i].name);
+			  if( filteredArticles[i].category != null)
+				  for(var j=0; j<filteredArticles[i].category.length; j++)
+					  console.log("\t" + filteredArticles[i].category[j].id + ":" +
+							  filteredArticles[i].category[j].name);
+		  }
+		  
+		  res.send(filteredArticles);
 	});
 });
 
@@ -122,7 +207,7 @@ app.post('/set/nodes', function(req, res) {
         req.on('end', function () {
             var data = JSON.parse(body);
             
-            var datalength = data.nodes.length + data.deletedNodes.length + data.links.length;
+            var datalength = data.nodes.length + data.deletedNodes.length + data.links.length + data.deletedLinks.length;
             
             //call this for every successful query
             function decraseDatalength(){
@@ -137,7 +222,7 @@ app.post('/set/nodes', function(req, res) {
             for(var i = 0; i < data.nodes.length; i++){
             		console.log("node: " + data.nodes[i].id + ": " + data.nodes[i].name );
             		var node = {nodeid: data.nodes[i].id, name: data.nodes[i].name, x: data.nodes[i].x, y:  data.nodes[i].y};
-            		connection.query("REPLACE INTO nodes SET ?", node, function(err, result) {
+            		connection.query("INSERT INTO nodes SET ? ON DUPLICATE KEY UPDATE ?", [node, node], function(err, result) {
             			if(err) throw err;
             			decraseDatalength();
             		});
@@ -153,11 +238,21 @@ app.post('/set/nodes', function(req, res) {
             }
 
             //update links
-            console.log(data.links);
             for(var i = 0; i < data.links.length; i++){
             	console.log(data.links[i].source.id + "-> " + data.links[i].target.id + "(" + data.links[i] + ")");
             	var link = {source: data.links[i].source.id, target: data.links[i].target.id};
-        		connection.query("REPLACE INTO links SET ?", link, function(err, result) {
+        		connection.query("INSERT INTO links SET ? ON DUPLICATE KEY UPDATE ?", [link, link], function(err, result) {
+        			if(err) throw err;
+        			decraseDatalength();
+        		});
+            }
+            
+            //deleted links
+            for(var i = 0; i < data.deletedLinks.length; i++){
+            	console.log("deleted: " + data.deletedLinks[i].source.id + "->" + data.deletedLinks[i].target.id );
+            	var source = data.deletedLinks[i].source.id;
+            	var target = data.deletedLinks[i].target.id;
+            	connection.query("DELETE FROM links WHERE source = ? AND target = ?", [source, target], function(err, result) {
         			if(err) throw err;
         			decraseDatalength();
         		});

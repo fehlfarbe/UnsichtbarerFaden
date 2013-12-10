@@ -29,6 +29,7 @@ nodeEditor.initNodes = function($scope, $http) {
 	$scope.relations = $http.get('/get/nodes').then(function(result) {
 		 $scope.nodes = result.data;
          $scope.nodes.deletedNodes = Array();
+         $scope.nodes.deletedLinks = Array();
          
       // set up SVG for D3
          var width  = $('#grapheditor').width(),
@@ -365,10 +366,11 @@ nodeEditor.initNodes = function($scope, $http) {
              case 46: // delete
                if(selected_node) {
             	   $scope.nodes.deletedNodes.push(selected_node);
-                 nodes.splice(nodes.indexOf(selected_node), 1);
-                 spliceLinksForNode(selected_node);
+            	   nodes.splice(nodes.indexOf(selected_node), 1);
+            	   spliceLinksForNode(selected_node);
                } else if(selected_link) {
-                 links.splice(links.indexOf(selected_link), 1);
+            	   $scope.nodes.deletedLinks.push(selected_link);
+            	   links.splice(links.indexOf(selected_link), 1);
                }
                selected_link = null;
                selected_node = null;

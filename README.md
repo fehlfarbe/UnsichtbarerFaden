@@ -1,2 +1,2 @@
-DerRoteFaden
+Der unsichtbare Faden
 ============
