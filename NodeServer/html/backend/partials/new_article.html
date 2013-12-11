@@ -1,14 +1,16 @@
-<input id="headline" type="text"></input>
-<!-- tiny mce editor -->
-<div id="editor">
-	<textarea></textarea>
-	<iframe id = "form_target" name="form_target" style="display:none"></iframe>
-	<form id ="upload_form" method="post" action="/upload" target="form_target"  enctype="multipart/form-data" style="width:0px;height:0px;overflow:hidden">
-		<input name="image" type="file" onchange="$('#upload_form').submit();this.value='';">
-	</form>
-</div>
-
-<!-- category select -->
-<div id="categoryContainer">
-	<select id="category" data-placeholder="Kategorien wählen" style="min-width:350px;" multiple="multiple" class="chosen-select"></select>
+<div id="articleWrapper">
+	<input id="headline" type="text"></input>
+	<!-- tiny mce editor -->
+	<div id="editor">
+		<textarea id="editortext"></textarea>
+		<iframe id = "form_target" name="form_target" style="display:none"></iframe>
+		<form id ="upload_form" method="post" action="/upload" target="form_target"  enctype="multipart/form-data" style="width:0px;height:0px;overflow:hidden">
+			<input name="image" type="file" onchange="$('#upload_form').submit();this.value='';">
+		</form>
+	</div>
+	
+	<!-- category select -->
+	<div id="categoryContainer">
+		<select id="category" data-placeholder="Kategorien wählen" style="min-width:350px;" multiple="multiple" class="chosen-select"></select>
+	</div>
 </div>

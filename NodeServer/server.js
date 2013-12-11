@@ -68,32 +68,41 @@ app.post('/save/article', function(req, res) {
         	
         	var data = JSON.parse(body);
         	var catLength = data.categories.length;
+        	var article = { name : data.headline, text : data.content, screen : data.screen };
         	
         	if( data.id != null){
         		//update
-        		
-        		
-        	} else {
-        		//new article
-        		var article = { name : data.headline, text : data.content, screen : data.screen };
-        		connection.query("INSERT INTO articles SET ?", article, function(err, result) {
-        			if(err) throw err;
-        			
-        			var id = result.insertId;
-        			for(var i=0; i<data.categories.length; i++){
+        		article.articleid = data.id;
+        		console.log("Update!", article);        		
+        	}
+        	
+    		connection.query("INSERT INTO articles SET ? ON DUPLICATE KEY UPDATE ?", [article, article], function(err, result) {
+    			if(err) throw err;
+    			
+    			var id = data.id != null ? data.id : result.insertId;
+    			console.log(id);
+    			
+    			//delete all article->categories
+    			connection.query("DELETE FROM articlenodes WHERE articleid = ?", id, function(err, result) {
+    				if(err) throw err;
+    				
+    				//add new article->categories
+    				for(var i=0; i<data.categories.length; i++){
         				var c = { articleid : id, nodeid : data.categories[i]};
         				connection.query("INSERT INTO articlenodes SET ?", c, function(err, result) {
         					if(err) throw err;
         					
-        					if( --catLength <= 0)
-        						res.send("OK");        						
+        					if( --catLength <= 0){
+        						var r = new Object();
+        						r.id = id;
+        						res.send(r);
+        					}
+        						        						
         				});
         			}
-        			
-        			//console.log("article " + data.headline + " saved!");
-        			//res.send("OK");
-        		});       		
-        	}        	
+    				
+    			});
+    		});      	
         });
     } else {
     	res.send("Error", 500);
@@ -131,9 +140,7 @@ app.get('/get/articles', function(req, res) {
 	var query = 'SELECT articles.articleid AS id, articles.name AS name, text, screen, nodes.nodeid AS nodeid, nodes.name AS category ' +
 				'FROM articles ' +
 				'LEFT JOIN 	articlenodes 	ON articles.articleid = articlenodes.articleid ' +
-				'LEFT JOIN  nodes 			ON articlenodes.nodeid = nodes.nodeid '
-		
-		;
+				'LEFT JOIN  nodes 			ON articlenodes.nodeid = nodes.nodeid ';
 	connection.query(query, function(err, articles, fields) {
 		  if (err) throw err;
 
@@ -171,6 +178,28 @@ app.get('/get/articles', function(req, res) {
 		  
 		  res.send(filteredArticles);
 	});
+});
+
+app.post('/delete/article', function(req, res) {
+	if (req.method == 'POST') {
+        var body = '';
+        
+        req.on('data', function (data) {
+            body += data;
+        });
+        
+        req.on('end', function () {
+        	
+        	var id = JSON.parse(body);
+        	console.log("delete artice "+ id);
+        	connection.query("DELETE FROM articles WHERE articleid = ?", id, function(err, result) {
+    			if(err) throw err;
+    			
+    			res.send('OK');
+    		});
+        	
+        });
+	}	
 });
 
 /*** nodes ***/
