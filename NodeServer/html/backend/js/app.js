@@ -17,13 +17,8 @@ App.config(function($routeProvider) {
 	});
 	$routeProvider.when('/nodeeditor', {
 		templateUrl : 'partials/nodeeditor.html',
-		controller : 'newarticle',
+		controller : 'nodeeditor',
 	});
-	$routeProvider.when('/uploads', {
-		templateUrl : 'uploads/images/test.html',
-		controller : 'newarticle',
-	});
-	
 	$routeProvider.otherwise({
 		redirectTo : '/frontpage'
 	});
@@ -37,48 +32,51 @@ App.controller('frontpage', function($scope) {
 });
 
 //backend article overview controller
-App.controller('articleoverview', function($scope) {
+App.controller('articleoverview', function($scope, $http) {
+	
 	console.log('Hello from the Article overview Controller');
-});
-
-//backend new article controller
-App.controller('newarticle', function($scope) {
-	tinymce.init({
-	    selector: "textarea",
-	    plugins: "save image", image_advtab:true, 
-	    file_browser_callback: 
-	    	function(field_name, url, type, win) {
-	    		if (type=='image') $('#upload_form input').click();
-	    	},
-	    toolbar: "save",
-	    body_id: "sad",
-	    save_enablewhendirty: false,
-	    save_onsavecallback: 
-	    	function() {
-		    	html2canvas(tinymce.activeEditor.getBody(),  {
-		    		onrendered: function(canvas) {
-		    			document.body.appendChild(canvas);
-		    		}
-		    	});
-//	    	console.log("Save");
-	    }
-	 });
-
-	console.log('Hello from the newarticle Controller');
-});
-
-App.controller('nodeditor', function($scope) {
-	console.log('Hello from the node editor Controller');
-});
-
-
-/********* FUNCTIONS *****************/
-
-App.articleList = function($scope, $http) {
+	
 	//Testarticles
 	$scope.articles = $http.get('/get/articles')
 	.then(function(result) {
          //resolve the promise as the data
          return result.data;
      });
-};
+});
+
+//backend new article controller
+App.controller('newarticle', function($scope) {
+	tinymce.init({
+	    selector: "textarea",
+	    plugins: "save image media", 
+	    file_browser_callback: 
+	    	function(field_name, url, type, win) {
+	    		if (type=='media' || type=='image') $('#upload_form input').click();
+	    	},
+	    toolbar: "save",
+	    body_id: "sad",
+	    save_enablewhendirty: false,
+	    save_onsavecallback: 
+	    	function() {
+	    		document.body.innerHTML = document.body.innerHTML + tinymce.activeEditor.getContent();
+//		    	html2canvas(tinymce.activeEditor.getBody(),  {
+//		    		onrendered: function(canvas) {
+//		    			document.body.appendChild(canvas);
+//		    		}
+//		    	});
+//	    	console.log("Save");
+		    	
+	    }
+	 });
+
+	console.log('Hello from the newarticle Controller');
+});
+
+App.controller('nodeeditor', function($scope, $http) {
+	//controls are in nodeeditor module
+	console.log('Hello from the node editor Controller');
+});
+
+
+/********* FUNCTIONS *****************/
+

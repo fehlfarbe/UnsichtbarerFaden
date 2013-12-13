@@ -4,6 +4,12 @@ var qs = require('querystring');
 var fs = require('fs');
 var connect = require('connect');
 var multiparty = require('multiparty');
+var random = require('random');
+
+
+//global variables for agent
+var clickedSymbol, nextSymbol;
+var symbols = new Array("Moeglich", "Notwendig", "Wahr", "Nicht", "Kontingent", "Unendlich", "Wirklich");
 
 /******************************************************************
  * 
@@ -38,6 +44,10 @@ app.use(express.compress()); // compress content
 app.use(express.static(__dirname + '/html'));
 
 
+//redirect to frontend
+app.get('/', function(req, res){
+  res.redirect('/frontend');
+});
 
 /******************************************************************
  * 
@@ -46,11 +56,22 @@ app.use(express.static(__dirname + '/html'));
  *  **************************************************************/
 
 /******** AGENT *********/
-app.post('agent', function(req, res) {
+app.post('/post/agent', function(req, res) {
+	
+	
+	
+	
+
+	//Get clicked symbol
+	//var choosedSymbol = req...;
 	
 	// ToDo: implement agent
 	
+	//clickedSymbol = nextSymbol;
+	res.send("moeglich");
 });
+	
+	
 
 /**** Image Upload ******/
 
@@ -77,7 +98,7 @@ app.post('/upload', function(req, res) {
 });
 
 
-/*** articels ***/
+/*** articles ***/
 app.get('/get/articles', function(req, res) {
 	
 	connection.query('SELECT articleid AS id, name, text FROM articles', function(err, articles, fields) {

@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html>
+<html ng-app="agent">
 <head>
 <meta charset="UTF-8">
 <title>Der Unsichtbare Faden</title>
@@ -15,19 +15,26 @@
 		<script src="js/postprocessing/RenderPass.js"></script>
 		<script src="js/postprocessing/MaskPass.js"></script>
 		<script src="js/postprocessing/ShaderPass.js"></script>
+<script src="/lib/angular/angular.min.js"></script>
+<script src="js/agent.js"></script>
+<script src="js/control.js"></script>
 
-
-<script src="js/vis_test.js"></script>
-<script src="js/threejs_test.js"></script>
+<!-- <script src="js/vis_test.js"></script>
+<script src="js/threejs_test.js"></script> -->
 </head>
 <body>
-
+	<div id="view" ng-view>
+		
+	</div>
+	<div ng-controller="agentController">
+	<agent-control on-click="symbolOnClick(item)"></agent-control>
 	<script type="text/javascript">
-		init();
+		/* init(); */
 		//city();
  		//cubes('spheres');
- 		draw();
+ 		//draw();
  	</script>
+ 	</div>
 	<script>
 	
 	
