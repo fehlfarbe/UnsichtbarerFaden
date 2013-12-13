@@ -1,7 +1,14 @@
-<div ng-controller="articleoverview">
+<div ng-controller="App.articleList" id="articleList">
 	{{ articles.length }} Einträge vorhanden
-	<ul ng-repeat="article in articles">
-		<li><strong>{{article.name}}:</strong> <span>{{article.text}}</span>
+	<ul>
+		<li ng-repeat="article in articles">
+			<h3>{{article.name}}:</h3>
+			<div ng-bind-html-unsafe="article.text"></div>
+			<b>Kategorien:</b>
+			<span ng-repeat="cat in article.category">{{cat.name}} </span><br />
+			<button ng-click="editArticle(article.id)">Editieren</button>
+			<button ng-click="deleteArticle(article.id)">Löschen</button>
+			<!--<img ng-src="{{article.screen}}" />  -->
 		</li>
 	</ul>
 </div>
