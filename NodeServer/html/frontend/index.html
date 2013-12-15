@@ -27,7 +27,10 @@
 		
 	</div>
 	<div ng-controller="agentController">
-	<agent-control on-click="symbolOnClick(item)"></agent-control>
+	<agent-control  on-click="symbolOnClick(item)"></agent-control>
+	<div ng-bind-html-unsafe="actualArticle">
+
+	</div>
 	<script type="text/javascript">
 		/* init(); */
 		//city();

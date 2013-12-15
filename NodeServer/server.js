@@ -5,12 +5,9 @@ var fs = require('fs');
 var connect = require('connect');
 var multiparty = require('multiparty');
 var random = require('random');
+var us = require('underscore')._;
 
-
-//global variables for agent
-var clickedSymbol, nextSymbol;
-var symbols = new Array("Moeglich", "Notwendig", "Wahr", "Nicht", "Kontingent", "Unendlich", "Wirklich");
-
+	
 /******************************************************************
  * 
  *  setup mySQL connection 
@@ -40,9 +37,13 @@ connection.connect(function(err) {
  *  **************************************************************/
 var port = 8888;
 var app = express();
+
+
 app.use(express.compress()); // compress content
 app.use(express.static(__dirname + '/html'));
-
+app.use(express.cookieParser());
+app.use(express.session({secret: '1234567890QWERTY'}));
+app.use(app.router);
 
 //redirect to frontend
 app.get('/', function(req, res){
@@ -58,26 +59,168 @@ app.get('/', function(req, res){
 /******** AGENT *********/
 app.post('/post/agent', function(req, res) {
 	
-	
-	
+	var self = this;
 	
 
-	//Get clicked symbol
-	//var choosedSymbol = req...;
-	
-	// ToDo: implement agent
-	console.log("implement the fuckling agent!");
-	
-	//clickedSymbol = nextSymbol;
-	res.send("moeglich");
+	if (req.method == 'POST') {
+		
+		var clickedSymbol = '';
+		req.on('data', function(data) {
+			clickedSymbol += data;	
+		});
+		
+		req.session.last = clickedSymbol;
+		req.on('end', function() {
+			console.log(clickedSymbol);
+			
+			//fake agent ;)
+			connection.query("SELECT text FROM articles", [], function(err, result) {
+					if (err) throw err;
+					res.send(result[random.rand(0,result.length - 1)].text);
+			});
+
+
+			//get random article ID on start
+//			if (self.lastArticleID == null) {
+//				connection.query("SELECT articleid FROM articlenodes", [], function(err, result) {
+//					if (err) throw err;
+//					self.lastArticleID = result[random.rand(0,result.length - 1)].articleid;
+//					console.log("actual " + self.lastArticleID);
+//					res.send("send" + self.lastArticleID);
+//				});
+//			} else {
+//			
+//				var nextArticles = new Array();
+//				
+//				switch(clickedSymbol) {
+//				case "moeglich":
+//					connection.query("SELECT nodeid FROM articlenodes WHERE articleid = ?", [self.lastArticleID], function(err, nodes) {
+//						if (err) throw err;
+//						connection.query("SELECT * FROM articlenodes", [], function(err, articlenodes){
+//							for (var i = 0; i < nodes.length; i++) {
+//								for (var j = 0; j < articlenodes.length; j++) {
+//									if (articlenodes[j].articleid != self.lastArticleID) {
+//										if (nodes[i].nodeid == articlenodes[j].nodeid) {
+//											nextArticles.push(articlenodes[j].articleid);
+//											req.session.last = articlenodes[j].nodeid;
+//											console.log("last: " + req.session.last);
+//										}
+//									}
+//								}
+//							}
+//						});
+//					});
+//					if (nextArticles.length != 0)
+//						self.lastArticleID = us.uniq(nextArticles)[random.rand(0,nextArticles.length-1)];
+//					//res.send(self.lastArticleID);
+//					break;
+//				case "notwendig":
+//					connection.query("SELECT nodeid FROM articlenodes WHERE articleid = ?", [self.lastArticleID], function(err, nodes) {
+//						if (err) throw err;
+//						self.lastArticleID = nodes[random.rand(0,nodes.length - 1)].articleid;
+//						console.log(nodes);
+//						connection.query("SELECT source, target FROM links ", [nodes.nodeid], function(err, links) {
+//							
+//							var targets = new Array();
+//							for (var i = 0; i < links.length; i++) {
+//								for (var j = 0; j < nodes.length; j++) {
+//									if (nodes[j].nodeid == links[i].source) {
+//										console.log(links[i]);
+//										targets.push(links[i].target);
+//									}
+//								}
+//							}
+//							connection.query("SELECT articlenodes.articleid  FROM articlenodes, links WHERE articlenodes.nodeid = ?", [targets[random.rand(0,targets.length)]] ,function(err,articleid){
+//								
+//								console.log(articleid);
+//							});
+//							
+//						});
+//						
+//						self.lastArticleID = result[random.rand(0,result.length - 1)].articleid;
+//					});
+//					self.lastArticleID = 10;
+//					nextArticles.push(10);
+//					console.log("nextArticles " + nextArticles[0]);
+//					break;
+//				case "wirklich" :
+//					connection.query("SELECT * FROM articlenodes ORDER BY articleid", [], function(err, articlenodes) {
+//						console.log(articlenodes);
+//						if (err) throw err;
+//						connection.query("SELECT nodeid FROM articlenodes WHERE articleid = ?", [self.lastArticleID], function(err, nodes) {
+//							if (err) throw err;
+//							var articleids = new Array();
+//							var lastArticleid, nextArticleid;
+//							var counter = 0;
+//							for (var i = 0; i < nodes.length; i++) {
+//								for (var j = 0; j < articlenodes.length; j++) {
+//									nextArticleid = articlenodes[j].articleid;
+//									if (nextArticleid != self.lastArticleID) {
+//										if (nodes[i].nodeid == articlenodes[j].nodeid && lastArticleid == nextArticleid) {
+//											
+//										}
+//									}
+//									articleids.push(articlenodes[i].articleid);
+	//								if (articleid != lastArticleid[i] || lastArticleid == null) {
+	//									lastArticleid.push(articleid);
+	//								}
+	//								console.log("a: " +lastArticleid);
+									//console.log("l: " +lastArticleid);
+//								}
+//							}
+//							
+//							articleids = us.uniq(articleids);
+//							console.log(articleids);
+//							console.log("last: " + req.session.last);
+//							nodes;
+//						});
+//					});
+//					
+//					//nextArticles.push(10);
+//					if (nextArticles.length != 0)
+//						self.lastArticleID = 13;
+//					
+//					//res.send(self.lastArticleID);
+//					break;
+//				case "unendlich" :
+//					connection.query("SELECT articleid FROM articlenodes GROUP BY articleid", [], function(err, articleids) {
+//						for (var i = 0; i < articleids.length; i++) {
+//							nextArticles.push(articleids[i].articleid);
+//						}
+//						if (nextArticles.length != 0)
+//							self.lastArticleID = nextArticles[random.rand(0,nextArticles.length-1)];
+//						console.log("next " + nextArticles);
+//						
+//						console.log(self.lastArticleID);
+//					});
+//					console.log("next " + nextArticles);
+//					res.send("unendlich " + self.lastArticleID);
+//					break;
+//				case "wahr" :
+//					break;
+//				case "kontingent" :
+//					break
+//				case "nicht" :
+//					break;
+//				}
+//			
+//			
+//				res.send("d " + self.lastArticleID);
+//		}
+			
+			
+			
+			
+		
+		});
+	};
+	//res.send("asd " + self.lastArticleID);
+	//console.log("last " + self.lastArticleID);
 });
-	
 	
 
 /**** Save article ******/
 app.post('/save/article', function(req, res) {
-	console.log("save the fuck!");
-	
     if (req.method == 'POST') {
         var body = '';
         

@@ -63,7 +63,24 @@ function agentController($scope, $http) {
 				.on("mouseover", function () {d3.select(this).style("opacity","0.5");})
 				.on("mouseout", function() {d3.select(this).style("opacity","1");})
 				.on("click", function(d) { return scope.onClick({item: d.symbol});});
-		}
+		
+		
+			console.log(symbol);
+		
+			
+			$http.post("/post/agent", symbol)
+				.success(function(actualArticle) {
+					
+					$scope.actualArticle = actualArticle;
+					console.log("aktueller Artikel " + $scope.actualArticle);
+				})
+				.error(function(err){
+					
+				});
+		};
+		
+		
+		console.log($scope.actualArticle);
 
 //		$http.get('/get/agent')
 //			.success(function(symbols) {
@@ -77,21 +94,11 @@ function agentController($scope, $http) {
 //		
 //		$scope.clickedSymbol;
 //		
-//		$scope.sendSymbol = function() {
-//			
-//			$http.post("/post/agent")
-//				.success(function(symbol) {
-//					console.log("Symbol" + symbol);
-//				})
-//				.error(function(err){
-//					
-//				});
-//		};
+		
 };
 
 
-
-//directive tag <agent-control>, ermoeglicht Verknuepfung angular und d3
+/** directive tag <agent-control>, ermoeglicht Verknuepfung angular und d3 **/
 agent.directive('agentControl', function() {
 	return {
 		restrict:'E',
