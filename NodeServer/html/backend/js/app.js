@@ -36,11 +36,12 @@ App.controller('articleoverview', function($scope, $http) {
 	
 	console.log('Hello from the Article overview Controller');
 	
-	//Testarticles
+	//Get article
+	$('#articleList').block({ message : "<h2>Lade Einträge</h2>"} );
 	$scope.articles = $http.get('/get/articles')
 	.then(function(result) {
-         //resolve the promise as the data
-         return result.data;
+		$('#articleList').unblock();
+        return result.data;
      });
 });
 
@@ -72,6 +73,7 @@ App.controller('newarticle', function($scope, $http, $location) {
 		    			article.headline = $('#headline').val();
 		    			article.content = tinymce.activeEditor.getContent();
 		    			article.categories = $("#category").val();
+		    			article.symbol = $("#symbol").val();
 		    			if( id != undefined )
 		    				article.id = id;
 		    					    			
@@ -87,6 +89,10 @@ App.controller('newarticle', function($scope, $http, $location) {
 		    				return;
 		    			} else if( article.categories == null ){
 		    				alert("Achtung! Keine Kategorien gewählt");
+		    				$("#articleWrapper").unblock();
+		    				return;
+		    			} else if( article.symbol == null){
+		    				alert("Achtung! Kein Symbol gewählt");
 		    				$("#articleWrapper").unblock();
 		    				return;
 		    			}
@@ -108,12 +114,19 @@ App.controller('newarticle', function($scope, $http, $location) {
 	
 	// chosen init
 	$("#category").chosen();
-	$http.get('/get/nodes').then(function(result) {
+	$("#symbol").chosen();
+	$http.get('/get/nodessymbols').then(function(result) {
+		
+		//categories
 		var categories = result.data.nodes;		
 		for(var i=0; i<categories.length; i++)
-			$("#category").append("<option value='" + categories[i].id + "'>" + categories[i].name + "</option>");
-		
+			$("#category").append("<option value='" + categories[i].id + "'>" + categories[i].name + "</option>");		
 		$("#category").trigger("chosen:updated");
+		
+		var symbols = result.data.symbols;
+		for(var i=0; i<symbols.length; i++)
+			$("#symbol").append("<option value='" + symbols[i].id + "'>" + symbols[i].name + "</option>");		
+		$("#symbol").trigger("chosen:updated");
 		
 		//// edit article
 		if( id != undefined ){
@@ -132,18 +145,28 @@ App.controller('newarticle', function($scope, $http, $location) {
 						//set chosen categories
 						console.log("categories:", article.category);
 						console.log($("#category"));
-						var selectedCategories = Array();
-						for(var j=0; j<article.category.length; j++){
-							selectedCategories.push(article.category[j].id);
-						}
-						console.log(selectedCategories);
-						
-						for(var j=0; j<$("#category")[0].length; j++){
-							if(selectedCategories.indexOf(parseInt($("#category")[0][j].value)) >= 0){
-								$("#category")[0][j].selected = true;
-								$("#category").trigger("chosen:updated");
+						if(article.category != null){
+							var selectedCategories = Array();
+							for(var j=0; j<article.category.length; j++){
+								selectedCategories.push(article.category[j].id);
 							}
-						}						
+							console.log(selectedCategories);
+							
+							for(var j=0; j<$("#category")[0].length; j++){
+								if(selectedCategories.indexOf(parseInt($("#category")[0][j].value)) >= 0){
+									$("#category")[0][j].selected = true;
+									$("#category").trigger("chosen:updated");
+								}
+							}					
+						}
+						
+						//set symbol
+						if( article.symID != null){
+							$('#symbol').val(article.symID);
+							$("#symbol").trigger("chosen:updated");
+						}
+						
+												
 						
 						$("#articleWrapper").unblock();
 						return;

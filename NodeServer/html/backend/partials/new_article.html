@@ -1,7 +1,15 @@
 <div id="articleWrapper">
-	<input id="headline" type="text"></input>
+	
+	<!-- headline -->
+	<input id="headline" type="text" class="articleHeadline"></input>
+	
+	<!-- symbol -->
+	<div id="symbolContainer" class="articleSymbol">
+		<select id="symbol" data-placeholder="Symbol wählen" class="chosen-select"></select>
+	</div>	
+	
 	<!-- tiny mce editor -->
-	<div id="editor">
+	<div id="editor" class="articleEditor">
 		<textarea id="editortext"></textarea>
 		<iframe id = "form_target" name="form_target" style="display:none"></iframe>
 		<form id ="upload_form" method="post" action="/upload" target="form_target"  enctype="multipart/form-data" style="width:0px;height:0px;overflow:hidden">
@@ -10,7 +18,7 @@
 	</div>
 	
 	<!-- category select -->
-	<div id="categoryContainer">
+	<div id="categoryContainer" class="articleCategories">
 		<select id="category" data-placeholder="Kategorien wählen" style="min-width:350px;" multiple="multiple" class="chosen-select"></select>
 	</div>
 </div>

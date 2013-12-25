@@ -232,7 +232,7 @@ app.post('/save/article', function(req, res) {
         	
         	var data = JSON.parse(body);
         	var catLength = data.categories.length;
-        	var article = { name : data.headline, text : data.content, screen : data.screen };
+        	var article = { name : data.headline, text : data.content, screen : data.screen, symbol : data.symbol };
         	
         	if( data.id != null){
         		//update
@@ -301,10 +301,13 @@ app.post('/upload', function(req, res) {
 /*** articles ***/
 app.get('/get/articles', function(req, res) {
 	
-	var query = 'SELECT articles.articleid AS id, articles.name AS name, text, screen, nodes.nodeid AS nodeid, nodes.name AS category ' +
+	var query = 'SELECT articles.articleid AS id, articles.name AS name, text, screen, ' +
+						'symbols.id AS symID, symbols.name AS symName, symbols.image AS symImg, ' + 
+						'nodes.nodeid AS nodeid, nodes.name AS category ' +
 				'FROM articles ' +
 				'LEFT JOIN 	articlenodes 	ON articles.articleid = articlenodes.articleid ' +
-				'LEFT JOIN  nodes 			ON articlenodes.nodeid = nodes.nodeid ';
+				'LEFT JOIN  nodes 			ON articlenodes.nodeid = nodes.nodeid ' +
+				'JOIN symbols ON articles.symbol = symbols.id';
 	connection.query(query, function(err, articles, fields) {
 		  if (err) throw err;
 
@@ -367,20 +370,29 @@ app.post('/delete/article', function(req, res) {
 });
 
 /*** nodes ***/
-app.get('/get/nodes', function(req, res) {
+app.get('/get/nodessymbols', function(req, res) {
 	
 	connection.query('SELECT nodeid AS id, nodes.name AS name, x, y FROM nodes', function(err, nodes, fields) {
 		if (err) throw err;
 		
+		console.log("Got nodes...");		
 		connection.query('SELECT * FROM links', function(err, links, fields) {
 			if (err) throw err;
 			
+			console.log("Got links...");			
 			var list = new Object();
 			list.nodes = nodes;
 			list.links = links;
 			
-			console.log(list);
-			res.send(list);
+			connection.query('SELECT * FROM symbols', function(err, symbols, fields) {
+				if (err) throw err;
+
+				console.log("Got symbols...");
+				list.symbols = symbols;
+				console.log(list);
+				res.send(list);
+			});
+			
 			
 		});
 	});
