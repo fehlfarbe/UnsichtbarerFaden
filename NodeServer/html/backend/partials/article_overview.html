@@ -6,6 +6,7 @@
 			<div ng-bind-html-unsafe="article.text"></div>
 			<b>Kategorien:</b>
 			<span ng-repeat="cat in article.category">{{cat.name}} </span><br />
+			<b>Symbol:</b> {{article.symName}}<br />
 			<button ng-click="editArticle(article.id)">Editieren</button>
 			<button ng-click="deleteArticle(article.id)">Löschen</button>
 			<!--<img ng-src="{{article.screen}}" />  -->

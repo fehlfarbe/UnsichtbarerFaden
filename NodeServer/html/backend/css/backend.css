@@ -22,3 +22,29 @@ div#view{
 	padding-top: 45px;
 	
 }
+
+.articleHeadline{
+	min-width: 300px;
+	padding: 5px;
+	margin: 5px;
+	font-size: medium;
+	font-weight: bold;
+	/* clear:both; */
+}
+
+.articleEditor{
+	margin: 5px;
+}
+
+.articleCategories{
+	margin: 5px;
+}
+
+.articleSymbol{
+	padding: 10px;
+	float: left;
+}
+
+.articleSymbol select{
+	width: 100px;
+}
