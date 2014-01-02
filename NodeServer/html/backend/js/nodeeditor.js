@@ -26,7 +26,7 @@ nodeEditor.initNodes = function($scope, $http) {
 		});
 	};
 
-	$scope.relations = $http.get('/get/nodes').then(function(result) {
+	$scope.relations = $http.get('/get/nodessymbols').then(function(result) {
 		 $scope.nodes = result.data;
          $scope.nodes.deletedNodes = Array();
          $scope.nodes.deletedLinks = Array();
@@ -45,7 +45,6 @@ nodeEditor.initNodes = function($scope, $http) {
          //  - nodes are known by 'id', not by index in array.
          //  - reflexive edges are indicated on the node (as a bold black circle).
          //  - links are always source < target; edge directions are set by 'left' and 'right'.
-         console.log(nodes);
          var nodes = result.data.nodes;
          var lastNodeId = 0;
          for(var i = 0; i < nodes.length; i++)

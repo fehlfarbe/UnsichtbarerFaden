@@ -16,6 +16,7 @@ div#menu{
 div#menu li{
 	list-style: none;
 	display: inline;
+	margin: 5px;
 }
 
 div#view{
@@ -46,5 +47,5 @@ div#view{
 }
 
 .articleSymbol select{
-	width: 100px;
+	width: 120px;
 }

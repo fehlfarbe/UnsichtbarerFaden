@@ -78,6 +78,24 @@ app.post('/post/agent', function(req, res) {
 					if (err) throw err;
 					res.send(result[random.rand(0,result.length - 1)].text);
 			});
+			
+			//get the next symbols from article symbol id
+			var symbol = 1; //moeglich
+			if( symbol == 4){ 
+				//symbol = NICHT --> Exit
+				console.log("EXIT");
+			}
+			
+			var query = "SELECT symbols.id, symbols.name, symbols.icon FROM symlinks " +
+						"JOIN symbols " +
+						"ON symlinks.target = symbols.id " +
+						"WHERE source = ?";
+			
+			connection.query(query, symbol, function(err, symbols, fields) {
+				if(err) throw err;
+				
+				console.log(symbols);
+			});
 
 
 			//get random article ID on start
@@ -302,7 +320,7 @@ app.post('/upload', function(req, res) {
 app.get('/get/articles', function(req, res) {
 	
 	var query = 'SELECT articles.articleid AS id, articles.name AS name, text, screen, ' +
-						'symbols.id AS symID, symbols.name AS symName, symbols.image AS symImg, ' + 
+						'symbols.id AS symID, symbols.name AS symName, symbols.icon AS symIcon, ' + 
 						'nodes.nodeid AS nodeid, nodes.name AS category ' +
 				'FROM articles ' +
 				'LEFT JOIN 	articlenodes 	ON articles.articleid = articlenodes.articleid ' +

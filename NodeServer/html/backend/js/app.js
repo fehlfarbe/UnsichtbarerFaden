@@ -125,7 +125,7 @@ App.controller('newarticle', function($scope, $http, $location) {
 		
 		var symbols = result.data.symbols;
 		for(var i=0; i<symbols.length; i++)
-			$("#symbol").append("<option value='" + symbols[i].id + "'>" + symbols[i].name + "</option>");		
+			$("#symbol").append("<option value='" + symbols[i].id + "'>" + symbols[i].icon + ' ' + symbols[i].name + "</option>");		
 		$("#symbol").trigger("chosen:updated");
 		
 		//// edit article
