@@ -100,7 +100,7 @@ nodeEditor.initNodes = function($scope, $http) {
          
          function nodeExists(name){
              for(var i=0; i<nodes.length; i++){
-          	   if(nodes[i].name == name){
+          	   if(nodes[i].name.toLowerCase() == $.trim(name.toLowerCase()) ){
           		   return true;
           	   }
              }
@@ -294,7 +294,7 @@ nodeEditor.initNodes = function($scope, $http) {
            if(d3.event.ctrlKey || mousedown_node || mousedown_link) return;
 
            // insert new node at point
-           var name = prompt("Name","Neuer Knoten");
+           var name = $.trim(prompt("Name","Neuer Knoten"));
            if(name == '' || name == null)
         	   return;
            if(nodeExists(name)){
@@ -380,8 +380,10 @@ nodeEditor.initNodes = function($scope, $http) {
              case 82: // rename
                if(selected_node) {
                  // toggle node reflexivity
-            	 var name = prompt("Neuer Name", selected_node.name);
-            	 if(name != '' && name != null && !nodeExists(name)){
+            	 var name = $.trim(prompt("Neuer Name", selected_node.name));
+            	 if(name != '' && name != null){
+            		 if( name.toLowerCase() != selected_node.name.toLowerCase() && nodeExists(name))
+            			 break;
             		 selected_node.name = name;
             		 //console.log(name);
             		 console.log("nodes", nodes);

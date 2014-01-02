@@ -1,8 +1,9 @@
 #grapheditor{
 	border: 1px solid #000;
-	width: 500px;
+	width: 80%;
 	height: 500px;
 	overflow: hidden;
+	margin: 10px auto;
 }
 
 svg {

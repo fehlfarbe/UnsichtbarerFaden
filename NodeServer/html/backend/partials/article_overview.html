@@ -1,15 +1,20 @@
 <div ng-controller="App.articleList" id="articleList">
 	{{ articles.length }} Einträge vorhanden
-	<ul>
-		<li ng-repeat="article in articles">
-			<h3>{{article.name}}:</h3>
-			<div ng-bind-html-unsafe="article.text"></div>
-			<b>Kategorien:</b>
-			<span ng-repeat="cat in article.category">{{cat.name}} </span><br />
-			<b>Symbol:</b> <span ng-bind-html-unsafe="article.symIcon"></span> {{article.symName}}<br />
-			<button ng-click="editArticle(article.id)">Editieren</button>
-			<button ng-click="deleteArticle(article.id)">Löschen</button>
+		<div class="article" ng-repeat="article in articles">
+			<div class="articleHead">
+				<span ng-bind-html-unsafe="article.symIcon"></span> 
+				{{article.name}}				
+			</div>
+			<div class="articleText" ng-bind-html-unsafe="article.text"></div>
+			<div class="articleCat">
+				<b>Kategorien:</b>
+				<span ng-repeat="cat in article.category">{{cat.name}} </span>
+			</div>
+			<div class="articleButtons">
+					<button ng-click="editArticle(article.id)">Editieren</button>
+					<button ng-click="deleteArticle(article.id)">Löschen</button>
+			</div>
+			<!-- <b>Symbol:</b>  {{article.symName}}<br />  -->
 			<!--<img ng-src="{{article.screen}}" />  -->
-		</li>
-	</ul>
+		</div>
 </div>

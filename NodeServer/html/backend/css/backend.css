@@ -24,6 +24,33 @@ div#view{
 	
 }
 
+/** ARTICLE OVERVIEW ***/
+.article{
+	margin: 12px auto;
+	width: 500px;
+	border: 1px solid #333;
+	border-radius: 5px;
+}
+
+.article .articleHead{
+	font-weight: bold;
+}
+
+.article .articleText,
+.article .articleButtons,
+.article .articleCat,
+.article .articleHead
+{
+	padding: 3px;
+	border-bottom: 1px solid #999;
+}
+
+.article .articleButtons{
+	text-align: right;
+	border-bottom: none;
+}
+
+/*** EDITOR ***/
 .articleHeadline{
 	min-width: 300px;
 	padding: 5px;
