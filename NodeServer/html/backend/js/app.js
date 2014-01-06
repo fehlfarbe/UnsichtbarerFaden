@@ -74,6 +74,7 @@ App.controller('newarticle', function($scope, $http, $location) {
 		    			article.content = tinymce.activeEditor.getContent();
 		    			article.categories = $("#category").val();
 		    			article.symbol = $("#symbol").val();
+		    			article.book = $('#book').val();
 		    			if( id != undefined )
 		    				article.id = id;
 		    					    			
@@ -95,7 +96,13 @@ App.controller('newarticle', function($scope, $http, $location) {
 		    				alert("Achtung! Kein Symbol gewählt");
 		    				$("#articleWrapper").unblock();
 		    				return;
+		    			} else if( isNaN(parseInt(article.book)) || parseInt(article.book) < 0 ){
+		    				alert("Fehler bei Buchnummer!");
+		    				$("#articleWrapper").unblock();
+		    				return;
 		    			}
+		    			
+		    			console.log(parseInt(article.book));
 		    			
 		    			$http.post('/save/article', article)
 		    			.success(function(data, status, headers, config){
@@ -136,10 +143,11 @@ App.controller('newarticle', function($scope, $http, $location) {
 					if(result.data[i].id == id){
 						var article = result.data[i];
 						console.log(article);
-						console.log('editor', $('#editortext'));
+						console.log('editor', $('#editortext'));						
 						
-						//set headline, editor text
+						//set headline, book id, editor text
 						$('#headline').val(article.name);
+						$('#book').val(article.book);
 						tinyMCE.activeEditor.selection.setContent(article.text);
 						
 						//set chosen categories

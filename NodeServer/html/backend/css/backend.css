@@ -51,13 +51,18 @@ div#view{
 }
 
 /*** EDITOR ***/
-.articleHeadline{
+.articleHeadline, .articlebook{
 	min-width: 300px;
 	padding: 5px;
 	margin: 5px;
 	font-size: medium;
 	font-weight: bold;
 	/* clear:both; */
+}
+
+.articlebook{
+	min-width: 40px;
+	width: 40px !important;
 }
 
 .articleEditor{

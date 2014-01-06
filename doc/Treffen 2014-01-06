@@ -2,3 +2,7 @@
 - Agent sucht im selben Tagebuch oder in den nächsten, wenn keine Schlagwörter / Suchkriterium nicht passt oder Artikel bereits gelesen wurden -> gelesene Artikel speichern
 
 - Bei Random wird dies nicht beachtet
+
+- Zoomlevel anhand der Anzahl der gelesenen Artikel prozentual von der Gesamtanzahl der Artikel
+
+Leichte Bewegungen wie bei http://www.ro.me/ mit Maus

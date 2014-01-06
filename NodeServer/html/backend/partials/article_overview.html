@@ -3,12 +3,14 @@
 		<div class="article" ng-repeat="article in articles">
 			<div class="articleHead">
 				<span ng-bind-html-unsafe="article.symIcon"></span> 
-				{{article.name}}				
+				{{article.name}}
 			</div>
 			<div class="articleText" ng-bind-html-unsafe="article.text"></div>
 			<div class="articleCat">
 				<b>Kategorien:</b>
 				<span ng-repeat="cat in article.category">{{cat.name}} </span>
+				<br />
+				<b>Tagebuch:</b> {{article.book}}
 			</div>
 			<div class="articleButtons">
 					<button ng-click="editArticle(article.id)">Editieren</button>

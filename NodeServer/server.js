@@ -250,7 +250,11 @@ app.post('/save/article', function(req, res) {
         	
         	var data = JSON.parse(body);
         	var catLength = data.categories.length;
-        	var article = { name : data.headline, text : data.content, screen : data.screen, symbol : data.symbol };
+        	var article = { name : data.headline, 
+        					text : data.content, 
+        					screen : data.screen, 
+        					symbol : data.symbol,
+        					book : data.book };
         	
         	if( data.id != null){
         		//update
@@ -319,7 +323,7 @@ app.post('/upload', function(req, res) {
 /*** articles ***/
 app.get('/get/articles', function(req, res) {
 	
-	var query = 'SELECT articles.articleid AS id, articles.name AS name, text, screen, ' +
+	var query = 'SELECT articles.articleid AS id, articles.name AS name, text, screen, book, ' +
 						'symbols.id AS symID, symbols.name AS symName, symbols.icon AS symIcon, ' + 
 						'nodes.nodeid AS nodeid, nodes.name AS category ' +
 				'FROM articles ' +
