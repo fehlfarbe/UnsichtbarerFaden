@@ -1,6 +1,7 @@
 var express = require('express');
 var mysql = require('mysql');
 var qs = require('querystring');
+var url = require('url');
 var fs = require('fs');
 var connect = require('connect');
 var multiparty = require('multiparty');
@@ -235,7 +236,332 @@ app.post('/post/agent', function(req, res) {
 	//res.send("asd " + self.lastArticleID);
 	//console.log("last " + self.lastArticleID);
 });
+
+/*
+ * Returns the possiblie navigation symbols for an article
+ */
+function getSymbols(article, callback){
+	//get symbols query
+	var symbolQuery = 	"SELECT symbols.id, symbols.name, symbols.icon FROM symlinks " +
+						"JOIN symbols " +
+						"ON symlinks.target = symbols.id " +
+						"WHERE source = ?";
 	
+	//get symbols
+	connection.query(symbolQuery, article.symbol, function(err, symbols, fields) {
+		if(err) throw err;
+		//console.log("Symbols", symbols);
+		article.symbols = symbols;
+		
+		callback(article);		
+	});
+}
+
+/*
+ * Returns id, text, symbol and book number of an article
+ */
+function getArticle(articleId, callback){
+	var query = "SELECT articleid AS id, text, symbol, book " +
+				"FROM articles " +
+				"WHERE articleid = ?";
+	
+	connection.query(query, articleId,function(err, article, fields) {
+		if(err) throw err;
+		
+		callback(article[0]);	
+	});
+}
+
+/*
+ * Returns the categories of an article
+ */
+function getCategories(articleId, callback){
+	var query = "SELECT nodeid FROM articlenodes " +
+				"WHERE articleid = ?";
+
+	connection.query(query, articleId,function(err, categories, fields) {
+		if(err) throw err;
+		
+		var catIds = Array();
+		for(var i=0; i<categories.length; i++)
+			catIds.push(categories[i].nodeid);
+		callback(catIds);
+	});
+}
+
+/*
+ * Returns the categories and directly linked categories of an article
+ */
+function getCategoriesEnv(articleId, callback){
+	getCategories(articleId, function(catIds){
+	var query = "SELECT * FROM nodes " +
+				"JOIN links " +
+				"ON nodes.nodeid = links.source OR nodes.nodeid = links.target " +
+				"WHERE links.source IN (?) OR links.target IN (?)";
+		connection.query(query, [catIds, catIds],function(err, categories, fields) {
+			if(err) throw err;
+			
+			var catIds = Array();
+			for(var i=0; i<categories.length; i++)
+				catIds.push(categories[i].nodeid);
+			
+			//remove duplicates
+			var temp = new Array();
+			catIds.sort();
+			for (i = 0; i < catIds.length; i++) {
+				if (catIds[i] == catIds[i + 1])
+					continue;
+				temp[temp.length] = catIds[i];
+			}
+			
+			callback(temp);
+		});		
+	});
+}
+
+/*
+ * The agent is called by the frontend. It selects articles by defined rules (last articles, clicked symbol..)
+ */
+app.get('/agent', function(req, res){
+	
+	//Setup params
+	var url_parts = url.parse(req.url, true);
+	var getParam = url_parts.query;
+	console.log(getParam);
+	var lastSymbol = parseInt(getParam.symbol);
+	var lastArticles = JSON.parse(getParam.lastArticles);
+	var lastArticleId = lastArticles[lastArticles.length-1];	
+	
+	//select article by symbol function
+	switch(lastSymbol){
+	case 1: //moeglich
+		/* book >= lastbook, minimum 1 equal tag */
+		console.log("Agent: possible");		
+		
+		getArticle(lastArticleId, function(lastArticle){
+			console.log("CALLBACK", lastArticle);
+			getCategories(lastArticle.id, function(categories){
+				console.log(categories);
+				
+				var query = "SELECT articles.articleid AS id, text, symbol, book FROM articles " +
+							"JOIN articlenodes " +
+							"ON articles.articleid = articlenodes.articleid " +
+							"WHERE articles.book >= ? AND articlenodes.nodeid IN (?) " +
+							"AND articles.articleid NOT IN (?) " +
+							"GROUP BY articles.articleid " +
+							"ORDER BY book ASC " +
+							"LIMIT 1";
+				connection.query(query, [lastArticle.book, categories, lastArticles],function(err, articles, fields) {
+					if(err) throw err;
+					
+					console.log(articles);
+					var article = articles[0];
+					getSymbols(article, function(article){
+						lastArticles.push(article.id);
+						article.lastArticles = lastArticles;
+						res.send(article);
+					});
+				});
+			});
+		});
+		break;
+	case 2: //notwendig
+		/* book >= lastbook, connected tag*/
+		console.log("Agent: possible");
+		
+		getArticle(lastArticleId, function(lastArticle){
+			console.log("Last Article", lastArticle);
+			getCategoriesEnv(lastArticle.id, function(categories){
+				console.log(categories);
+				
+				var query = "SELECT articles.articleid AS id, text, symbol, book FROM articles " +
+							"JOIN articlenodes " +
+							"ON articles.articleid = articlenodes.articleid " +
+							"WHERE articles.book >= ? AND articlenodes.nodeid IN (?) " +
+							"AND articles.articleid NOT IN (?) " +
+							"GROUP BY articles.articleid " +
+							"ORDER BY book ASC " +
+							"LIMIT 1";
+				connection.query(query, [lastArticle.book, categories, lastArticles],function(err, articles, fields) {
+					if(err) throw err;
+					
+					console.log(articles);
+					var article = articles[0];
+					getSymbols(article, function(article){
+						lastArticles.push(article.id);
+						article.lastArticles = lastArticles;
+						res.send(article);
+					});
+				});
+			});
+		});
+		break;
+	case 3: //wahr
+		/* book >= lastbook, max(tag==tag)*/
+		console.log("Agent: possible");
+		
+		getArticle(lastArticleId, function(lastArticle){
+			console.log("Last Article", lastArticle);
+			getCategories(lastArticle.id, function(categories){
+				console.log(categories);
+				
+				var query = "SELECT articles.articleid AS id, text, symbol, book, count(articles.articleid) AS amount FROM articles " +
+							"JOIN articlenodes " +
+							"ON articles.articleid = articlenodes.articleid " +
+							"WHERE articles.book >= ? AND articlenodes.nodeid IN (?) " +
+							"AND articles.articleid NOT IN (?) " +
+							"GROUP BY id, text, symbol, book " +
+							"ORDER BY amount DESC, book ASC " +
+							"LIMIT 1";
+				connection.query(query, [lastArticle.book, categories, lastArticles],function(err, articles, fields) {
+					if(err) throw err;
+					
+					console.log(articles);
+					var article = articles[0];
+					
+					//delete amount because we don't need it
+					delete article.amount;
+					
+					getSymbols(article, function(article){
+						lastArticles.push(article.id);
+						article.lastArticles = lastArticles;
+						res.send(article);
+					});
+				});
+			});
+		});
+		break;
+	case 4: //nicht -> ausstieg
+		/* Print END article */
+		console.log("Agent: not");
+		
+		var query = "SELECT articleid AS id, text, symbol, book FROM articles WHERE symbol = 4 ORDER BY RAND() LIMIT 1";
+		connection.query(query, function(err, articles, fields) {
+			if(err) throw err;
+			
+			var article = articles[0];
+			console.log("article", article);
+			getSymbols(article, function(article){
+				lastArticles.push(article.id);
+				article.lastArticles = lastArticles;
+				res.send(article);
+			});			
+		});
+		break;
+	case 5: //kontigent
+		/* connected tags */
+		console.log("Agent: possible");
+		
+		getArticle(lastArticleId, function(lastArticle){
+			console.log("Last Article", lastArticle);
+			getCategoriesEnv(lastArticle.id, function(categories){
+				console.log(categories);
+				
+				var query = "SELECT articles.articleid AS id, text, symbol, book FROM articles " +
+							"JOIN articlenodes " +
+							"ON articles.articleid = articlenodes.articleid " +
+							"WHERE articles.book >= ? AND articlenodes.nodeid IN (?) " +
+							"AND articles.articleid NOT IN (?) " +
+							"GROUP BY articles.articleid " +
+							"ORDER BY RAND() " +
+							"LIMIT 1";
+				connection.query(query, [lastArticle.book, categories, lastArticles],function(err, articles, fields) {
+					if(err) throw err;
+					
+					console.log(articles);
+					var article = articles[0];
+					getSymbols(article, function(article){
+						lastArticles.push(article.id);
+						article.lastArticles = lastArticles;
+						res.send(article);
+					});
+				});
+			});
+		});
+		break;
+	case 6: //unendlich
+		/* Select a random article */
+		console.log("Agent: infinity");
+		
+		var query = "SELECT articleid AS id, text, symbol, book " +
+					"FROM articles " +
+					"WHERE articleid != ? " +
+					"ORDER BY RAND() " +
+					"LIMIT 1";
+		connection.query(query, lastArticleId, function(err, articles, fields) {
+			if(err) throw err;
+			
+			var article = articles[0];
+			console.log("article", article);
+			getSymbols(article, function(article){
+				lastArticles.push(article.id);
+				article.lastArticles = lastArticles;
+				res.send(article);
+			});		
+		});
+		break;
+	case 7: //wirklich
+		/* max(tag==tag)*/
+		console.log("Agent: possible");
+		
+		getArticle(lastArticleId, function(lastArticle){
+			console.log("Last Article", lastArticle);
+			getCategories(lastArticle.id, function(categories){
+				console.log(categories);
+				
+				var query = "SELECT articles.articleid AS id, text, symbol, book, count(articles.articleid) AS amount FROM articles " +
+							"JOIN articlenodes " +
+							"ON articles.articleid = articlenodes.articleid " +
+							"WHERE articlenodes.nodeid IN (?) " +
+							"AND articles.articleid != ? " +
+							"GROUP BY id, text, symbol, book " +
+							"ORDER BY amount DESC, book ASC ";
+							//"LIMIT 1";
+				connection.query(query, [categories, lastArticleId],function(err, articles, fields) {
+					if(err) throw err;
+					
+					console.log(articles);
+					
+					//can't select all articles with most same tags, so do it with JS
+					var maxTags = new Array();
+					for(var i=0; i<articles.length; i++)
+						if(articles[i].amount == articles[0].amount)
+							maxTags.push(articles[i]);
+					
+					//choose a random article from most same tags
+					var article = maxTags[Math.floor(Math.random() * maxTags.length)];
+					
+					//delete amount because we don't need it
+					delete article.amount;
+					
+					getSymbols(article, function(article){
+						lastArticles.push(article.id);
+						article.lastArticles = lastArticles;
+						res.send(article);
+					});
+				});
+			});
+		});
+		break;	
+	default: // no/unknown symbol -> startarticle
+		/* Select one random article from book 1 */
+		console.log("Agent: startarticle");
+		
+		var query = "SELECT articleid AS id, text, symbol, book FROM articles WHERE book = 1 ORDER BY RAND() LIMIT 1";
+		connection.query(query, function(err, articles, fields) {
+			if(err) throw err;
+			
+			var article = articles[0];
+			console.log("article", article);
+			getSymbols(article, function(article){
+				lastArticles.push(article.id);
+				article.lastArticles = lastArticles;
+				res.send(article);
+			});		
+		});
+	}
+	
+});	
 
 /**** Save article ******/
 app.post('/save/article', function(req, res) {
