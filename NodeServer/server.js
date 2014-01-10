@@ -327,10 +327,18 @@ app.get('/agent', function(req, res){
 	//Setup params
 	var url_parts = url.parse(req.url, true);
 	var getParam = url_parts.query;
-	console.log(getParam);
-	var lastSymbol = parseInt(getParam.symbol);
-	var lastArticles = JSON.parse(getParam.lastArticles);
-	var lastArticleId = lastArticles[lastArticles.length-1];	
+	console.log("Agent GET parameters", getParam);
+	
+	var lastSymbol = 0;	
+	if(getParam.symbol != null)
+		lastSymbol = parseInt(getParam.symbol);
+	var lastArticles = new Array();
+	if(getParam.lastArticles != null)
+		lastArticles = JSON.parse(getParam.lastArticles);
+	
+	var lastArticleId = 0;
+	if( lastArticles.length > 0)
+		lastArticleId = lastArticles[lastArticles.length-1];	
 	
 	//select article by symbol function
 	switch(lastSymbol){
