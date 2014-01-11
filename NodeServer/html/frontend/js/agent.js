@@ -5,95 +5,107 @@ var agent = angular.module('agent', []);
 //global Variable to store the computed symbols
 var symbols = new Array();
 var scope;
+var firstCall = true;
+var lastArticles = new Array();
 
 //all symbols with path
-var data = [{"symbol":"moeglich","path":"src/svg/moeglich.svg#layer1"},
-            {"symbol":"wirklich","path":"src/svg/wirklich.svg#layer1"},
-            {"symbol":"nicht","path":"src/svg/nicht.svg#layer1"},
-            {"symbol":"unendlich","path":"src/svg/unendlich.svg#layer1"},
-            {"symbol":"wahr","path":"src/svg/wahr.svg#layer1"},
-            {"symbol":"notwendig","path":"src/svg/notwendig.svg#layer1"},
-            {"symbol":"kontingent","path":"src/svg/kontingent.svg#layer1"}
+var data = [{"symbol":"1","path":"src/svg/moeglich.svg#layer1"},
+            {"symbol":"2","path":"src/svg/notwendig.svg#layer1"},
+            {"symbol":"3","path":"src/svg/wahr.svg#layer1"},
+            {"symbol":"4","path":"src/svg/nicht.svg#layer1"},
+            {"symbol":"5","path":"src/svg/kontingent.svg#layer1"},
+            {"symbol":"6","path":"src/svg/unendlich.svg#layer1"},
+            {"symbol":"7","path":"src/svg/wirklich.svg#layer1"}
             ];
 
 
 function agentController($scope, $http) {
-
+	
+		$http.get("/agent" + "?symbol=0&lastArticles=[]")
+			.success(function(article) {
+				lastArticles = article.lastArticles;
+				firstCall = false;
+				this.symbols = article.symbols;
+				console.log(article);
+				console.log(symbols);
+				console.log("nur einmal bitte");
+				updateControl();
+			})
+			.error(function(err){
+				console.error("Error" + err);
+			});
+		
+		
 		$scope.symbolOnClick = function(symbol) {
-			switch (symbol) {
-			case "moeglich":
-				symbols = new Array("wirklich", "notwendig", "unendlich");
-				break;
-			case "notwendig":
-				symbols = new Array("nicht", "kontingent");
-				break;
-			case "wahr":
-				symbols = new Array("kontingent");
-				break;
-			case "nicht":
-				symbols = new Array();
-				break;
-			case "kontingent":
-				symbols = new Array("moeglich", "wirklich", "unendlich", "nicht");
-				break;	
-			case "unendlich":
-				symbols = new Array("wirklich", "wahr", "kontingent");
-				break;
-			case "wirklich":
-				symbols = new Array("wahr", "unendlich", "nicht", "moeglich");
-				break;
-			}
 		
-			//durch gesamtes json objekt laufen und für jede übereinstimmung mit symbols link in neues array(zwecks d3 databinding)
-			var links = new Array();
-			
-			for (var i = 0; i < symbols.length; i++) {
-				for (var j = 0; j < data.length; j++) {
-					if (symbols[i] == data[j].symbol) {
-						links.push(data[j]);
-					}
-				}
-			}
-						
-			//update symbols
-			var use = d3.select("#controlGroup").selectAll("use").data(links, function(d){return links.indexOf(d);});
-			use.enter().append("use").attr("xlink:href", function(d){return d.path;});
-			use.exit().remove();
-			use.attr("cursor", "pointer")
-				.on("mouseover", function () {d3.select(this).style("opacity","0.5");})
-				.on("mouseout", function() {d3.select(this).style("opacity","1");})
-				.on("click", function(d) { return scope.onClick({item: d.symbol});});
-		
-		
-			console.log(symbol);
-		
-			
-			$http.post("/post/agent", symbol)
-				.success(function(actualArticle) {
+			$http.get("/agent" + "?symbol=" + symbol + "&lastArticles=[" + lastArticles + "]")
+				.success(function(article) {
+					lastArticles = article.lastArticles;
+					this.symbols = article.symbols;
+					console.log(article);
+					updateControl();
 					
-					$scope.actualArticle = actualArticle;
-					console.log("aktueller Artikel " + $scope.actualArticle);
+					var numberOfSymbols = Math.pow(2, article.book);
+					
+					
+					switch (article.symbol) {
+						case 1:
+							updateShapes('triangle', numberOfSymbols, '0xffffff');
+							break;
+						case 2:
+							updateShapes('cube', numberOfSymbols, '0x000000');
+							break;
+						case 3:
+							updateShapes('cube', numberOfSymbols, '0xffffff');
+							break;
+						case 4:
+							updateShapes('end', 0);
+							break;
+						case 5:
+							updateShapes('triangle', numberOfSymbols, '0x000000');
+							break;
+						case 6:
+							updateShapes('point', numberOfSymbols, '0x000000');
+							break;
+						case 7:
+							updateShapes('point', numberOfSymbols, '0xffffff');
+							break;
+					}
+					
+					displayArticle(article.text);
+
 				})
 				.error(function(err){
-					
+					console.error("Error" + err);
 				});
+
 		};
 		
 		
-		console.log($scope.actualArticle);
 
-//		$http.get('/get/agent')
-//			.success(function(symbols) {
-//				console.log("Daten erhalten " + symbols);
-//				updateControls(symbols);	
-//
-//			})
-//			.error(function(err) {
-//				console.log("Error " + err);
-//			});
-//		
-//		$scope.clickedSymbol;
-//		
+/** Helper function, update the control with new symbols */
+function updateControl() {
+	//durch gesamtes json objekt laufen und für jede übereinstimmung mit symbols link in neues array(zwecks d3 databinding)
+	var links = new Array();
+	console.log("sa " + symbols.length);
+	for (var i = 0; i < symbols.length; i++) {
+		for (var j = 0; j < data.length; j++) {
+			if (symbols[i].id == data[j].symbol) {
+				console.log(symbols[i].id);
+				links.push(data[j]);
+			}
+		}
+	}
+				
+	//update symbols
+	var use = d3.select("#controlGroup").selectAll("use").data(links, function(d){return links.indexOf(d);});
+	use.enter().append("use").attr("xlink:href", function(d){return d.path;});
+	use.exit().remove();
+	use.attr("cursor", "pointer")
+		.on("mouseover", function () {d3.select(this).style("opacity","0.5");})
+		.on("mouseout", function() {d3.select(this).style("opacity","1");})
+		.on("click", function(d) { return scope.onClick({item: d.symbol});});
+}
 		
 };
 
@@ -143,7 +155,7 @@ agent.directive('agentControl', function() {
 						.style("stroke-width", function(d){return d.strokeWidth;})
 						.style("stroke-opacity", function(d){return d.strokeOpacity;});
 			
-			initControlSymbols();
+			//initControlSymbols();
 			
 		//initaliseren der Symbole vor erstem Klick
 		function initControlSymbols() {

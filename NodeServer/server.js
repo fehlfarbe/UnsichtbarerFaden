@@ -263,7 +263,7 @@ function getSymbols(article, callback){
  * Returns id, text, symbol and book number of an article
  */
 function getArticle(articleId, callback){
-	var query = "SELECT articleid AS id, text, screen, symbol, book " +
+	var query = "SELECT articleid AS id, text, symbol, book " +
 				"FROM articles " +
 				"WHERE articleid = ?";
 	
@@ -383,7 +383,7 @@ app.get('/agent', function(req, res){
 			getCategories(lastArticle.id, function(categories){
 				console.log(categories);
 				
-				var query = "SELECT articles.articleid AS id, text, screen, symbol, book FROM articles " +
+				var query = "SELECT articles.articleid AS id, text, symbol, book FROM articles " +
 							"JOIN articlenodes " +
 							"ON articles.articleid = articlenodes.articleid " +
 							"WHERE articles.book >= ? AND articlenodes.nodeid IN (?) " +
@@ -414,7 +414,7 @@ app.get('/agent', function(req, res){
 			getCategoriesEnv(lastArticle.id, function(categories){
 				console.log(categories);
 				
-				var query = "SELECT articles.articleid AS id, text, screen, symbol, book FROM articles " +
+				var query = "SELECT articles.articleid AS id, text, symbol, book FROM articles " +
 							"JOIN articlenodes " +
 							"ON articles.articleid = articlenodes.articleid " +
 							"WHERE articles.book >= ? AND articlenodes.nodeid IN (?) " +
@@ -445,7 +445,7 @@ app.get('/agent', function(req, res){
 			getCategories(lastArticle.id, function(categories){
 				console.log(categories);
 				
-				var query = "SELECT articles.articleid AS id, text, screen, symbol, book, count(articles.articleid) AS amount FROM articles " +
+				var query = "SELECT articles.articleid AS id, text, symbol, book, count(articles.articleid) AS amount FROM articles " +
 							"JOIN articlenodes " +
 							"ON articles.articleid = articlenodes.articleid " +
 							"WHERE articles.book >= ? AND articlenodes.nodeid IN (?) " +
@@ -475,7 +475,7 @@ app.get('/agent', function(req, res){
 		/* Print END article */
 		console.log("Agent: not");
 		
-		var query = "SELECT articleid AS id, text, screen, symbol, book FROM articles WHERE symbol = 4 ORDER BY RAND() LIMIT 1";
+		var query = "SELECT articleid AS id, text, symbol, book FROM articles WHERE symbol = 4 ORDER BY RAND() LIMIT 1";
 		connection.query(query, function(err, articles, fields) {
 			if(err) throw err;
 			
@@ -497,7 +497,7 @@ app.get('/agent', function(req, res){
 			getCategoriesEnv(lastArticle.id, function(categories){
 				console.log(categories);
 				
-				var query = "SELECT articles.articleid AS id, text, screen, symbol, book FROM articles " +
+				var query = "SELECT articles.articleid AS id, text, symbol, book FROM articles " +
 							"JOIN articlenodes " +
 							"ON articles.articleid = articlenodes.articleid " +
 							"WHERE articles.book >= ? AND articlenodes.nodeid IN (?) " +
@@ -523,7 +523,7 @@ app.get('/agent', function(req, res){
 		/* Select a random article */
 		console.log("Agent: infinity");
 		
-		var query = "SELECT articleid AS id, text, screen, symbol, book " +
+		var query = "SELECT articleid AS id, text, symbol, book " +
 					"FROM articles " +
 					"WHERE articleid != ? " +
 					"ORDER BY RAND() " +
@@ -549,7 +549,7 @@ app.get('/agent', function(req, res){
 			getCategories(lastArticle.id, function(categories){
 				console.log(categories);
 				
-				var query = "SELECT articles.articleid AS id, text, screen, symbol, book, count(articles.articleid) AS amount FROM articles " +
+				var query = "SELECT articles.articleid AS id, text, symbol, book, count(articles.articleid) AS amount FROM articles " +
 							"JOIN articlenodes " +
 							"ON articles.articleid = articlenodes.articleid " +
 							"WHERE articlenodes.nodeid IN (?) " +
@@ -587,7 +587,7 @@ app.get('/agent', function(req, res){
 		/* Select one random article from book 1 */
 		console.log("Agent: startarticle");
 		
-		var query = "SELECT articleid AS id, text, screen, symbol, book FROM articles WHERE book = 1 ORDER BY RAND() LIMIT 1";
+		var query = "SELECT articleid AS id, text, symbol, book FROM articles WHERE book = 1 ORDER BY RAND() LIMIT 1";
 		connection.query(query, function(err, articles, fields) {
 			if(err) throw err;
 			
@@ -689,7 +689,7 @@ app.post('/upload', function(req, res) {
 /*** articles ***/
 app.get('/get/articles', function(req, res) {
 	
-	var query = 'SELECT articles.articleid AS id, articles.name AS name, text, screen, book, ' +
+	var query = 'SELECT articles.articleid AS id, articles.name AS name, text,  book, ' +
 						'symbols.id AS symID, symbols.name AS symName, symbols.icon AS symIcon, ' + 
 						'nodes.nodeid AS nodeid, nodes.name AS category ' +
 				'FROM articles ' +
