@@ -58,6 +58,7 @@ app.get('/', function(req, res){
  *  **************************************************************/
 
 /******** AGENT *********/
+/*
 app.post('/post/agent', function(req, res) {
 	
 	var self = this;
@@ -236,6 +237,7 @@ app.post('/post/agent', function(req, res) {
 	//res.send("asd " + self.lastArticleID);
 	//console.log("last " + self.lastArticleID);
 });
+*/
 
 /*
  * Returns the possiblie navigation symbols for an article
@@ -261,7 +263,7 @@ function getSymbols(article, callback){
  * Returns id, text, symbol and book number of an article
  */
 function getArticle(articleId, callback){
-	var query = "SELECT articleid AS id, text, symbol, book " +
+	var query = "SELECT articleid AS id, text, screen, symbol, book " +
 				"FROM articles " +
 				"WHERE articleid = ?";
 	
@@ -320,6 +322,34 @@ function getCategoriesEnv(articleId, callback){
 }
 
 /*
+ * Returns the number of articles with the same book Id
+ */
+function getBookCount(bookId, callback){
+	var query = "SELECT count(book) AS bookCount FROM articles " +
+				"WHERE book = ?";
+
+	connection.query(query, bookId,function(err, books, fields) {
+		if(err) throw err;
+		
+		console.log("Articles with Book: " + bookId, books[0]);
+		
+		callback(books[0].bookCount);
+	});	
+}
+
+/*
+ * Adds symbols and the number of articles with the same book Id
+ */
+function addSymbolBook(article, callback){
+	getSymbols(article, function(article){
+		getBookCount(article.book, function(bookCount){
+			article.bookCount = bookCount;
+			callback(article);
+		});
+	});
+}
+
+/*
  * The agent is called by the frontend. It selects articles by defined rules (last articles, clicked symbol..)
  */
 app.get('/agent', function(req, res){
@@ -335,6 +365,8 @@ app.get('/agent', function(req, res){
 	var lastArticles = new Array();
 	if(getParam.lastArticles != null)
 		lastArticles = JSON.parse(getParam.lastArticles);
+	else
+		lastSymbol = 0; //no lastArticles == startPage 
 	
 	var lastArticleId = 0;
 	if( lastArticles.length > 0)
@@ -351,7 +383,7 @@ app.get('/agent', function(req, res){
 			getCategories(lastArticle.id, function(categories){
 				console.log(categories);
 				
-				var query = "SELECT articles.articleid AS id, text, symbol, book FROM articles " +
+				var query = "SELECT articles.articleid AS id, text, screen, symbol, book FROM articles " +
 							"JOIN articlenodes " +
 							"ON articles.articleid = articlenodes.articleid " +
 							"WHERE articles.book >= ? AND articlenodes.nodeid IN (?) " +
@@ -364,7 +396,7 @@ app.get('/agent', function(req, res){
 					
 					console.log(articles);
 					var article = articles[0];
-					getSymbols(article, function(article){
+					addSymbolBook(article, function(article){
 						lastArticles.push(article.id);
 						article.lastArticles = lastArticles;
 						res.send(article);
@@ -382,7 +414,7 @@ app.get('/agent', function(req, res){
 			getCategoriesEnv(lastArticle.id, function(categories){
 				console.log(categories);
 				
-				var query = "SELECT articles.articleid AS id, text, symbol, book FROM articles " +
+				var query = "SELECT articles.articleid AS id, text, screen, symbol, book FROM articles " +
 							"JOIN articlenodes " +
 							"ON articles.articleid = articlenodes.articleid " +
 							"WHERE articles.book >= ? AND articlenodes.nodeid IN (?) " +
@@ -395,11 +427,11 @@ app.get('/agent', function(req, res){
 					
 					console.log(articles);
 					var article = articles[0];
-					getSymbols(article, function(article){
+					addSymbolBook(article, function(article){
 						lastArticles.push(article.id);
 						article.lastArticles = lastArticles;
 						res.send(article);
-					});
+					});					
 				});
 			});
 		});
@@ -413,7 +445,7 @@ app.get('/agent', function(req, res){
 			getCategories(lastArticle.id, function(categories){
 				console.log(categories);
 				
-				var query = "SELECT articles.articleid AS id, text, symbol, book, count(articles.articleid) AS amount FROM articles " +
+				var query = "SELECT articles.articleid AS id, text, screen, symbol, book, count(articles.articleid) AS amount FROM articles " +
 							"JOIN articlenodes " +
 							"ON articles.articleid = articlenodes.articleid " +
 							"WHERE articles.book >= ? AND articlenodes.nodeid IN (?) " +
@@ -430,7 +462,7 @@ app.get('/agent', function(req, res){
 					//delete amount because we don't need it
 					delete article.amount;
 					
-					getSymbols(article, function(article){
+					addSymbolBook(article, function(article){
 						lastArticles.push(article.id);
 						article.lastArticles = lastArticles;
 						res.send(article);
@@ -443,13 +475,13 @@ app.get('/agent', function(req, res){
 		/* Print END article */
 		console.log("Agent: not");
 		
-		var query = "SELECT articleid AS id, text, symbol, book FROM articles WHERE symbol = 4 ORDER BY RAND() LIMIT 1";
+		var query = "SELECT articleid AS id, text, screen, symbol, book FROM articles WHERE symbol = 4 ORDER BY RAND() LIMIT 1";
 		connection.query(query, function(err, articles, fields) {
 			if(err) throw err;
 			
 			var article = articles[0];
 			console.log("article", article);
-			getSymbols(article, function(article){
+			addSymbolBook(article, function(article){
 				lastArticles.push(article.id);
 				article.lastArticles = lastArticles;
 				res.send(article);
@@ -465,7 +497,7 @@ app.get('/agent', function(req, res){
 			getCategoriesEnv(lastArticle.id, function(categories){
 				console.log(categories);
 				
-				var query = "SELECT articles.articleid AS id, text, symbol, book FROM articles " +
+				var query = "SELECT articles.articleid AS id, text, screen, symbol, book FROM articles " +
 							"JOIN articlenodes " +
 							"ON articles.articleid = articlenodes.articleid " +
 							"WHERE articles.book >= ? AND articlenodes.nodeid IN (?) " +
@@ -478,7 +510,7 @@ app.get('/agent', function(req, res){
 					
 					console.log(articles);
 					var article = articles[0];
-					getSymbols(article, function(article){
+					addSymbolBook(article, function(article){
 						lastArticles.push(article.id);
 						article.lastArticles = lastArticles;
 						res.send(article);
@@ -491,7 +523,7 @@ app.get('/agent', function(req, res){
 		/* Select a random article */
 		console.log("Agent: infinity");
 		
-		var query = "SELECT articleid AS id, text, symbol, book " +
+		var query = "SELECT articleid AS id, text, screen, symbol, book " +
 					"FROM articles " +
 					"WHERE articleid != ? " +
 					"ORDER BY RAND() " +
@@ -501,11 +533,11 @@ app.get('/agent', function(req, res){
 			
 			var article = articles[0];
 			console.log("article", article);
-			getSymbols(article, function(article){
+			addSymbolBook(article, function(article){
 				lastArticles.push(article.id);
 				article.lastArticles = lastArticles;
 				res.send(article);
-			});		
+			});	
 		});
 		break;
 	case 7: //wirklich
@@ -517,7 +549,7 @@ app.get('/agent', function(req, res){
 			getCategories(lastArticle.id, function(categories){
 				console.log(categories);
 				
-				var query = "SELECT articles.articleid AS id, text, symbol, book, count(articles.articleid) AS amount FROM articles " +
+				var query = "SELECT articles.articleid AS id, text, screen, symbol, book, count(articles.articleid) AS amount FROM articles " +
 							"JOIN articlenodes " +
 							"ON articles.articleid = articlenodes.articleid " +
 							"WHERE articlenodes.nodeid IN (?) " +
@@ -542,7 +574,7 @@ app.get('/agent', function(req, res){
 					//delete amount because we don't need it
 					delete article.amount;
 					
-					getSymbols(article, function(article){
+					addSymbolBook(article, function(article){
 						lastArticles.push(article.id);
 						article.lastArticles = lastArticles;
 						res.send(article);
@@ -555,17 +587,17 @@ app.get('/agent', function(req, res){
 		/* Select one random article from book 1 */
 		console.log("Agent: startarticle");
 		
-		var query = "SELECT articleid AS id, text, symbol, book FROM articles WHERE book = 1 ORDER BY RAND() LIMIT 1";
+		var query = "SELECT articleid AS id, text, screen, symbol, book FROM articles WHERE book = 1 ORDER BY RAND() LIMIT 1";
 		connection.query(query, function(err, articles, fields) {
 			if(err) throw err;
 			
 			var article = articles[0];
 			console.log("article", article);
-			getSymbols(article, function(article){
+			addSymbolBook(article, function(article){
 				lastArticles.push(article.id);
 				article.lastArticles = lastArticles;
 				res.send(article);
-			});		
+			});	
 		});
 	}
 	
