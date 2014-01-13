@@ -15,8 +15,8 @@ var us = require('underscore')._;
  *  
  *  **************************************************************/
 var connection = mysql.createConnection({
-	  	//host     	: 'kolbe.no-ip.org',
-		host		: 'localhost',
+	  	host     	: 'kolbe.no-ip.org',
+		//host		: 'localhost',
 		user     	: 'faden',
 		password 	: 'unsichtbar',
 		database 	: 'derunsichtbarefaden'
@@ -355,15 +355,44 @@ function getArticleCount(callback){
 }
 
 /*
- * Adds symbols and the number of articles with the same book Id
+ * returns nodes connected with article
  */
-function addSymbolBookArticleCount(article, callback){
+function getNodes(articleId, callback){
+	
+	var query = "SELECT nodes.nodeid, nodes.name, x, y " +
+			"FROM articles " +
+			"JOIN articlenodes " +
+			"ON articles.articleid = articlenodes.articleid " +
+			"JOIN nodes " +
+			"ON articlenodes.nodeid = nodes.nodeid " +
+			"WHERE articles.articleid = ?";
+	
+	connection.query(query, articleId, function(err, nodes, fields) {
+		if(err) throw err;
+		
+		console.log("Nodes for article " + articleId, nodes);
+		
+		callback(nodes);
+	});
+}
+
+/*
+ * Adds:
+ * symbols,
+ * the number of articles with the same book Id,
+ * total article count
+ * nodes with coords
+ */
+function addArticleInfo(article, callback){
 	getSymbols(article, function(article){
 		getBookCount(article.book, function(bookCount){
 			article.bookCount = bookCount;
 			getArticleCount(function(count){
-				article.total = count;
-				callback(article);
+				article.totalCount = count;
+				getNodes(article.id, function(nodes){
+					article.nodes = nodes;
+					callback(article);
+				});
 			});
 		});
 	});
@@ -429,7 +458,7 @@ function agent(param, callback){
 					}		
 					
 					var article = articles[0];
-					addSymbolBookArticleCount(article, function(article){
+					addArticleInfo(article, function(article){
 						lastArticles.push(article.id);
 						article.lastArticles = lastArticles;
 						callback(article);
@@ -468,7 +497,7 @@ function agent(param, callback){
 					}					
 					
 					var article = articles[0];
-					addSymbolBookArticleCount(article, function(article){
+					addArticleInfo(article, function(article){
 						lastArticles.push(article.id);
 						article.lastArticles = lastArticles;
 						callback(article);
@@ -511,7 +540,7 @@ function agent(param, callback){
 					//delete amount because we don't need it
 					delete article.amount;
 					
-					addSymbolBookArticleCount(article, function(article){
+					addArticleInfo(article, function(article){
 						lastArticles.push(article.id);
 						article.lastArticles = lastArticles;
 						callback(article);
@@ -530,7 +559,7 @@ function agent(param, callback){
 			
 			var article = articles[0];
 			console.log("article", article);
-			addSymbolBookArticleCount(article, function(article){
+			addArticleInfo(article, function(article){
 				lastArticles.push(article.id);
 				article.lastArticles = lastArticles;
 				callback(article);
@@ -559,7 +588,7 @@ function agent(param, callback){
 					
 					console.log(articles);
 					var article = articles[0];
-					addSymbolBookArticleCount(article, function(article){
+					addArticleInfo(article, function(article){
 						lastArticles.push(article.id);
 						article.lastArticles = lastArticles;
 						callback(article);
@@ -582,7 +611,7 @@ function agent(param, callback){
 			
 			var article = articles[0];
 			console.log("article", article);
-			addSymbolBookArticleCount(article, function(article){
+			addArticleInfo(article, function(article){
 				lastArticles.push(article.id);
 				article.lastArticles = lastArticles;
 				callback(article);
@@ -623,7 +652,7 @@ function agent(param, callback){
 					//delete amount because we don't need it
 					delete article.amount;
 					
-					addSymbolBookArticleCount(article, function(article){
+					addArticleInfo(article, function(article){
 						lastArticles.push(article.id);
 						article.lastArticles = lastArticles;
 						callback(article);
@@ -642,7 +671,7 @@ function agent(param, callback){
 			
 			var article = articles[0];
 			console.log("article", article);
-			addSymbolBookArticleCount(article, function(article){
+			addArticleInfo(article, function(article){
 				lastArticles.push(article.id);
 				article.lastArticles = lastArticles;
 				callback(article);
