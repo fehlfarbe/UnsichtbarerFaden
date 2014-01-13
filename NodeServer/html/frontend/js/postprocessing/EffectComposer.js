@@ -31,7 +31,18 @@ THREE.EffectComposer = function ( renderer, renderTarget ) {
 
 };
 
+
 THREE.EffectComposer.prototype = {
+                                  
+                                  
+	setClearColor: function( color, opacity) {
+		this.renderer.setClearColor(color, opacity);
+	},
+	
+	getClearColor: function() {
+		this.renderer.getClearColor();
+	},
+
 
 	swapBuffers: function() {
 
