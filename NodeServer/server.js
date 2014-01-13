@@ -15,7 +15,8 @@ var us = require('underscore')._;
  *  
  *  **************************************************************/
 var connection = mysql.createConnection({
-	  	host     	: 'kolbe.no-ip.org',
+	  	//host     	: 'kolbe.no-ip.org',
+		host		: 'localhost',
 		user     	: 'faden',
 		password 	: 'unsichtbar',
 		database 	: 'derunsichtbarefaden'
@@ -325,10 +326,11 @@ function getCategoriesEnv(articleId, callback){
  * Returns the number of articles with the same book Id
  */
 function getBookCount(bookId, callback){
-	var query = "SELECT count(book) AS bookCount FROM articles " +
-				"WHERE book = ?";
 
-	connection.query(query, bookId,function(err, books, fields) {
+	var query = "SELECT count(book) AS bookCount FROM articles " +
+				"WHERE book = " + bookId; // ? doesn't work...however?
+
+	connection.query(query,function(err, books, fields) {
 		if(err) throw err;
 		
 		console.log("Articles with Book: " + bookId, books[0]);
@@ -338,39 +340,62 @@ function getBookCount(bookId, callback){
 }
 
 /*
+ * Returns total article count
+ */
+function getArticleCount(callback){
+	
+	var query = "SELECT count(*) AS total FROM articles";
+	connection.query(query,function(err, count, fields) {
+		if(err) throw err;
+		
+		console.log("Total articles ", count[0].total);
+		
+		callback(count[0].total);
+	});
+}
+
+/*
  * Adds symbols and the number of articles with the same book Id
  */
-function addSymbolBook(article, callback){
+function addSymbolBookArticleCount(article, callback){
 	getSymbols(article, function(article){
 		getBookCount(article.book, function(bookCount){
 			article.bookCount = bookCount;
-			callback(article);
+			getArticleCount(function(count){
+				article.total = count;
+				callback(article);
+			});
 		});
 	});
 }
 
 /*
- * The agent is called by the frontend. It selects articles by defined rules (last articles, clicked symbol..)
+ * Agent loop...
  */
-app.get('/agent', function(req, res){
+function agent(param, callback){
 	
-	//Setup params
-	var url_parts = url.parse(req.url, true);
-	var getParam = url_parts.query;
-	console.log("Agent GET parameters", getParam);
+	var lastSymbol = 0;
+	console.log("PARAM", param);
 	
-	var lastSymbol = 0;	
-	if(getParam.symbol != null)
-		lastSymbol = parseInt(getParam.symbol);
+	if(param.symbol != null)
+		lastSymbol = parseInt(param.symbol);
+	
 	var lastArticles = new Array();
-	if(getParam.lastArticles != null)
-		lastArticles = JSON.parse(getParam.lastArticles);
+	if(param.lastArticles != null){
+		if( param.lastArticles instanceof Array)
+			lastArticles = param.lastArticles;
+		else
+			lastArticles = JSON.parse(param.lastArticles);
+	}
 	else
 		lastSymbol = 0; //no lastArticles == startPage 
 	
 	var lastArticleId = 0;
 	if( lastArticles.length > 0)
 		lastArticleId = lastArticles[lastArticles.length-1];	
+	
+	console.log(lastSymbol);
+	console.log(lastArticles);
 	
 	//select article by symbol function
 	switch(lastSymbol){
@@ -395,11 +420,19 @@ app.get('/agent', function(req, res){
 					if(err) throw err;
 					
 					console.log(articles);
+					
+					//no article was found
+					if(articles.length == 0){
+						param.symbol = 6; //random
+						agent(param, callback);
+						return;
+					}		
+					
 					var article = articles[0];
-					addSymbolBook(article, function(article){
+					addSymbolBookArticleCount(article, function(article){
 						lastArticles.push(article.id);
 						article.lastArticles = lastArticles;
-						res.send(article);
+						callback(article);
 					});
 				});
 			});
@@ -426,11 +459,19 @@ app.get('/agent', function(req, res){
 					if(err) throw err;
 					
 					console.log(articles);
+					
+					//no article was found
+					if(articles.length == 0){
+						param.symbol = 6; //random
+						agent(param, callback);
+						return;
+					}					
+					
 					var article = articles[0];
-					addSymbolBook(article, function(article){
+					addSymbolBookArticleCount(article, function(article){
 						lastArticles.push(article.id);
 						article.lastArticles = lastArticles;
-						res.send(article);
+						callback(article);
 					});					
 				});
 			});
@@ -457,15 +498,23 @@ app.get('/agent', function(req, res){
 					if(err) throw err;
 					
 					console.log(articles);
+					
+					//no article was found
+					if(articles.length == 0){
+						param.symbol = 6; //random
+						agent(param, callback);
+						return;
+					}
+					
 					var article = articles[0];
 					
 					//delete amount because we don't need it
 					delete article.amount;
 					
-					addSymbolBook(article, function(article){
+					addSymbolBookArticleCount(article, function(article){
 						lastArticles.push(article.id);
 						article.lastArticles = lastArticles;
-						res.send(article);
+						callback(article);
 					});
 				});
 			});
@@ -481,10 +530,10 @@ app.get('/agent', function(req, res){
 			
 			var article = articles[0];
 			console.log("article", article);
-			addSymbolBook(article, function(article){
+			addSymbolBookArticleCount(article, function(article){
 				lastArticles.push(article.id);
 				article.lastArticles = lastArticles;
-				res.send(article);
+				callback(article);
 			});			
 		});
 		break;
@@ -510,10 +559,10 @@ app.get('/agent', function(req, res){
 					
 					console.log(articles);
 					var article = articles[0];
-					addSymbolBook(article, function(article){
+					addSymbolBookArticleCount(article, function(article){
 						lastArticles.push(article.id);
 						article.lastArticles = lastArticles;
-						res.send(article);
+						callback(article);
 					});
 				});
 			});
@@ -533,16 +582,16 @@ app.get('/agent', function(req, res){
 			
 			var article = articles[0];
 			console.log("article", article);
-			addSymbolBook(article, function(article){
+			addSymbolBookArticleCount(article, function(article){
 				lastArticles.push(article.id);
 				article.lastArticles = lastArticles;
-				res.send(article);
+				callback(article);
 			});	
 		});
 		break;
 	case 7: //wirklich
 		/* max(tag==tag)*/
-		console.log("Agent: possible");
+		console.log("Agent: real");
 		
 		getArticle(lastArticleId, function(lastArticle){
 			console.log("Last Article", lastArticle);
@@ -574,10 +623,10 @@ app.get('/agent', function(req, res){
 					//delete amount because we don't need it
 					delete article.amount;
 					
-					addSymbolBook(article, function(article){
+					addSymbolBookArticleCount(article, function(article){
 						lastArticles.push(article.id);
 						article.lastArticles = lastArticles;
-						res.send(article);
+						callback(article);
 					});
 				});
 			});
@@ -593,13 +642,29 @@ app.get('/agent', function(req, res){
 			
 			var article = articles[0];
 			console.log("article", article);
-			addSymbolBook(article, function(article){
+			addSymbolBookArticleCount(article, function(article){
 				lastArticles.push(article.id);
 				article.lastArticles = lastArticles;
-				res.send(article);
+				callback(article);
 			});	
 		});
 	}
+	
+}
+
+/*
+ * The agent is called by the frontend. It selects articles by defined rules (last articles, clicked symbol..)
+ */
+app.get('/agent', function(req, res){
+	
+	//Setup params
+	var url_parts = url.parse(req.url, true);
+	var getParam = url_parts.query;
+	console.log("Agent GET parameters", getParam);
+	
+	agent(getParam, function(article){
+		res.send(article);
+	});
 	
 });	
 
