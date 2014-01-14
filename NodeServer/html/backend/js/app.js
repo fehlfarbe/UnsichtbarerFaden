@@ -51,6 +51,7 @@ App.controller('newarticle', function($scope, $http, $location) {
 	
 	$("#articleWrapper").block({message : "<h2>initialisiere Editor...</h2>"});
 	
+	// Setup TinyMCE
 	tinymce.init({
 	    selector: "textarea",
 	    plugins: "save image media", 
@@ -60,6 +61,8 @@ App.controller('newarticle', function($scope, $http, $location) {
 	    	},
 	    toolbar: "save",
 	    body_id: "sad",
+	    force_br_newlines : true,
+        force_p_newlines : false,
 	    save_enablewhendirty: false,
 	    save_onsavecallback: 
 	    	function() {
@@ -78,6 +81,10 @@ App.controller('newarticle', function($scope, $http, $location) {
 		    			if( id != undefined )
 		    				article.id = id;
 		    					    			
+		    			//replace newlines at end of text
+		    			article.content = article.content.replace(new RegExp(/<p>&nbsp;<\/p>/g), '')
+		    								.replace(new RegExp(/\n/g), '');
+
 		    			console.log("send article", article);
 		    			
 		    			if( article.headline == ""){
