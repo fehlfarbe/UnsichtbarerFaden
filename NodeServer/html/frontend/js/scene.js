@@ -10,7 +10,7 @@ var articleDiv;
 
 var shapeForm, numberOfShapes, bgColor, articleSrc;
 
-var lastShapeForm, lastBgColor;
+var lastShapeForm, lastBgColor, lastNumberOfShapes;
 
 var numberOfLastArticles, totalArticleCount;
 
@@ -38,7 +38,11 @@ function init() {
     } else {
         renderer = new THREE.CanvasRenderer();
     }
-    renderer = new THREE.WebGLRenderer({antialias:true});
+    
+	THREEx.WindowResize(renderer, camera);
+	THREEx.FullScreen.bindKey({ charCode : 'm'.charCodeAt(0) });
+	//THREEx.WindowResize(cssRenderer, cssCamera);    
+
 	renderer.setSize(width, height);
 	renderer.domElement.style.position = 'absolute';
 	renderer.domElement.style.top = -10;
@@ -50,7 +54,7 @@ function init() {
     cssRenderer.domElement.style.position = 'absolute';
     cssRenderer.domElement.style.top = -10;
     cssRenderer.domElement.style.zIndex = 1;
-    cssRenderer.domElement.style.margin = 'auto';
+    cssRenderer.domElement.style.margin.left = width/2 + 'px';
     cssRenderer.domElement.style.padding = 0;
     //cssRenderer.domElement.style.left = 50 + '%';
     
@@ -59,9 +63,7 @@ function init() {
 
 	cssScene = new THREE.Scene();
 
-	THREEx.WindowResize(renderer, camera);
-	THREEx.FullScreen.bindKey({ charCode : 'm'.charCodeAt(0) });
-//	THREEx.WindowResize(cssRenderer, camera);
+
 	
 	var skyBoxGeometry = new THREE.CubeGeometry(1000,1000,1000);
 	var skyBoxMaterial = new THREE.MeshBasicMaterial({color:0x000000, side:THREE.BackSide });
@@ -94,7 +96,9 @@ function init() {
 //    effect.uniforms['amount'].value = 0.0015;
     effect.renderToScreen = true;
     composer.addPass(effect);
-    
+//    var filmEffect = new THREE.FilmPass( 0.35, 0.025, 648, false );
+//    filmEffect.renderToScreen = true;
+//    composer.addPass(filmEffect);
     
 //    var light = new THREE.HemisphereLight( 0xffffff, 0xffffff, 1.00 );
 //    light.position.set( 0.75, 1, 0.25 );
@@ -202,7 +206,7 @@ function displayNewScene() {
 			totalArticleCount = article.totalCount;
 		}
 		
-
+		lastNumberOfShapes = numberOfShapes
 		lastShapeForm = shapeForm;
 		lastBgColor = bgColor;
 		
@@ -245,88 +249,138 @@ function displayNewScene() {
 
 /** Helper function, cleaning the scene */
 function cleanScene() {
-	for (var i = scene.children.length -1; i >= 0; i--) {
-		if (scene.children[i].name == shapeMesh.name) {
-			scene.remove(scene.children[i]);
+	
+	// if shapes are the same, and new number is lower remove only the difference from scene
+//	if (lastShapeForm == shapeForm) {
+//		if (lastNumberOfShapes > numberOfShapes) {
+//			var shapesToRemove = lastNumberOfShapes - numberOfShapes;
+//			
+//
+//			for (var i = 0; i < shapesToRemove; i++) {
+//			    scene.traverse (function (object){
+//			    	if (object instanceof THREE.Mesh)
+//			    	{
+//			    		if (object.name === shapeMesh.name) {
+//			    			console.log("scene removed object");
+//			    			scene.remove(object);
+//			    		}
+//			    			
+//			    	}
+//			    });
+//			}
+//		}
+//	} else {
+		for (var i = scene.children.length -1; i >= 0; i--) {
+			if (scene.children[i].name == shapeMesh.name) {
+				scene.remove(scene.children[i]);
+			}
+		}
+//	}
+}
+
+
+function updateShapeColor() {
+	for (var i = 0; i < shapeMesh.length; i++) {
+		if (bgColor == 0x000000) {
+			shapeMesh[i].material.color.setHex('0xffffff');
+		} else if (bgColor == 0xffffff) {
+			shapeMesh[i].material.color.setHex('0x141414');
 		}
 	}
 }
 
-
 /** Helper function, update ShapeMesh and fill new scene */
 function fillScene() {
-	//reset Array
-	this.shapeMesh = new Array();
-	var k = 1 - numberOfLastArticles/totalArticleCount;
-	if (shapeForm == 'end') {
-		var spritey = makeTextSprite( "The End",
-        { fontsize: 24, borderColor: {r:255, g:0, b:0, a:1.0}, backgroundColor: {r:255, g:100, b:100, a:0.8} } );
-		spritey.position.set(-10*k,5*k,0);
-		scene.add( spritey );
-		updateSkyBoxColor(bgColor);
-		//animate;
-		//return;
-	} else {
-		for (var i = 0; i < numberOfShapes; i++) {
-			var shape = new THREE.Shape();
-			var geometry;
-			switch(shapeForm) {
-			case 'cube':
-				shape.moveTo(-1,-1);
-				shape.lineTo(1,-1);
-				shape.lineTo(1,1);
-				shape.lineTo(-1,1);
-				shape.lineTo(-1,-1);
-				break;
-			case 'triangle':
-				shape.moveTo(-1,-1);
-				shape.lineTo(1,-1);
-				shape.lineTo(0,0.5);
-				shape.lineTo(-1,-1);
-				break;
-			case 'point':
-				shape.absarc( 0, 0, 1, 0, Math.PI*2, false );
-				break;
-			}
+	console.log("in fill Scene");
+//	if (lastShapeForm == shapeForm) {
+//		if (lastNumberOfShapes > numberOfShapes) {
+//			var shapesToRemove = lastNumberOfShapes - numberOfShapes;
+//			for (var i = 0; i < shapesToRemove; i++) {
+////			    shapeMesh.pop();
+////			    console.log("pop");
+//			}
+//		} else if (lastNumberOfShapes < numberOfShapes) {
+//			var shapesToAdd = numberOfShapes - lastNumberOfShapes;
+//			for (var i = 0; i < shapesToAdd; i++) {
+//				
+//				//TODO BUG!!!!
+//
+////				var tempMesh = shapeMesh.slice(0,1);
+////				console.log(tempMesh);
+////				//tempMesh.position.set(rand(-4,4)* camera.position.z/2, rand(-1,1)* camera.position.z/2, rand(-0.5,0));
+////			    shapeMesh.push(tempMesh);
+////			    scene.add(shapeMesh[shapeMesh.length-1]);
+////			    console.log("push and add");
+//			}		
+//		}
+//		updateShapeColor();
+//	} else {
+		//reset Array
+		this.shapeMesh = new Array();
+		var k = 1 - numberOfLastArticles/totalArticleCount;
+		if (shapeForm == 'end') {
+			var spritey = makeTextSprite( "The End",
+	        { fontsize: 24, borderColor: {r:255, g:0, b:0, a:1.0}, backgroundColor: {r:255, g:100, b:100, a:0.8} } );
+			spritey.position.set(-10*k,5*k,0);
+			scene.add( spritey );
+			//animate;
+			//return;
+		} else {
+			for (var i = 0; i < numberOfShapes; i++) {
+				var shape = new THREE.Shape();
+				var geometry;
+				switch(shapeForm) {
+				case 'cube':
+					shape.moveTo(-1,-1);
+					shape.lineTo(1,-1);
+					shape.lineTo(1,1);
+					shape.lineTo(-1,1);
+					shape.lineTo(-1,-1);
+					break;
+				case 'triangle':
+					shape.moveTo(-1,-1);
+					shape.lineTo(1,-1);
+					shape.lineTo(0,0.5);
+					shape.lineTo(-1,-1);
+					break;
+				case 'point':
+					shape.absarc( 0, 0, 1, 0, Math.PI*2, false );
+					break;
+				}
+			
+				geometry = new THREE.ShapeGeometry(shape);
+				//geometry = new THREE.SphereGeometry(1,32,16, 0, Math.PI*2, 0, Math.PI);
+				
+				var material = new THREE.MeshLambertMaterial();
+						
+				this.shapeMesh.push(new THREE.Mesh(geometry, material));
+				
+				updateShapeColor();
+				
+				this.shapeMesh.name = shapeForm;
+				this.shapeMesh[i].name = shapeForm;
+				this.shapeMesh[i].material.depthWrite = true;
+				this.shapeMesh[i].material.transparent = true;
+				//this.shapeMesh[i].material.opacity = 1;
+	
+	//			var j;
+	//			if (i%2) 
+	//				j = -1;
+	//			else
+	//				j = 1;
+	
+				
+				console.log("k" + k);
 		
-			geometry = new THREE.ShapeGeometry(shape);
-			//geometry = new THREE.SphereGeometry(1,32,16, 0, Math.PI*2, 0, Math.PI);
-			
-			var material = new THREE.MeshLambertMaterial();
-					
-			this.shapeMesh.push(new THREE.Mesh(geometry, material));
-			
-			if (bgColor == 0x000000) {
-				shapeMesh[i].material.color.setHex('0xffffff');
-			} else if (bgColor == 0xffffff) {
-				shapeMesh[i].material.color.setHex('0x141414');
+				this.shapeMesh[i].position.set(rand(-4,4)* camera.position.z/2, rand(-1,1)* camera.position.z/2, rand(-0.5,0));
+				console.log("shapeMesh.positon.x " + shapeMesh[i].position.x);
+				scene.add(this.shapeMesh[i]);
 			}
-			
-			this.shapeMesh.name = shapeForm;
-			this.shapeMesh[i].name = shapeForm;
-			this.shapeMesh[i].material.depthWrite = true;
-			this.shapeMesh[i].material.transparent = true;
-			//this.shapeMesh[i].material.opacity = 1;
-
-//			var j;
-//			if (i%2) 
-//				j = -1;
-//			else
-//				j = 1;
-
-			
-			console.log("k" + k);
-	
-			this.shapeMesh[i].position.set(rand(-4,4)* camera.position.z/2, rand(-1,1)* camera.position.z/2, rand(-0.5,0));
-			console.log("shapeMesh.positon.x " + shapeMesh[i].position.x);
-			scene.add(this.shapeMesh[i]);
+			//animate();
+			//render();
 		}
-		updateSkyBoxColor(bgColor);
-		//animate();
-		//render();
-	}
-
-	
+//	}
+	updateSkyBoxColor(bgColor);
 
 			//var div = document.createElement('div');
 	//	element.src = src;
@@ -365,6 +419,7 @@ function fillScene() {
 	    //cssObject.position.y = -20;
 	//    cssObject.position.x = 20;
 	    cssScene.add(cssObject);
+	    console.log("add cssObject");
 
 }
 
@@ -391,12 +446,20 @@ function fadeOutIn() {
 	.to({v: 0.0}, time)
 	.easing(TWEEN.Easing.Sinusoidal.InOut)
 	.onUpdate( function () {
-	    cssScene.children[0].element.style.opacity = this.v;
-	    if (lastShapeForm != shapeForm) {
-		    for (var i = 0; i < shapeMesh.length; i++) {
+	    cssScene.children[0].element.style.opacity = this.v-0.2;
+	    if (lastShapeForm == shapeForm) {
+	    	if (lastNumberOfShapes > numberOfShapes) {
+			    var difference = lastNumberOfShapes - numberOfShapes;
+			    for (var i = 1; i <= difference; i++) {
+			    	shapeMesh[shapeMesh.length-i].material.opacity = this.v;
+			    }
+		    }
+	    } else {
+	    	for (var i = 0; i < shapeMesh.length; i++) {
 		    	shapeMesh[i].material.opacity = this.v;
 		    }
 	    }
+	    
 	    if (lastBgColor != bgColor) {
 	    	document.getElementsByTagName('canvas')[0].style.opacity = this.v;
 	    }
@@ -434,12 +497,19 @@ function fadeIn() {
         	fillScene();
         })
         .onUpdate(function() {
-            cssScene.children[0].element.style.opacity = this.v;
-            if (lastShapeForm != shapeForm) {
-	            for (var i = 0; i < shapeMesh.length; i++) {
-	            	shapeMesh[i].material.opacity = this.v;
-	            }
-            }
+            cssScene.children[0].element.style.opacity = this.v-0.2;
+            if (lastShapeForm == shapeForm) {
+            	if (lastNumberOfShapes < numberOfShapes) {
+	    		    var difference = numberOfShapes - lastNumberOfShapes;
+	    		    for (var i = 1; i <= difference; i++) {
+	    		    	shapeMesh[shapeMesh.length-i].material.opacity = this.v;
+	    		    }
+    		    }
+    	    } else {
+    	    	for (var i = 0; i < shapeMesh.length; i++) {
+    		    	shapeMesh[i].material.opacity = this.v;
+    		    }
+    	    }
             //renderer.setClearColor(bgColor, this.v);
             if (lastBgColor != bgColor) {
             	document.getElementsByTagName('canvas')[0].style.opacity = this.v;
