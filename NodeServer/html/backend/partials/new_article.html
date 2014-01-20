@@ -1,13 +1,20 @@
 <div id="articleWrapper">
 	
 	<!-- headline -->
-	<input id="book" type="number" min="0" max="99" data-tooltip="Tagebuch Nummer" class="articlebook"></input>
-	<input id="headline" type="text" class="articleHeadline"></input>
-	
-	<!-- symbol -->
-	<div id="symbolContainer" class="articleSymbol">
+	<div id="symbolContainer" class="articleInput">
+		<div class="smallLabel">Symbol</div>
+		<div></div>
 		<select id="symbol" data-placeholder="Symbol wählen" class="chosen-select"></select>
+	</div>	
+	<div class="articleInput">
+		<div class="smallLabel">Tagebuch</div>
+		<input id="book" type="number" min="0" max="99" placeholder="Nr" class="articlebook"></input>
+	</div>	
+	<div class="articleInput">
+		<div class="smallLabel">Titel</div>
+		<input id="headline" type="text" placeholder="Titel" class="articleHeadline"></input>
 	</div>
+	
 	
 	<!-- tiny mce editor -->
 	<div id="editor" class="articleEditor">
@@ -19,7 +26,7 @@
 	</div>
 	
 	<!-- category select -->
-	<div id="categoryContainer" class="articleCategories">
-		<select id="category" data-placeholder="Kategorien wählen" style="min-width:350px;" multiple="multiple" class="chosen-select"></select>
+	<div id="categoryContainer" class="articleCategories" style="min-width:350px;min-height:50px;">
+		<select id="category" data-placeholder="Kategorien wählen" style="min-width:350px;min-height:50px;" multiple="multiple" class="chosen-select"></select>
 	</div>
 </div>

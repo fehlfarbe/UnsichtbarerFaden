@@ -7,6 +7,8 @@ var connect = require('connect');
 var multiparty = require('multiparty');
 var random = require('random');
 var us = require('underscore')._;
+var passport = require('passport');
+var LocalStrategy = require('passport-local').Strategy;
 
 	
 /******************************************************************
@@ -34,9 +36,50 @@ connection.connect(function(err) {
 
 /******************************************************************
  * 
- *  setup server 
- *  
- *  **************************************************************/
+ * setup login
+ * 
+ *****************************************************************/
+passport.use(new LocalStrategy(function(username, password, done) {
+	// insert your MongoDB check here. For now, just a simple hardcoded check.
+	console.log("Login", username);
+	var query = "SELECT * FROM user WHERE username = ? AND password = PASSWORD(?)";
+
+	// get symbols
+	connection.query(query, [username, password], function(err, user, fields) {
+		if (err)
+			throw err;
+		
+		if( user != undefined && user.length > 0)
+			done(null, { id: user.id, username: user.username });
+		else
+			done(null, false);
+	});
+}));
+
+passport.serializeUser(function(user, done) {
+	console.log("serialize", user);
+	done(null, user);
+});
+
+passport.deserializeUser(function(id, done) {
+	console.log("deserialize", id);
+	done(null, id);
+});
+
+var auth = function(req, res, next) {
+
+	if (!req.isAuthenticated())
+		res.send(401);
+	else
+		next();
+};
+
+
+/*******************************************************************************
+ * 
+ * setup server
+ * 
+ ******************************************************************************/
 var port = 8888;
 var app = express();
 
@@ -44,7 +87,10 @@ var app = express();
 app.use(express.compress()); // compress content
 app.use(express.static(__dirname + '/html'));
 app.use(express.cookieParser());
-app.use(express.session({secret: '1234567890QWERTY'}));
+app.use(express.bodyParser());
+app.use(express.session({ secret: 'keyboard cat' }));
+app.use(passport.initialize());
+app.use(passport.session());
 app.use(app.router);
 
 //redirect to frontend
@@ -57,188 +103,6 @@ app.get('/', function(req, res){
  *  API
  *  
  *  **************************************************************/
-
-/******** AGENT *********/
-/*
-app.post('/post/agent', function(req, res) {
-	
-	var self = this;
-	
-
-	if (req.method == 'POST') {
-		
-		var clickedSymbol = '';
-		req.on('data', function(data) {
-			clickedSymbol += data;	
-		});
-		
-		req.session.last = clickedSymbol;
-		req.on('end', function() {
-			console.log(clickedSymbol);
-			
-			//fake agent ;)
-			connection.query("SELECT text FROM articles", [], function(err, result) {
-					if (err) throw err;
-					res.send(result[random.rand(0,result.length - 1)].text);
-			});
-			
-			//get the next symbols from article symbol id
-			var symbol = 1; //moeglich
-			if( symbol == 4){ 
-				//symbol = NICHT --> Exit
-				console.log("EXIT");
-			}
-			
-			var query = "SELECT symbols.id, symbols.name, symbols.icon FROM symlinks " +
-						"JOIN symbols " +
-						"ON symlinks.target = symbols.id " +
-						"WHERE source = ?";
-			
-			connection.query(query, symbol, function(err, symbols, fields) {
-				if(err) throw err;
-				
-				console.log(symbols);
-			});
-
-
-			//get random article ID on start
-//			if (self.lastArticleID == null) {
-//				connection.query("SELECT articleid FROM articlenodes", [], function(err, result) {
-//					if (err) throw err;
-//					self.lastArticleID = result[random.rand(0,result.length - 1)].articleid;
-//					console.log("actual " + self.lastArticleID);
-//					res.send("send" + self.lastArticleID);
-//				});
-//			} else {
-//			
-//				var nextArticles = new Array();
-//				
-//				switch(clickedSymbol) {
-//				case "moeglich":
-//					connection.query("SELECT nodeid FROM articlenodes WHERE articleid = ?", [self.lastArticleID], function(err, nodes) {
-//						if (err) throw err;
-//						connection.query("SELECT * FROM articlenodes", [], function(err, articlenodes){
-//							for (var i = 0; i < nodes.length; i++) {
-//								for (var j = 0; j < articlenodes.length; j++) {
-//									if (articlenodes[j].articleid != self.lastArticleID) {
-//										if (nodes[i].nodeid == articlenodes[j].nodeid) {
-//											nextArticles.push(articlenodes[j].articleid);
-//											req.session.last = articlenodes[j].nodeid;
-//											console.log("last: " + req.session.last);
-//										}
-//									}
-//								}
-//							}
-//						});
-//					});
-//					if (nextArticles.length != 0)
-//						self.lastArticleID = us.uniq(nextArticles)[random.rand(0,nextArticles.length-1)];
-//					//res.send(self.lastArticleID);
-//					break;
-//				case "notwendig":
-//					connection.query("SELECT nodeid FROM articlenodes WHERE articleid = ?", [self.lastArticleID], function(err, nodes) {
-//						if (err) throw err;
-//						self.lastArticleID = nodes[random.rand(0,nodes.length - 1)].articleid;
-//						console.log(nodes);
-//						connection.query("SELECT source, target FROM links ", [nodes.nodeid], function(err, links) {
-//							
-//							var targets = new Array();
-//							for (var i = 0; i < links.length; i++) {
-//								for (var j = 0; j < nodes.length; j++) {
-//									if (nodes[j].nodeid == links[i].source) {
-//										console.log(links[i]);
-//										targets.push(links[i].target);
-//									}
-//								}
-//							}
-//							connection.query("SELECT articlenodes.articleid  FROM articlenodes, links WHERE articlenodes.nodeid = ?", [targets[random.rand(0,targets.length)]] ,function(err,articleid){
-//								
-//								console.log(articleid);
-//							});
-//							
-//						});
-//						
-//						self.lastArticleID = result[random.rand(0,result.length - 1)].articleid;
-//					});
-//					self.lastArticleID = 10;
-//					nextArticles.push(10);
-//					console.log("nextArticles " + nextArticles[0]);
-//					break;
-//				case "wirklich" :
-//					connection.query("SELECT * FROM articlenodes ORDER BY articleid", [], function(err, articlenodes) {
-//						console.log(articlenodes);
-//						if (err) throw err;
-//						connection.query("SELECT nodeid FROM articlenodes WHERE articleid = ?", [self.lastArticleID], function(err, nodes) {
-//							if (err) throw err;
-//							var articleids = new Array();
-//							var lastArticleid, nextArticleid;
-//							var counter = 0;
-//							for (var i = 0; i < nodes.length; i++) {
-//								for (var j = 0; j < articlenodes.length; j++) {
-//									nextArticleid = articlenodes[j].articleid;
-//									if (nextArticleid != self.lastArticleID) {
-//										if (nodes[i].nodeid == articlenodes[j].nodeid && lastArticleid == nextArticleid) {
-//											
-//										}
-//									}
-//									articleids.push(articlenodes[i].articleid);
-	//								if (articleid != lastArticleid[i] || lastArticleid == null) {
-	//									lastArticleid.push(articleid);
-	//								}
-	//								console.log("a: " +lastArticleid);
-									//console.log("l: " +lastArticleid);
-//								}
-//							}
-//							
-//							articleids = us.uniq(articleids);
-//							console.log(articleids);
-//							console.log("last: " + req.session.last);
-//							nodes;
-//						});
-//					});
-//					
-//					//nextArticles.push(10);
-//					if (nextArticles.length != 0)
-//						self.lastArticleID = 13;
-//					
-//					//res.send(self.lastArticleID);
-//					break;
-//				case "unendlich" :
-//					connection.query("SELECT articleid FROM articlenodes GROUP BY articleid", [], function(err, articleids) {
-//						for (var i = 0; i < articleids.length; i++) {
-//							nextArticles.push(articleids[i].articleid);
-//						}
-//						if (nextArticles.length != 0)
-//							self.lastArticleID = nextArticles[random.rand(0,nextArticles.length-1)];
-//						console.log("next " + nextArticles);
-//						
-//						console.log(self.lastArticleID);
-//					});
-//					console.log("next " + nextArticles);
-//					res.send("unendlich " + self.lastArticleID);
-//					break;
-//				case "wahr" :
-//					break;
-//				case "kontingent" :
-//					break
-//				case "nicht" :
-//					break;
-//				}
-//			
-//			
-//				res.send("d " + self.lastArticleID);
-//		}
-			
-			
-			
-			
-		
-		});
-	};
-	//res.send("asd " + self.lastArticleID);
-	//console.log("last " + self.lastArticleID);
-});
-*/
 
 /*
  * Returns the possiblie navigation symbols for an article
@@ -695,61 +559,86 @@ app.get('/agent', function(req, res){
 		res.send(article);
 	});
 	
-});	
+});
+
+/****************************************************
+ * 
+ * BACKEND
+ * 
+ * 
+ ***************************************************/
+
+/*********
+ * LOGIN 
+ ********/
+// route to test if the user is logged in or not
+app.get('/loggedin', function(req, res) {
+	res.send(req.isAuthenticated() ? req.user : '0');
+});
+
+// route to log in
+app.post('/login', passport.authenticate('local'), function(req, res) {
+	user = req.body.username;
+	req.login(user, function(err) {
+		if (err) {
+			throw err;
+			return next(err);
+		}
+		
+		res.send({ username : user});
+	});
+});
+// route to log out
+app.post('/logout', function(req, res) {
+	req.logOut();
+	res.send(200);
+});
 
 /**** Save article ******/
-app.post('/save/article', function(req, res) {
+app.post('/save/article', auth, function(req, res) {
     if (req.method == 'POST') {
-        var body = '';
-        
-        req.on('data', function (data) {
-            body += data;
-        });
-        
-        req.on('end', function () {
         	
-        	var data = JSON.parse(body);
-        	var catLength = data.categories.length;
-        	var article = { name : data.headline, 
-        					text : data.content, 
-        					screen : data.screen, 
-        					symbol : data.symbol,
-        					book : data.book };
-        	
-        	if( data.id != null){
-        		//update
-        		article.articleid = data.id;
-        		console.log("Update!", article);        		
-        	}
-        	
-    		connection.query("INSERT INTO articles SET ? ON DUPLICATE KEY UPDATE ?", [article, article], function(err, result) {
-    			if(err) throw err;
-    			
-    			var id = data.id != null ? data.id : result.insertId;
-    			console.log(id);
-    			
-    			//delete all article->categories
-    			connection.query("DELETE FROM articlenodes WHERE articleid = ?", id, function(err, result) {
-    				if(err) throw err;
-    				
-    				//add new article->categories
-    				for(var i=0; i<data.categories.length; i++){
-        				var c = { articleid : id, nodeid : data.categories[i]};
-        				connection.query("INSERT INTO articlenodes SET ?", c, function(err, result) {
-        					if(err) throw err;
-        					
-        					if( --catLength <= 0){
-        						var r = new Object();
-        						r.id = id;
-        						res.send(r);
-        					}
-        						        						
-        				});
-        			}
-    				
-    			});
-    		});      	
-        });
+    	var data = req.body;
+    	var catLength = data.categories.length;
+    	var article = { name : data.headline, 
+    					text : data.content, 
+    					screen : data.screen, 
+    					symbol : data.symbol,
+    					book : data.book };
+    	
+    	if( data.id != null){
+    		//update
+    		article.articleid = data.id;
+    		console.log("Update!", article);        		
+    	}
+    	
+		connection.query("INSERT INTO articles SET ? ON DUPLICATE KEY UPDATE ?", [article, article], function(err, result) {
+			if(err) throw err;
+			
+			var id = data.id != null ? data.id : result.insertId;
+			console.log(id);
+			
+			//delete all article->categories
+			connection.query("DELETE FROM articlenodes WHERE articleid = ?", id, function(err, result) {
+				if(err) throw err;
+				
+				//add new article->categories
+				for(var i=0; i<data.categories.length; i++){
+    				var c = { articleid : id, nodeid : data.categories[i]};
+    				connection.query("INSERT INTO articlenodes SET ?", c, function(err, result) {
+    					if(err) throw err;
+    					
+    					if( --catLength <= 0){
+    						var r = new Object();
+    						r.id = id;
+    						res.send(r);
+    					}
+    						        						
+    				});
+    			}
+				
+			});
+		});      	
     } else {
     	res.send("Error", 500);
     }
@@ -757,7 +646,7 @@ app.post('/save/article', function(req, res) {
 
 /**** Image Upload ******/
 
-app.post('/upload', function(req, res) {
+app.post('/upload', auth, function(req, res) {
 	
 	var form = new multiparty.Form({uploadDir: __dirname + '/html/upload/images'});
     form.parse(req, function(err, fields, files) {
@@ -781,7 +670,7 @@ app.post('/upload', function(req, res) {
 
 
 /*** articles ***/
-app.get('/get/articles', function(req, res) {
+app.get('/get/articles', auth, function(req, res) {
 	
 	var query = 'SELECT articles.articleid AS id, articles.name AS name, text,  book, ' +
 						'symbols.id AS symID, symbols.name AS symName, symbols.icon AS symIcon, ' + 
@@ -829,30 +718,20 @@ app.get('/get/articles', function(req, res) {
 	});
 });
 
-app.post('/delete/article', function(req, res) {
+app.post('/delete/article', auth, function(req, res) {
 	if (req.method == 'POST') {
-        var body = '';
-        
-        req.on('data', function (data) {
-            body += data;
-        });
-        
-        req.on('end', function () {
-        	
-        	var id = JSON.parse(body);
-        	console.log("delete artice "+ id);
-        	connection.query("DELETE FROM articles WHERE articleid = ?", id, function(err, result) {
-    			if(err) throw err;
-    			
-    			res.send('OK');
-    		});
-        	
-        });
+    	var id = req.body;
+    	console.log("delete artice "+ id);
+    	connection.query("DELETE FROM articles WHERE articleid = ?", id, function(err, result) {
+			if(err) throw err;
+			
+			res.send('OK');
+		});
 	}	
 });
 
 /*** nodes ***/
-app.get('/get/nodessymbols', function(req, res) {
+app.get('/get/nodessymbols', auth, function(req, res) {
 	
 	connection.query('SELECT nodeid AS id, nodes.name AS name, x, y FROM nodes', function(err, nodes, fields) {
 		if (err) throw err;
@@ -880,72 +759,63 @@ app.get('/get/nodessymbols', function(req, res) {
 	});
 });
 
-app.post('/set/nodes', function(req, res) {
+app.post('/set/nodes', auth, function(req, res) {
 	
 	console.log('save nodes...');
 	
     if (req.method == 'POST') {
-        var body = '';
+        var data = req.body;
+                    
+        var datalength = data.nodes.length + data.deletedNodes.length + data.links.length + data.deletedLinks.length;
         
-        req.on('data', function (data) {
-            body += data;
-        });
+        //call this for every successful query
+        function decraseDatalength(){
+        	datalength--;
+        	if(datalength <= 0){
+        		console.log("data saved!");
+        		res.send('OK');
+        	}
+        }
         
-        req.on('end', function () {
-            var data = JSON.parse(body);
-            
-            var datalength = data.nodes.length + data.deletedNodes.length + data.links.length + data.deletedLinks.length;
-            
-            //call this for every successful query
-            function decraseDatalength(){
-            	datalength--;
-            	if(datalength <= 0){
-            		console.log("data saved!");
-            		res.send('OK');
-            	}
-            }
-            
-            //update nodes
-            for(var i = 0; i < data.nodes.length; i++){
-            		console.log("node: " + data.nodes[i].id + ": " + data.nodes[i].name );
-            		var node = {nodeid: data.nodes[i].id, name: data.nodes[i].name, x: data.nodes[i].x, y:  data.nodes[i].y};
-            		connection.query("INSERT INTO nodes SET ? ON DUPLICATE KEY UPDATE ?", [node, node], function(err, result) {
-            			if(err) throw err;
-            			decraseDatalength();
-            		});
-            }
-            
-            //deleted nodes
-            for(var i = 0; i < data.deletedNodes.length; i++){
-            	console.log("deleted: " + data.deletedNodes[i].id + ": " + data.deletedNodes[i].name );
-        		connection.query("DELETE FROM nodes WHERE nodeid = ?", data.deletedNodes[i].id, function(err, result) {
+        //update nodes
+        for(var i = 0; i < data.nodes.length; i++){
+        		console.log("node: " + data.nodes[i].id + ": " + data.nodes[i].name );
+        		var node = {nodeid: data.nodes[i].id, name: data.nodes[i].name, x: data.nodes[i].x, y:  data.nodes[i].y};
+        		connection.query("INSERT INTO nodes SET ? ON DUPLICATE KEY UPDATE ?", [node, node], function(err, result) {
         			if(err) throw err;
         			decraseDatalength();
         		});
-            }
+        }
+        
+        //deleted nodes
+        for(var i = 0; i < data.deletedNodes.length; i++){
+        	console.log("deleted: " + data.deletedNodes[i].id + ": " + data.deletedNodes[i].name );
+    		connection.query("DELETE FROM nodes WHERE nodeid = ?", data.deletedNodes[i].id, function(err, result) {
+    			if(err) throw err;
+    			decraseDatalength();
+    		});
+        }
 
-            //update links
-            for(var i = 0; i < data.links.length; i++){
-            	console.log(data.links[i].source.id + "-> " + data.links[i].target.id + "(" + data.links[i] + ")");
-            	var link = {source: data.links[i].source.id, target: data.links[i].target.id};
-        		connection.query("INSERT INTO links SET ? ON DUPLICATE KEY UPDATE ?", [link, link], function(err, result) {
-        			if(err) throw err;
-        			decraseDatalength();
-        		});
-            }
-            
-            //deleted links
-            for(var i = 0; i < data.deletedLinks.length; i++){
-            	console.log("deleted: " + data.deletedLinks[i].source.id + "->" + data.deletedLinks[i].target.id );
-            	var source = data.deletedLinks[i].source.id;
-            	var target = data.deletedLinks[i].target.id;
-            	connection.query("DELETE FROM links WHERE source = ? AND target = ?", [source, target], function(err, result) {
-        			if(err) throw err;
-        			decraseDatalength();
-        		});
-            }
-            
-        });
+        //update links
+        for(var i = 0; i < data.links.length; i++){
+        	console.log(data.links[i].source.id + "-> " + data.links[i].target.id + "(" + data.links[i] + ")");
+        	var link = {source: data.links[i].source.id, target: data.links[i].target.id};
+    		connection.query("INSERT INTO links SET ? ON DUPLICATE KEY UPDATE ?", [link, link], function(err, result) {
+    			if(err) throw err;
+    			decraseDatalength();
+    		});
+        }
+        
+        //deleted links
+        for(var i = 0; i < data.deletedLinks.length; i++){
+        	console.log("deleted: " + data.deletedLinks[i].source.id + "->" + data.deletedLinks[i].target.id );
+        	var source = data.deletedLinks[i].source.id;
+        	var target = data.deletedLinks[i].target.id;
+        	connection.query("DELETE FROM links WHERE source = ? AND target = ?", [source, target], function(err, result) {
+    			if(err) throw err;
+    			decraseDatalength();
+    		});
+        }
     }
 });
 

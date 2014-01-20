@@ -1,6 +1,10 @@
-#grapheditor{
-	border: 1px solid #000;
+.grapheditorWrap{
+	margin: 10px auto;
 	width: 80%;
+}
+
+.grapheditor{
+	border: 1px solid #000;
 	height: 500px;
 	overflow: hidden;
 	margin: 10px auto;

@@ -1,22 +1,33 @@
 <div ng-controller="App.articleList" id="articleList">
-	{{ articles.length }} Einträge vorhanden
-		<div class="article" ng-repeat="article in articles">
-			<div class="articleHead">
-				<span ng-bind-html-unsafe="article.symIcon"></span> 
-				{{article.name}}
-			</div>
-			<div class="articleText" ng-bind-html-unsafe="article.text"></div>
-			<div class="articleCat">
-				<b>Kategorien:</b>
-				<span ng-repeat="cat in article.category">{{cat.name}} </span>
-				<br />
-				<b>Tagebuch:</b> {{article.book}}
-			</div>
-			<div class="articleButtons">
-					<button ng-click="editArticle(article.id)">Editieren</button>
-					<button ng-click="deleteArticle(article.id)">Löschen</button>
-			</div>
-			<!-- <b>Symbol:</b>  {{article.symName}}<br />  -->
-			<!--<img ng-src="{{article.screen}}" />  -->
+	
+	<div class="articleCtrl">
+		{{ articles.length }} Einträge vorhanden<br />
+		<div class="btn-group">
+			<button type="button" class="btn btn-default" ng-click="sortArticles('id')">#</button>
+			<button type="button" class="btn btn-default" ng-click="sortArticles('book')">Tagebuch</button>
+			<button type="button" class="btn btn-default" ng-click="sortArticles('symID')">Symbol</button>
+			<button type="button" class="btn btn-default" ng-click="sortArticles('name')">Name</button>
 		</div>
+	</div>
+
+
+	<!-- Show articles -->
+	<div class="panel panel-primary article" ng-repeat="article in articles | orderBy:predicate:reverse">
+		<div class="panel-heading">
+			<h3 class="panel-title">#{{article.id}} {{article.name}}</h3>
+		</div>
+		<div class="panel-body" ng-bind-html-unsafe="article.text"></div>
+		<div class="panel-body">
+			<b>Kategorien:</b>
+			<span ng-repeat="cat in article.category">{{cat.name}} </span>
+			<br />
+			<b>Tagebuch:</b> {{article.book}}
+			<br />
+			<b>Symbol: </b> <span ng-bind-html-unsafe="article.symIcon"></span>  {{article.symName}}
+		</div>
+		<div class="panel-footer">
+			<button class="btn btn-warning" ng-click="editArticle(article.id)">Editieren</button>
+			<button class="btn btn-danger" ng-click="deleteArticle(article.id)">Löschen</button>
+		</div>
+	</div>
 </div>

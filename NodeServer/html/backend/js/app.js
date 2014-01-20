@@ -1,11 +1,71 @@
 //define a global application
 var App = angular.module('App', ['nodeeditor']);
 
-//create an app router for url management and redirect
-App.config(function($routeProvider) {
+//var checkLoggedin = function($q, $timeout, $http, $location, $rootScope) {
+//	// Initialize a new promise
+//	var deferred = $q.defer();
+//	// Make an AJAX call to check if the user is logged in
+//	$http.get('/loggedin').success(function(user) {
+//		// Authenticated
+//		if (user !== '0')
+//			$timeout(deferred.resolve, 0);
+//		// Not Authenticated
+//		else {
+//			$rootScope.message = 'You need to log in.';
+//			$timeout(function() {
+//				deferred.reject();
+//			}, 0);
+//			$location.url('/login');
+//		}
+//	});
+//};
+
+/****************************
+ * 
+ * Login service
+ * 
+ ***************************/
+App.factory('UserService', [function() {
+	var sdo = {
+		isInit: false,
+		isLogged: false,
+		username: ''
+	};
+	
+	return sdo;
+}]);
+
+//App.directive('checkUser', ['$rootScope', '$location', 'UserService', function ($root, $location, userSrv) {
+//	return {
+//		link: function (scope, elem, attrs, ctrl) {
+//			$root.$on('$routeChangeStart', function(event, currRoute, prevRoute){
+//				console.log("try it!", userSrv);
+//				if (!prevRoute.access.isFree && !userSrv.isLogged) {
+//					// reload the login route
+//					console.log("Reload");
+//					$location.url('/login');
+//				}
+//			});
+//		}
+//	};
+//}]);
+
+/*****************************
+ * 
+ * create an app router for url management and redirect
+ * 
+ *****************************/
+App.config(function($routeProvider, $httpProvider) {
+	$routeProvider.when('/login', {
+		templateUrl : 'partials/login.html',
+		controller : 'login',
+		access: {
+			isFree: true
+		}
+	});
 	$routeProvider.when('/frontpage', {
 		templateUrl : 'partials/frontpage.html',
-		controller : 'frontpage',
+		controller : 'login'
 	});
 	$routeProvider.when('/articleoverview', {
 		templateUrl : 'partials/article_overview.html',
@@ -20,16 +80,151 @@ App.config(function($routeProvider) {
 		controller : 'nodeeditor',
 	});
 	$routeProvider.otherwise({
-		redirectTo : '/frontpage'
+		redirectTo : '/login'
+	});
+
+	$httpProvider.responseInterceptors.push(function($q, $location) {
+		return function(promise) {
+			return promise.then( // Success: just return the response
+			function(response) {
+				return response;
+			}, // Error: check the
+			// error status to
+			// get only the 401
+			function(response) {
+				if (response.status === 401){
+					$location.url('/login');
+				}
+					
+				return $q.reject(response);
+			});
+		};
 	});
 });
 
-/********** CONTROLLER *************/
-//backend frontpage controller
-App.controller('frontpage', function($scope) {
-	console.log('Hello from the Frontpage Controller');
-	$scope.name = 'Nutzer';
-});
+/** ******** CONTROLLER ************ */
+App.controller('loginController', ['$scope', '$http', '$location', 'UserService', function($scope, $http, $location, User) {
+	console.log('loginController');
+	
+	$scope.isError = false;
+	$scope.errorText = '';
+	
+	$scope.login = function(user) {
+		
+		$scope.errorText = '';
+		$scope.isError = false;
+		
+		if(user == undefined){
+			$scope.errorText += "Keine Daten eingegeben! " +
+					"Achtung! Bei Autofill durch den Browser kann es zu Problemen kommen. " +
+					"Logindaten am besten noch mal per Hand eintippen.";
+			$scope.isError = true;
+			return;
+		} else if(user.name == undefined){
+			$scope.errorText += "Kein Benutzername eingegeben!";
+			$scope.isError = true;
+			return;
+		} else if(user.password == undefined){
+			$scope.errorText += "Kein Passwort eingegeben!";
+			$scope.isError = true;
+			return;
+		}
+		
+		var data = {username : user.name, password : user.password}; // configuration object
+
+		$http.post('/login', data)
+		.success(function(data, status, headers, config) {
+			console.log("status", status, data);
+			console.log("Succ");
+			if (status == 200) {
+				// succefull login
+				User.isInit = true;
+				User.isLogged = true;
+				User.username = data.username;
+				$location.url('/frontpage');
+			}
+			else {
+				User.isLogged = false;
+				User.username = '';
+				$scope.errorText = 'Falsche Logindaten!';
+				$scope.isError = true;
+			}
+		})
+		.error(function(data, status, headers, config) {
+			console.log("Error", status);
+			User.isLogged = false;
+			User.username = '';
+			$scope.errorText = 'Falsche Logindaten!';
+			$scope.isError = true;
+		});
+	};
+}]);
+
+
+App.controller('HeaderController', ['$scope', '$location', '$http', 'UserService',function($scope, $location, $http, User) {
+	
+	//which menu is active?
+	$scope.isActive = function (viewLocation) { 
+        return viewLocation === $location.path();
+    };
+    
+    //test if I'm already logged in
+    if( !User.isInit ){
+    	console.log("Not init!", User);
+    	$http.get('/loggedin').success(function(user) {
+    		User.isInit = true;
+    		console.log(user);
+    		// Authenticated
+    		if (user !== '0'){
+    			User.isLogged = true;
+    			User.username = user;
+    		}
+    		// Not Authenticated
+    		else {
+    			$location.url('/login');
+    		}
+    	});
+    }
+    
+    //I'm logged in?
+    $scope.isLogged = function(){
+    	return User.isLogged;
+    };
+    
+    //logout
+    $scope.logout = function(){
+    	$http.post('/logout')
+		.success(function(data, status, headers, config) {
+			console.log("status", status, data);
+			if (status == 200) {
+				// succefull login
+				User.isLogged = false;
+				User.username = '';
+				$location.url('/login');
+			}
+			else {
+				User.isLogged = true;
+				User.username = '';
+			}
+		})
+		.error(function(data, status, headers, config) {
+			console.log("Error", status);
+			User.isLogged = false;
+			User.username = '';
+		});
+    };
+    
+}]);
+
+// backend frontpage controller
+App.controller('login', ['$scope', '$location', 'UserService',function($scope, $location, User) {
+
+    if( !User.isLogged ){
+    	$location.url('/login');
+    }
+    
+	$scope.name = User.username;
+}]);
 
 //backend article overview controller
 App.controller('articleoverview', function($scope, $http) {
@@ -201,18 +396,54 @@ App.controller('nodeeditor', function($scope, $http) {
 
 /********* FUNCTIONS *****************/
 
+//Sort array
+App.filter('orderObjectBy', function(){
+	 return function(input, attribute) {
+	    if (!angular.isObject(input)) return input;
+
+	    var array = [];
+	    for(var objectKey in input) {
+	        array.push(input[objectKey]);
+	    }
+
+	    array.sort(function(a, b){
+	        a = parseInt(a[attribute]);
+	        b = parseInt(b[attribute]);
+	        return a - b;
+	    });
+	    
+	    return array;
+	 };
+});
+
 
 App.articleList = function($scope, $http, $route, $location) {
-	//Testarticles
+
 	$scope.articles = $http.get('/get/articles')
 	.then(function(result) {
 		console.log(result.data);
-         return result.data;
+        return result.data;
      });
 	
 	$scope.editArticle = function(id){
 		console.log("editiere..." + id);
 		$location.search('id', id).path('/newarticle');
+	};
+	
+	$scope.sortArticles = function(type){
+		
+		
+		if( $scope.predicate == type )
+			if($scope.reverse)
+				$scope.reverse = !$scope.reverse;
+			else
+				$scope.reverse = true;
+		else
+			$scope.reverse = false;
+		//console.log($scope.reverse);
+		
+		$scope.predicate = type;
+		
 	};
 	
 	$scope.deleteArticle = function(id){

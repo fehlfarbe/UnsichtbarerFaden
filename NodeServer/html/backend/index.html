@@ -7,17 +7,30 @@
     <link rel="stylesheet" type="text/css" href="css/simplegraph.css">
     <link rel="stylesheet" type="text/css" href="/lib/chosen/chosen.css">
     
+    <!-- bootstrap -->
+    <link rel="stylesheet" type="text/css" href="/lib/bootstrap/css/bootstrap.min.css">
+    
     <title>Der unsichtbare Faden - Backend</title>
 </head>
 <body>
-
-	<div id="menu">
-		<ul>
-			<li><a href="#/articleoverview">Tagebuchübersicht</a></li>
-			<li><a href="#/newarticle">Neuen Tagebucheintrag schreiben</a></li>
-			<li><a href="#/nodeeditor">Node Editor</a></li>
-		</ul>
-	</div>
+	<div class="navbar navbar-inverse navbar-fixed-top" role="navigation" ng-controller="HeaderController">
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="#/frontpage">Der unsichtbare Faden - Backend</a>
+        </div>
+        <div class="collapse navbar-collapse">
+          <ul class="nav navbar-nav" ng-show="isLogged()">
+            <!-- <li class="active"><a href="#/articleoverview">Tagebuchübersicht</a></li> -->
+            <li ng-class="{ active: isActive('/articleoverview')}"><a href="#/articleoverview">Tagebuchübersicht</a></li>
+            <li ng-class="{ active: isActive('/newarticle')}"><a href="#/newarticle">Neuen Tagebucheintrag schreiben</a></li>
+            <li ng-class="{ active: isActive('/nodeeditor')}"><a href="#/nodeeditor">Node Editor</a></li>
+            <li ><a href="#" ng-click="logout()">Logout</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
+	
+	
     <div id="view" ng-view></div>
 
     <script src="/lib/angular/angular.min.js"></script>
@@ -29,6 +42,7 @@
     <script src="/lib/tinymce/tinymce.min.js"></script>
     <script src="js/app.js"></script>
     <script src="js/nodeeditor.js"></script>
+	<script src="/lib/bootstrap/js/bootstrap.min.js"></script>
     
     <script type="text/javascript">
 	    $.blockUI.defaults.message 	= '<h2>Bitte warten</h2>';
