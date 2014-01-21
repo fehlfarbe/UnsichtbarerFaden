@@ -2,13 +2,27 @@ var express = require('express');
 var mysql = require('mysql');
 var qs = require('querystring');
 var url = require('url');
+var crypto = require('crypto');
 var fs = require('fs');
+var http = require("http");
+var https = require("https");
 var connect = require('connect');
 var multiparty = require('multiparty');
 var random = require('random');
 var us = require('underscore')._;
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
+
+/******************************************************************
+ * 
+ * setup https
+ * 
+ *****************************************************************/
+var HTTPSoptions = {
+		  key: fs.readFileSync('privatekey.pem').toString(),
+		  cert: fs.readFileSync('certificate.pem').toString()
+};
+
 
 	
 /******************************************************************
@@ -825,5 +839,10 @@ app.post('/set/nodes', auth, function(req, res) {
  *  start server 
  *  
  *  **************************************************************/
-app.listen(port);
+//Create an HTTP service.
+//http.createServer(app).listen(port);
+// Create an HTTPS service identical to the HTTP service.
+https.createServer(HTTPSoptions, app).listen(port+1); 	//https
+http.createServer(app).listen(port);					//http
+//app.listen(port);
 console.log("Server started on port " + port);
