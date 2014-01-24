@@ -1,5 +1,5 @@
 /**
- * 
+ * The webgl scene
  */
 var scene, renderer, camera, composer, group, skyBox, shapeMesh, clock, lastTime, width, height, waitTime;
 
@@ -17,16 +17,20 @@ var cameraZStartPoint = 10;
 
 var mouse = {x : 0, y : 0};
 
+var xMovement, yMovement;
+
+var bgPlane, bgMaterial;
+
 function init() {
 	scene = new THREE.Scene(); 
 	
-	width = window.innerWidth/2;
-	height = window.innerHeight/2;
+	width = window.innerWidth;
+	height = window.innerHeight;
 
 //    var width = 50;
 //    var height = 10;
-    camera = new THREE.OrthographicCamera(width / - 64, width / 64, height / 64, height / - 64, 1, 1000 );
-    //camera = new THREE.PerspectiveCamera(100, width/height, 1, 1000);
+    //camera = new THREE.OrthographicCamera(width / - 64, width / 64, height / 64, height / - 64, 1, 1000 );
+    camera = new THREE.PerspectiveCamera(100, width/height, 1, 1000);
     camera.position.z = cameraZStartPoint; 
 
     camera.lookAt(scene.position);
@@ -40,9 +44,10 @@ function init() {
         //renderer = new THREE.CanvasRenderer();
     }
     
+    THREEx.WindowResize(cssRenderer, cssCamera);  
 	THREEx.WindowResize(renderer, camera);
 	THREEx.FullScreen.bindKey({ charCode : 'm'.charCodeAt(0) });
-	//THREEx.WindowResize(cssRenderer, cssCamera);    
+	  
 
 	renderer.setSize(width, height);
 	renderer.domElement.style.position = 'absolute';
@@ -53,11 +58,7 @@ function init() {
 	cssRenderer = new THREE.CSS3DRenderer();
 	cssRenderer.setSize(width, height);
     cssRenderer.domElement.style.position = 'absolute';
-    cssRenderer.domElement.style.top = -10;
-    cssRenderer.domElement.style.zIndex = 1;
-    cssRenderer.domElement.style.margin.left = width/2 + 'px';
-    cssRenderer.domElement.style.padding = 0;
-    //cssRenderer.domElement.style.left = 50 + '%';
+    //cssRenderer.domElement.style.left = 25 + '%';
     
     document.body.appendChild(renderer.domElement);
     document.body.appendChild(cssRenderer.domElement);
@@ -78,8 +79,8 @@ function init() {
 
 
     document.addEventListener('mousemove', function(event){
-    mouse.x        = (event.clientX / window.innerWidth ) - 0.5
-    mouse.y        = (event.clientY / window.innerHeight) - 0.5
+    mouse.x = (event.clientX / window.innerWidth ) - 0.5
+    mouse.y = (event.clientY / window.innerHeight) - 0.5
     }, false)
 
 
@@ -112,7 +113,7 @@ function init() {
 //    light.position.set( 0.75, 1, 0.25 );
 //    scene.add( light );
     
-    var pointLight = new THREE.PointLight( 0xffffff, 1, 20 ); 
+    var pointLight = new THREE.PointLight( 0xffffff, 1,0); 
     pointLight.position.set( 0, 0, 10 ); 
     pointLight.name = "pointLight";
     scene.add( pointLight );
@@ -122,19 +123,54 @@ function init() {
     
     articleDiv = document.createElement('div');
     articleDiv.innerHTML = "ads";
-    articleDiv.style.background = '#fff';
-//    articleDiv.style.width = 640 + 'px';
-//    articleDiv.style.height = 480 + 'px';
+    articleDiv.style.background = '#D3D3D3';
+    articleDiv.style.color = '#008B8B';
+    articleDiv.style.fontFamily = 'Courier';
+    articleDiv.style.fontWeight = 'bold';
+    //articleDiv.style.top = -50 + '%';
+    articleDiv.style.zIndex = '1';
+    //articleDiv.style.marginLeft = width/2 + 'px';
+    articleDiv.style.padding = '5px';
+    //articleDiv.style.left = '50%';
+    articleDiv.style.position = 'absolute';
+    //articleDiv.style.textAlign = 'center';
+    articleDiv.style.width = 'auto';
+    articleDiv.style.height = 'auto';
 //    
 //    articleDiv.style.backgroundImage = "url('src/div_bg.png')";
     console.log("bg: " + articleDiv.style.backgroundImage);
     articleDiv.style.border = 'solid';
-    render();
+    articleDiv.style.borderColor = 'black';
+    
+    bgMaterial = new THREE.ShaderMaterial( {
+    uniforms: {
+        time: { // float initialized to 0
+            type: "f",
+            value: 0.0
+        }
+    },
+    vertexShader: document.getElementById( 'vertexShader' ).textContent,
+    fragmentShader: document.getElementById( 'fragmentShader' ).textContent,
+    wireframe:true
+} );
+
+    //bgPlane = new THREE.Mesh(new THREE.CubeGeometry(10,10,10,100,100,100), material);
+    //bgPlane = new THREE.Mesh(new THREE.SphereGeometry(1,32,16, 0, Math.PI*2, 0, Math.PI), material);
+    bgPlane = new THREE.Mesh(new THREE.IcosahedronGeometry( 10, 4 ), bgMaterial);
+    bgPlane.position.z = -1 * cameraZStartPoint;
+    
+
+    scene.add(bgPlane);
+
+    //render();
 //    shapeForm = 'cube';
 //    numberOfShapes = 5;
 //    fillScene();
     //animate();
     //triangle();
+
+    
+    
 
 }
 
@@ -217,6 +253,7 @@ function displayNewScene() {
 
 /** helper function, update the parameters for the new scene */
 function updateSceneParameters(article) {
+
 		
 	if (totalArticleCount === undefined) {
 		totalArticleCount = article.totalCount;
@@ -260,6 +297,17 @@ function updateSceneParameters(article) {
 		break;
 	}
 		
+	xMovement = 0;
+	yMovement = 0;
+
+	for (var i = 0; i < article.nodes.length; i++) {
+		xMovement += article.nodes[i].x;
+		yMovement += article.nodes[i].y;
+	}
+
+	xMovement /= article.nodes.length;
+	yMovement /= article.nodes.length;
+
 }
 
 
@@ -300,15 +348,14 @@ function updateShapeColor() {
 	for (var i = 0; i < shapeMesh.length; i++) {
 		if (bgColor == 0x000000) {
 			shapeMesh[i].material.color.setHex('0xffffff');
-		} /*else if (bgColor == 0xffffff) {
+		} else if (bgColor == 0xffffff) {
 			shapeMesh[i].material.color.setHex('0x000000');
-		}*/
+		}
 	}
 }
 
 /** Helper function, update ShapeMesh and fill new scene */
 function fillScene() {
-	console.log("in fill Scene");
 //	if (lastShapeForm == shapeForm) {
 //		if (lastNumberOfShapes > numberOfShapes) {
 //			var shapesToRemove = lastNumberOfShapes - numberOfShapes;
@@ -353,22 +400,25 @@ function fillScene() {
 					shape.lineTo(1,1);
 					shape.lineTo(-1,1);
 					shape.lineTo(-1,-1);
+					geometry = new THREE.CubeGeometry(2,2,2);
 					break;
 				case 'triangle':
 					shape.moveTo(-1,-1);
 					shape.lineTo(1,-1);
 					shape.lineTo(0,0.5);
 					shape.lineTo(-1,-1);
+					geometry = new THREE.CylinderGeometry(0, 1, 1, 4, false); 
 					break;
 				case 'point':
 					shape.absarc( 0, 0, 1, 0, Math.PI*2, false );
+					geometry = new THREE.SphereGeometry(1,32,16, 0, Math.PI*2, 0, Math.PI);
 					break;
 				}
 			
-				geometry = new THREE.ShapeGeometry(shape);
+				//geometry = new THREE.ShapeGeometry(shape);
 				//geometry = new THREE.SphereGeometry(1,32,16, 0, Math.PI*2, 0, Math.PI);
 				
-				var material = new THREE.MeshLambertMaterial();
+				var material = new THREE.MeshBasicMaterial({wireframe: true});
 						
 				this.shapeMesh.push(new THREE.Mesh(geometry, material));
 				
@@ -389,7 +439,7 @@ function fillScene() {
 				
 				console.log("k" + k);
 		
-				this.shapeMesh[i].position.set(rand(-4,4) * camera.position.z/2, rand(-1,1)* camera.position.z/2, rand(-0.5,0));
+				this.shapeMesh[i].position.set(rand(-4,4) * camera.position.z/2, rand(-1,1)* camera.position.z/2, rand(-6.5,0));
 				console.log("shapeMesh.positon.x " + shapeMesh[i].position.x);
 				scene.add(this.shapeMesh[i]);
 			}
@@ -423,7 +473,7 @@ function fillScene() {
 	    //document.body.appendChild(iframe);
 		articleDiv.innerHTML = articleSrc;
 	    var cssObject = new THREE.CSS3DObject(articleDiv);
-	    cssObject.position.z = -120;
+	    cssObject.position.z = -320;
 	    //cssObject.position.x = -400;
 	    //cssObject.position.y = -20;
 	//    cssObject.position.x = 20;
@@ -455,7 +505,7 @@ function fadeOutIn() {
 	.to({v: 0.0}, time)
 	.easing(TWEEN.Easing.Sinusoidal.InOut)
 	.onUpdate( function () {
-	    cssScene.children[0].element.style.opacity = this.v-0.2;
+	    cssScene.children[0].element.style.opacity = this.v-0.1;
 	    if (lastShapeForm == shapeForm) {
 	    	if (lastNumberOfShapes > numberOfShapes) {
 			    var difference = lastNumberOfShapes - numberOfShapes;
@@ -506,7 +556,7 @@ function fadeIn() {
         	fillScene();
         })
         .onUpdate(function() {
-            cssScene.children[0].element.style.opacity = this.v-0.2;
+            cssScene.children[0].element.style.opacity = this.v-0.1;
             if (lastShapeForm == shapeForm) {
             	if (lastNumberOfShapes < numberOfShapes) {
 	    		    var difference = numberOfShapes - lastNumberOfShapes;
@@ -542,7 +592,6 @@ function updateSkyBoxColor(color) {
 
 function moveObjects() {
 	
-	
 	for (var i = 0; i < shapeMesh.length; i++) {
 		
 		var newXPosition = (1 - numberOfLastArticles/totalArticleCount) + shapeMesh[i].position.x;
@@ -573,6 +622,13 @@ function animate() {
 		//cssScene.children[0].rotation.y += Math.PI * 2  * 0.001;
 	}
 	
+	//bgPlane.rotation.y += Math.PI * 2  * 0.0001;
+	if ((clock.getElapsedTime() - lastTime) > waitTime) {
+		bgPlane.position.x += xMovement * 0.000001;
+	} else {
+		bgPlane.position.x -= xMovement * 0.000001;
+	}
+	
 	requestAnimationFrame(animate);
 	TWEEN.update();
 	var j = 1;
@@ -583,8 +639,13 @@ function animate() {
 			j = 1;
 			
 		if ((clock.getElapsedTime() - lastTime) > waitTime) {
-			shapeMesh[i].position.x += Math.random() * 0.001 * j;
-			shapeMesh[i].position.y += Math.random() * 0.001 * j;
+			shapeMesh[i].position.x += xMovement * 0.00001 * j;
+			shapeMesh[i].position.y += yMovement * 0.00001 * j;
+			shapeMesh[i].position.z += 2 * 0.00001 * j;
+			
+			shapeMesh[i].rotation.x += Math.PI * 0.000001 * xMovement;
+			shapeMesh[i].rotation.y += Math.PI * 0.000001 * yMovement;
+			shapeMesh[i].rotation.z += Math.PI * 0.000001 * xMovement;
 			//shapeMesh[i].position.z += Math.random() * 0.001 * j;
 //			if (shapeMesh[i].material.opacity < 1.0)
 //				shapeMesh[i].material.opacity += Math.random() * 0.004;
@@ -595,8 +656,13 @@ function animate() {
 					//cssScene.children[0].element.style.opacity += Math.random() * 0.004;
 //			}
 		} else {
-			shapeMesh[i].position.x -= Math.random() * 0.001 * j;
-			shapeMesh[i].position.y -= Math.random() * 0.001 * j;
+			shapeMesh[i].position.x -= xMovement * 0.00001 * j;
+			shapeMesh[i].position.y -= yMovement * 0.00001 * j;
+			shapeMesh[i].position.z -= 2 * 0.00001 * j;
+			
+			shapeMesh[i].rotation.x -= Math.PI * 0.000001 * xMovement;
+			shapeMesh[i].rotation.y -= Math.PI * 0.000001 * yMovement;
+			shapeMesh[i].rotation.z -= Math.PI * 0.000001 * yMovement;
 			//shapeMesh[i].position.z -= Math.random() * 0.001 * j;
 //			if (shapeMesh[i].material.opacity > 0.0)
 //				shapeMesh[i].material.opacity -= Math.random() * 0.004;
@@ -614,12 +680,14 @@ function animate() {
 	}
 	
 	//Mousemove
-	camera.position.x += (mouse.x*4 - camera.position.x);
-    camera.position.y += (mouse.y*4 - camera.position.y);
-	cssCamera.position.x += (mouse.x*5 - cssCamera.position.x);
-    cssCamera.position.y += (mouse.y*5 - cssCamera.position.y);
-    camera.lookAt( scene.position );
+	camera.position.x += (mouse.x*0.5 - camera.position.x);
+    camera.position.y += (mouse.y*0.5 - camera.position.y);
+	cssCamera.position.x += (mouse.x*6 - cssCamera.position.x);
+    cssCamera.position.y += (mouse.y*6 - cssCamera.position.y);
+    //camera.lookAt( scene.position );
     //cssCamera.lookAt(cssScene.position);
+
+    bgMaterial.uniforms[ 'time' ].value = .0025 * (clock.getElapsedTime());
 
 	render();
 }
@@ -633,8 +701,8 @@ function rand(min, max) {
 
 function render() {
 	
-	renderer.render(scene,camera);
-	//composer.render(scene, camera);
+	//renderer.render(scene,camera);
+	composer.render(scene, camera);
 	cssRenderer.render(cssScene, cssCamera);
 }
 

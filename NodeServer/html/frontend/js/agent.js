@@ -88,10 +88,6 @@ agent.directive('agentControl', function() {
 			//directive scope global setzen fuer link setzen beim update der symbols
 			this.scope = scope;
 			
-			var controlGroupData = [
-		     {
-		      "cx": 200,
-			  "cy": 700}];
   
 			var controlData = [{
 				  	"r": 75,
@@ -103,17 +99,21 @@ agent.directive('agentControl', function() {
 			var controlGroup;
 			var svgContainer;
 
-			var width = 300;
-			var height = 300;
+			var width = 255;
+			var height = 255;
 			
 			svgContainer = d3.select(element[0])
 			.append("svg")
 			.attr("width", width)
-			.attr("height", height);
+			.attr("height", height)
+			.style("position", "absolute")
+			.style("z-index", "2")
+			.style("top", "64%");
 			
 			controlGroup = svgContainer.append("g")
 						.attr("id", "controlGroup")
 						.attr("transform", "translate(150,110)");
+						
 				
 			var control = controlGroup.append("circle")
 						.data(controlData)
