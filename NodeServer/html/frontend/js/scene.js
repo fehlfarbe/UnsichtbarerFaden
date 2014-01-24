@@ -7,7 +7,6 @@ var cssRenderer, cssScene, cssCamera;
 
 var articleDiv;
 
-
 var shapeForm, numberOfShapes, bgColor, articleSrc;
 
 var lastShapeForm, lastBgColor, lastNumberOfShapes;
@@ -15,6 +14,8 @@ var lastShapeForm, lastBgColor, lastNumberOfShapes;
 var numberOfLastArticles, totalArticleCount;
 
 var cameraZStartPoint = 10;
+
+var mouse = {x : 0, y : 0};
 
 function init() {
 	scene = new THREE.Scene(); 
@@ -24,8 +25,8 @@ function init() {
 
 //    var width = 50;
 //    var height = 10;
-    //camera = new THREE.OrthographicCamera(width / - 2, width / 2, height / 2, height / - 2, 1, 1000 );
-    camera = new THREE.PerspectiveCamera(100, width/height, 1, 1000);
+    camera = new THREE.OrthographicCamera(width / - 64, width / 64, height / 64, height / - 64, 1, 1000 );
+    //camera = new THREE.PerspectiveCamera(100, width/height, 1, 1000);
     camera.position.z = cameraZStartPoint; 
 
     camera.lookAt(scene.position);
@@ -36,7 +37,7 @@ function init() {
     if (Detector.webgl){
     	renderer = new THREE.WebGLRenderer({antialias:true});
     } else {
-        renderer = new THREE.CanvasRenderer();
+        //renderer = new THREE.CanvasRenderer();
     }
     
 	THREEx.WindowResize(renderer, camera);
@@ -73,6 +74,13 @@ function init() {
 
 	
 	//scene.fog = new THREE.FogExp2( 0x9999ff, 0.00025 );
+
+
+
+    document.addEventListener('mousemove', function(event){
+    mouse.x        = (event.clientX / window.innerWidth ) - 0.5
+    mouse.y        = (event.clientY / window.innerHeight) - 0.5
+    }, false)
 
 
 
@@ -113,6 +121,15 @@ function init() {
     //scene.add(cubes('tedra'));
     
     articleDiv = document.createElement('div');
+    articleDiv.innerHTML = "ads";
+    articleDiv.style.background = '#fff';
+//    articleDiv.style.width = 640 + 'px';
+//    articleDiv.style.height = 480 + 'px';
+//    
+//    articleDiv.style.backgroundImage = "url('src/div_bg.png')";
+    console.log("bg: " + articleDiv.style.backgroundImage);
+    articleDiv.style.border = 'solid';
+    render();
 //    shapeForm = 'cube';
 //    numberOfShapes = 5;
 //    fillScene();
@@ -125,8 +142,7 @@ function init() {
 
 
 	
-function makeTextSprite( message, parameters )
-{
+function makeTextSprite( message, parameters ) {
         if ( parameters === undefined ) parameters = {};
         
         var fontface = parameters.hasOwnProperty("fontface") ?
@@ -200,53 +216,54 @@ function displayNewScene() {
 
 
 /** helper function, update the parameters for the new scene */
-	function updateSceneParameters(article) {
+function updateSceneParameters(article) {
 		
-		if (totalArticleCount === undefined) {
-			totalArticleCount = article.totalCount;
-		}
-		
-		lastNumberOfShapes = numberOfShapes
-		lastShapeForm = shapeForm;
-		lastBgColor = bgColor;
-		
-		numberOfLastArticles = article.lastArticles.length;
-		articleSrc = article.text;
-		numberOfShapes = Math.pow(2, article.book);
-		switch (article.symbol) {
-		case 1:
-			shapeForm = 'triangle';
-			bgColor = 0xffffff;
-			break;
-		case 2:
-			shapeForm = 'cube';
-			bgColor = 0x000000;
-			break;
-		case 3:
-			shapeForm = 'cube';
-			bgColor = 0xffffff;
-			break;
-		case 4:
-			shapeForm = 'end';
-			bgColor = 0x000000;
-			break;
-		case 5:
-			shapeForm = 'triangle';
-			bgColor = 0x000000;
-			break;
-		case 6:
-			shapeForm = 'point';
-			bgColor = 0x000000;
-			break;
-		case 7:
-			shapeForm = 'point';
-			bgColor = 0xffffff;
-			break;
-		}
-		
+	if (totalArticleCount === undefined) {
+		totalArticleCount = article.totalCount;
 	}
+	
+	lastNumberOfShapes = numberOfShapes
+	lastShapeForm = shapeForm;
+	lastBgColor = bgColor;
+	
+	numberOfLastArticles = article.lastArticles.length;
+	articleSrc = article.text;
+	numberOfShapes = Math.pow(2, article.book);
+	switch (article.symbol) {
+	case 1:
+		shapeForm = 'triangle';
+		bgColor = 0xffffff;
+		break;
+	case 2:
+		shapeForm = 'cube';
+		bgColor = 0x000000;
+		break;
+	case 3:
+		shapeForm = 'cube';
+		bgColor = 0xffffff;
+		break;
+	case 4:
+		shapeForm = 'end';
+		bgColor = 0x000000;
+		break;
+	case 5:
+		shapeForm = 'triangle';
+		bgColor = 0x000000;
+		break;
+	case 6:
+		shapeForm = 'point';
+		bgColor = 0x000000;
+		break;
+	case 7:
+		shapeForm = 'point';
+		bgColor = 0xffffff;
+		break;
+	}
+		
+}
 
 
+	
 /** Helper function, cleaning the scene */
 function cleanScene() {
 	
@@ -283,9 +300,9 @@ function updateShapeColor() {
 	for (var i = 0; i < shapeMesh.length; i++) {
 		if (bgColor == 0x000000) {
 			shapeMesh[i].material.color.setHex('0xffffff');
-		} else if (bgColor == 0xffffff) {
-			shapeMesh[i].material.color.setHex('0x141414');
-		}
+		} /*else if (bgColor == 0xffffff) {
+			shapeMesh[i].material.color.setHex('0x000000');
+		}*/
 	}
 }
 
@@ -359,8 +376,8 @@ function fillScene() {
 				
 				this.shapeMesh.name = shapeForm;
 				this.shapeMesh[i].name = shapeForm;
-				this.shapeMesh[i].material.depthWrite = true;
-				this.shapeMesh[i].material.transparent = true;
+//				this.shapeMesh[i].material.depthWrite = true;
+//				this.shapeMesh[i].material.transparent = true;
 				//this.shapeMesh[i].material.opacity = 1;
 	
 	//			var j;
@@ -372,7 +389,7 @@ function fillScene() {
 				
 				console.log("k" + k);
 		
-				this.shapeMesh[i].position.set(rand(-4,4)* camera.position.z/2, rand(-1,1)* camera.position.z/2, rand(-0.5,0));
+				this.shapeMesh[i].position.set(rand(-4,4) * camera.position.z/2, rand(-1,1)* camera.position.z/2, rand(-0.5,0));
 				console.log("shapeMesh.positon.x " + shapeMesh[i].position.x);
 				scene.add(this.shapeMesh[i]);
 			}
@@ -402,17 +419,9 @@ function fillScene() {
 	//	cssScene.add(cssObject);
 		
 		
-		articleDiv.innerHTML = articleSrc;
-	    articleDiv.style.background = '#fff';
-	    var ratio = 10 / 16.2;
-	    var width = window.innerWidth;
-	    var height = width * ratio;
-	    //iframe.style.width = '500px';
-	    //iframe.style.height = '100px';
-	    //iframe.style.opacity = '0.5';
-	    articleDiv.style.border = 'solid';
+		
 	    //document.body.appendChild(iframe);
-	    
+		articleDiv.innerHTML = articleSrc;
 	    var cssObject = new THREE.CSS3DObject(articleDiv);
 	    cssObject.position.z = -120;
 	    //cssObject.position.x = -400;
@@ -560,6 +569,10 @@ function animate() {
 //	console.log("e" + clock.elapsedTime);
 //	console.log("l" + lastTime);
 //	console.log(clock.getElapsedTime() - lastTime);
+	if (cssScene.children[0]) {
+		//cssScene.children[0].rotation.y += Math.PI * 2  * 0.001;
+	}
+	
 	requestAnimationFrame(animate);
 	TWEEN.update();
 	var j = 1;
@@ -599,6 +612,15 @@ function animate() {
 			lastTime = clock.getElapsedTime();
 		}
 	}
+	
+	//Mousemove
+	camera.position.x += (mouse.x*4 - camera.position.x);
+    camera.position.y += (mouse.y*4 - camera.position.y);
+	cssCamera.position.x += (mouse.x*5 - cssCamera.position.x);
+    cssCamera.position.y += (mouse.y*5 - cssCamera.position.y);
+    camera.lookAt( scene.position );
+    //cssCamera.lookAt(cssScene.position);
+
 	render();
 }
 
@@ -611,8 +633,8 @@ function rand(min, max) {
 
 function render() {
 	
-	//renderer.render(scene,camera);
-	composer.render(scene, camera);
+	renderer.render(scene,camera);
+	//composer.render(scene, camera);
 	cssRenderer.render(cssScene, cssCamera);
 }
 
