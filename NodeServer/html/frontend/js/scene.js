@@ -7,9 +7,9 @@ var cssRenderer, cssScene, cssCamera, cssObject;
 
 var articleDiv;
 
-var meshForm, numberOfMeshes, bgColor, articleSrc;
+var particleForm, numberOfParticles, bgColor, articleSrc;
 
-var lastmeshForm, lastBgColor, lastnumberOfMeshes;
+var lastParticleForm, lastBgColor, lastNumberOfParticles;
 
 var numberOfLastArticles, totalArticleCount;
 
@@ -20,6 +20,8 @@ var mouse = {x : 0, y : 0};
 var xMovement, yMovement;
 
 var bgObject, bgMaterial;
+
+var particleSystem, particleCount, particles;
 
 function init() {
 	scene = new THREE.Scene(); 
@@ -172,10 +174,41 @@ function init() {
 
     
     
-
+    
 }
 
 
+function initParticles() {
+	console.log("initParticles");
+	particleCount = 1024,
+	particles = new THREE.Geometry();
+	var pMaterial = new THREE.ParticleBasicMaterial({
+		size:0.5,
+		map: THREE.ImageUtils.loadTexture("src/particles/white_circle.png"),
+		// blending: THREE.AdditiveBlending,
+		transparent: true
+	});
+	
+    for (var i = 0; i < particleCount; i++) {
+    	var px = 5000,
+    		py = 5000,
+    		pz = 5000,
+    		particle = new THREE.Vector3(px,py,pz);
+			particle.velocity = new THREE.Vector3(0,-Math.random(), 0);
+    
+    		particles.vertices.push(particle);
+    }
+    
+    particleSystem = new THREE.ParticleSystem(particles, pMaterial);
+    particleSystem.sortParticles = true; 
+    particleSystem.position.set(0,0,-cameraZStartPoint);
+	
+	console.log(particles.vertices.length);
+	console.log(numberOfParticles);
+	
+	addParticlesToView();
+    scene.add(particleSystem);
+}
 
 
 	
@@ -240,14 +273,12 @@ function makeTextSprite( message, parameters ) {
 function displayNewScene() {
 	
 	//first Start of Page
-	if (meshArray.length == 0) {
-		initMeshArray();
+	if (!particleSystem) {
+		initParticles();
 		updateSkyBoxColor(bgColor);
 	} /*else {
 		updateMeshes();
 	}*/
-	
-	
 
 	if (cssScene.children.length == 0) {
 		console.log("fadeIn");
@@ -270,41 +301,41 @@ function updateSceneParameters(article) {
 		totalArticleCount = article.totalCount;
 	}
 	
-	lastnumberOfMeshes = numberOfMeshes
-	lastmeshForm = meshForm;
+	lastNumberOfParticles = numberOfParticles
+	lastParticleForm = particleForm;
 	lastBgColor = bgColor;
 	
 	numberOfLastArticles = article.lastArticles.length;
 	articleSrc = article.text;
-	numberOfMeshes = Math.pow(2, article.book);
+	numberOfParticles = Math.pow(2, article.book);
 	switch (article.symbol) {
 	case 1:
-		meshForm = 'triangle';
-		bgColor = 0xffffff;
+		particleForm = 'triangle';
+		bgColor = 0xfafafa;
 		break;
 	case 2:
-		meshForm = 'cube';
+		particleForm = 'square';
 		bgColor = 0x000000;
 		break;
 	case 3:
-		meshForm = 'cube';
-		bgColor = 0xffffff;
+		particleForm = 'square';
+		bgColor = 0xfafafa;
 		break;
 	case 4:
-		meshForm = 'end';
+		particleForm = 'end';
 		bgColor = 0x000000;
 		break;
 	case 5:
-		meshForm = 'triangle';
+		particleForm = 'triangle';
 		bgColor = 0x000000;
 		break;
 	case 6:
-		meshForm = 'point';
+		particleForm = 'circle';
 		bgColor = 0x000000;
 		break;
 	case 7:
-		meshForm = 'point';
-		bgColor = 0xffffff;
+		particleForm = 'circle';
+		bgColor = 0xfafafa;
 		break;
 	}
 		
@@ -356,45 +387,77 @@ function cleanScene() {
 }
 
 
-function updateMeshColor(mesh) {
+function updateParticleColor(particle) {
 	if (bgColor == 0x000000) {
-		mesh.material.color.setHex(0xffffff);
-	} else if (bgColor == 0xffffff) {
-		mesh.material.color.setHex(0x000000);
+		particle.material.color.setHex(0xA4A4A4);
+	} else if (bgColor == 0xfafafa) {
+		particle.material.color.setHex(0x151515);
 	}
 }
 
 
-function updateMeshes() {
-	if (lastnumberOfMeshes != numberOfMeshes) {
-		updateNumberOfMeshes();
-	}
+function updateParticles() {
 	
-	if (lastmeshForm != meshForm) {
-		for (var i = 0; i < meshArray.length; i++) {
-			updateMeshGeometry(meshArray[i]);
+	var stringPath = "src/particles/";
+
+	if (lastBgColor != bgColor || lastParticleForm != particleForm) {
+		if (bgColor == 0x000000) {
+			stringPath += "white";
+		} else if (bgColor == 0xfafafa) {
+			stringPath += "black";
 		}
+		
+		switch(particleForm) {
+		case 'square':
+			stringPath += "_square";
+			break;
+		case 'triangle':
+			stringPath += "_triangle";
+			break;
+		case 'circle':
+			stringPath += "_circle";
+			break;
+		}
+	particleSystem.material.map = THREE.ImageUtils.loadTexture(stringPath + ".png");
 	}
+	//TODO anzahl
 	
-	if (lastBgColor != bgColor) {
-		for (var i = 0; i < meshArray.length; i++) {
-			updateMeshColor(meshArray[i]);
-		}
+	if (lastNumberOfParticles != numberOfParticles) {
+		removeAllParticlesFromView();
+		addParticlesToView();
+	
 	}
 }
+
+function removeAllParticlesFromView() {
+	for (var i = 0; i < numberOfParticles; i++) {
+		particles.vertices[i].x = 5000;
+		particles.vertices[i].y = 5000;
+		particles.vertices[i].z = 5000;
+	}
+	particleSystem.geometry.__dirtyVertices = true;
+}	
 	
+function addParticlesToView() {
+	for (var i = 0; i < numberOfParticles; i++) {
+		particles.vertices[i].x = Math.random() * 32 - 16;
+		particles.vertices[i].y = Math.random() * 16 - 8;
+		particles.vertices[i].z = Math.random() * 20 - 10;
+	}
+	particleSystem.geometry.__dirtyVertices = true;
+}	
 	
-function updateNumberOfMeshes() {
-	if (lastnumberOfMeshes > numberOfMeshes) {
-		var meshesToRemove = lastnumberOfMeshes - numberOfMeshes;
-		for (var i = 0; i < meshesToRemove; i++) {
+function updateNumberOfParticles() {
+	if (lastnumberOfParticles > numberOfParticles) {
+		var particlesToRemove = lastnumberOfParticles - numberOfParticles;
+		for (var i = 0; i < particlesToRemove; i++) {
 		    meshArray.pop();
 //		    scene.children.pop();
 //		    console.log("pop");
 		}
-	} else if (lastnumberOfMeshes < numberOfMeshes) {
-		var meshesToAdd = numberOfMeshes - lastnumberOfMeshes;
-		for (var i = 0; i < meshesToAdd; i++) {
+	} else if (lastnumberOfParticles < numberOfParticles) {
+		var particlesToAdd = numberOfParticles - lastnumberOfParticles;
+		for (var i = 0; i < particlesToAdd; i++) {
 			addMesh();
 			//TODO BUG!!!!
 
@@ -413,197 +476,37 @@ function updateNumberOfMeshes() {
 	}
 }
 
-function updateMeshGeometry(mesh) {
-	//cleanScene();
-	var tempArray = meshArray.slice();
-	meshArray = [];
-	for (var i = 0; i < numberOfMeshes; i++) {
-		addMesh(tempArray[i].position);
-	}
-	
-	//mesh.geometry = getMeshGeometry();
-	
-	
-	
-//	mesh.setGeometry(getMeshGeometry());
-}
-
-	
-	
-/** Helper function, determines the geometry from meshForm */	
-function getMeshGeometry() {
-	//Shape kann entfernt werden, wenn Objekte 3D bleiben
-	
-	var shape = new THREE.Shape();
-	var geometry;
-	switch(meshForm) {
-	case 'cube':
-		shape.moveTo(-1,-1);
-		shape.lineTo(1,-1);
-		shape.lineTo(1,1);
-		shape.lineTo(-1,1);
-		shape.lineTo(-1,-1);
-		geometry = new THREE.CubeGeometry(2,2,2);
-		break;
-	case 'triangle':
-		shape.moveTo(-1,-1);
-		shape.lineTo(1,-1);
-		shape.lineTo(0,0.5);
-		shape.lineTo(-1,-1);
-		geometry = new THREE.CylinderGeometry(0, 1, 1, 4, false); 
-		break;
-	case 'point':
-		shape.absarc( 0, 0, 1, 0, Math.PI*2, false );
-		geometry = new THREE.SphereGeometry(1,32,16, 0, Math.PI*2, 0, Math.PI);
-		break;
-	}
-	return geometry;
-}
-
-function initMeshArray() {
-	for (var i = 0; i < numberOfMeshes; i++) {
-		addMesh();
-	}	
-}
-
-function getMeshMaterial() {
-	var material = new THREE.MeshBasicMaterial({wireframe: true});
-	return material;
-}
-
-
-function addMesh(position) {
-	var mesh = new THREE.Mesh(getMeshGeometry(), getMeshMaterial());
-	updateMeshColor(mesh);
-	mesh.name = meshForm;
-	if (!position) {
-		mesh.position.set(rand(-4,4) * camera.position.z/2, rand(-1,1) * camera.position.z/2, rand(-6.5,0));
-	} else {
-		mesh.position.set(position.x, position.y, position.z);
-	}
-	meshArray.name = meshForm;
-	meshArray.push(mesh);
-	
-//	scene.add(mesh);
-}	
 	
 /** Helper function fills the scene */
 function fillScene() {
 	
-	if (meshForm == 'end') {
+	if (particleForm == 'end') {
 		var k = 1 - numberOfLastArticles/totalArticleCount;
 		var spritey = makeTextSprite( "The End",
-        { fontsize: 24, borderColor: {r:255, g:0, b:0, a:1.0}, backgroundColor: {r:255, g:100, b:100, a:0.8} } );
+        { fontsize: 24*k, borderColor: {r:255, g:0, b:0, a:1.0}, backgroundColor: {r:255, g:100, b:100, a:0.8} } );
 		spritey.position.set(-10*k,5*k,0);
+		
+		for (var i = 0; i < scene.children.length; i++) {
+			console.log("remove " + scene.children[i].name);
+			scene.remove(scene.children[i]);
+		}
+		//cssScene.remove(cssObject);
+		
 		scene.add( spritey );
+		
+		console.log(scene);
+		
 		//animate;
 		//return;
 	} else {
 
-		cleanScene();
-		updateMeshes();
+		//cleanScene();
+		updateParticles();
 		for (var i = 0; i < meshArray.length; i++) {
 			scene.add(meshArray[i]);
 		}
-	}
-	
-	
-	
-	
-
-//	if (lastmeshForm == meshForm) {
-//		if (lastnumberOfMeshes > numberOfMeshes) {
-//			var shapesToRemove = lastnumberOfMeshes - numberOfMeshes;
-//			for (var i = 0; i < shapesToRemove; i++) {
-////			    meshArray.pop();
-////			    console.log("pop");
-//			}
-//		} else if (lastnumberOfMeshes < numberOfMeshes) {
-//			var shapesToAdd = numberOfMeshes - lastnumberOfMeshes;
-//			for (var i = 0; i < shapesToAdd; i++) {
-//				
-//				//TODO BUG!!!!
-//
-////				var tempMesh = meshArray.slice(0,1);
-////				console.log(tempMesh);
-////				//tempMesh.position.set(rand(-4,4)* camera.position.z/2, rand(-1,1)* camera.position.z/2, rand(-0.5,0));
-////			    meshArray.push(tempMesh);
-////			    scene.add(meshArray[meshArray.length-1]);
-////			    console.log("push and add");
-//			}		
-//		}
-//		updateMeshColor();
-//	} else {
-		//reset Array
-//		this.meshArray = new Array();
-//		var k = 1 - numberOfLastArticles/totalArticleCount;
-//		if (meshForm == 'end') {
-//			var spritey = makeTextSprite( "The End",
-//	        { fontsize: 24, borderColor: {r:255, g:0, b:0, a:1.0}, backgroundColor: {r:255, g:100, b:100, a:0.8} } );
-//			spritey.position.set(-10*k,5*k,0);
-//			scene.add( spritey );
-//			//animate;
-//			//return;
-//		} else {
-//			for (var i = 0; i < numberOfMeshes; i++) {
-//				
-//			
-//				//geometry = new THREE.ShapeGeometry(shape);
-//				//geometry = new THREE.SphereGeometry(1,32,16, 0, Math.PI*2, 0, Math.PI);
-//				
-//				var material = new THREE.MeshBasicMaterial({wireframe: true});
-//						
-//				this.meshArray.push(new THREE.Mesh(geometry, material));
-//				
-//				updateMeshColor();
-//				
-//				this.meshArray.name = meshForm;
-//				this.meshArray[i].name = meshForm;
-////				this.meshArray[i].material.depthWrite = true;
-////				this.meshArray[i].material.transparent = true;
-//				//this.meshArray[i].material.opacity = 1;
-//	
-//	//			var j;
-//	//			if (i%2) 
-//	//				j = -1;
-//	//			else
-//	//				j = 1;
-//	
-//				
-//				console.log("k" + k);
-//		
-//				this.meshArray[i].position.set(rand(-4,4) * camera.position.z/2, rand(-1,1)* camera.position.z/2, rand(-6.5,0));
-//				console.log("meshArray.positon.x " + meshArray[i].position.x);
-//				scene.add(this.meshArray[i]);
-//			}
-			//animate();
-			//render();
-//		}
-//	}
-	//updateSkyBoxColor(bgColor);
-
-			//var div = document.createElement('div');
-	//	element.src = src;
-	//	console.log(src);
-	//	var elementWidth = 256;
-	//	var aspectRatio = planeHeight/planeWidth;
-	//	var elementHeight = elementWidth * aspectRatio;
-	//	element.style.width = elementWidth + "px";
-	//	element.style.height = elementHeight + "px";
-	//	
-	//	var cssObject = new THREE.CSS3DObject(element);
-	//	cssObject.position = planeMesh.position;
-	//	cssObject.rotation = planeMesh.rotation;
-	//	
-	//	//planeMesh.position.x = 10;
-	//	var percentBorder = 0.05;
-	//    cssObject.scale.x /= (1 + percentBorder) * (elementWidth / planeWidth);
-	//    cssObject.scale.y /= (1 + percentBorder) * (elementWidth / planeWidth);
-	//	cssScene.add(cssObject);
 		
-		
-		
-	    //document.body.appendChild(iframe);
+		//document.body.appendChild(iframe);
 		articleDiv.innerHTML = articleSrc;
 	    cssObject = new THREE.CSS3DObject(articleDiv);
 	    cssObject.position.z = -320;
@@ -614,7 +517,8 @@ function fillScene() {
 	    	cssScene.add(cssObject);
 	    }
 	    console.log("add cssObject");
-
+		
+	}
 }
 
 function moveCamera() {
@@ -695,7 +599,8 @@ function fadeIn() {
         	fillScene();
         })
         .onUpdate(function() {
-            cssScene.children[0].element.style.opacity = this.v-0.1;
+			if (particleForm != 'end')
+				cssScene.children[0].element.style.opacity = this.v-0.1;
 //            if (lastmeshForm == meshForm) {
 //            	if (lastnumberOfMeshes < numberOfMeshes) {
 //	    		    var difference = numberOfMeshes - lastnumberOfMeshes;
@@ -758,80 +663,72 @@ function moveObjects() {
 
 
 function animate() {
-//	console.log("e" + clock.elapsedTime);
-//	console.log("l" + lastTime);
-//	console.log(clock.getElapsedTime() - lastTime);
-	if (cssScene.children[0]) {
-		//cssScene.children[0].rotation.y += Math.PI * 2  * 0.001;
-	}
-	
-	//bgObject.rotation.y += Math.PI * 2  * 0.0001;
-	if ((clock.getElapsedTime() - lastTime) > waitTime) {
-		bgObject.position.x += xMovement * 0.000001;
-	} else {
-		bgObject.position.x -= xMovement * 0.000001;
-	}
-	
+
 	requestAnimationFrame(animate);
 	TWEEN.update();
-	var j = 1;
-	for (var i = 0; i < meshArray.length; i++) {
-		if (i%2)
-			j = -1;
-		else
-			j = 1;
-			
-		if ((clock.getElapsedTime() - lastTime) > waitTime) {
-			meshArray[i].position.x += xMovement * 0.00001 * j;
-			meshArray[i].position.y += yMovement * 0.00001 * j;
-			meshArray[i].position.z += 2 * 0.00001 * j;
-			
-			meshArray[i].rotation.x += Math.PI * 0.000001 * xMovement;
-			meshArray[i].rotation.y += Math.PI * 0.000001 * yMovement;
-			meshArray[i].rotation.z += Math.PI * 0.000001 * (xMovement+yMovement)/2;
-			//meshArray[i].position.z += Math.random() * 0.001 * j;
-//			if (meshArray[i].material.opacity < 1.0)
-//				meshArray[i].material.opacity += Math.random() * 0.004;
-//			if (cssScene.children[0]) {
-			//console.log(cssScene.children[0].element);
-				//cssScene.children[0].position.x += Math.random() * 2;
-				//if (cssScene.children[0].element.style.opacity < 1.0)
-					//cssScene.children[0].element.style.opacity += Math.random() * 0.004;
-//			}
-		} else {
-			meshArray[i].position.x -= xMovement * 0.00001 * j;
-			meshArray[i].position.y -= yMovement * 0.00001 * j;
-			meshArray[i].position.z -= 2 * 0.00001 * j;
-			
-			meshArray[i].rotation.x -= Math.PI * 0.000001 * xMovement;
-			meshArray[i].rotation.y -= Math.PI * 0.000001 * yMovement;
-			meshArray[i].rotation.z -= Math.PI * 0.000001 * (xMovement+yMovement)/2;
-			//meshArray[i].position.z -= Math.random() * 0.001 * j;
-//			if (meshArray[i].material.opacity > 0.0)
-//				meshArray[i].material.opacity -= Math.random() * 0.004;
-//			if (cssScene.children[0]) {
-				//cssScene.children[0].position.x -= Math.random() * 2;
-				//if (cssScene.children[0].element.style.opacity > 0.0)
-					//cssScene.children[0].element.style.opacity -= Math.random() * 0.004;
-//			}
+	
+	if (particleForm != 'end') {
+		if (cssScene.children[0]) {
+			//cssScene.children[0].rotation.y += Math.PI * 2  * 0.001;
 		}
 		
-		if (clock.getElapsedTime() - lastTime > waitTime*2) {
-			waitTime = rand(0,9);
-			lastTime = clock.getElapsedTime();
-		}
+		//bgObject.rotation.y += Math.PI * 2  * 0.0001;
+		// if ((clock.getElapsedTime() - lastTime) > waitTime) {
+			// bgObject.position.x += xMovement * 0.000001;
+		// } else {
+			// bgObject.position.x -= xMovement * 0.000001;
+		// }
+		
+		var j = 1;
+		// for (var i = 0; i < particles.vertices.length; i++) {
+			// if (i%2)
+				// j = -1;
+			// else
+				// j = 1;
+				
+			
+		// }
+		
+		// if ((clock.getElapsedTime() - lastTime) > waitTime) {
+
+				// j = -j
+			// }
+			
+			// if (clock.getElapsedTime() - lastTime > waitTime*2) {
+				// waitTime = rand(0,9);
+				// lastTime = clock.getElapsedTime();
+			// }
+		
+		
+		//Mousemove
+		camera.position.x += (mouse.x*0.5 - camera.position.x);
+		camera.position.y += (mouse.y*0.5 - camera.position.y);
+		cssCamera.position.x += (mouse.x*0.15 - cssCamera.position.x);
+		cssCamera.position.y += (mouse.y*0.15 - cssCamera.position.y);
+		camera.lookAt( scene.position );
+		cssCamera.lookAt(cssScene.position);
+
+		bgMaterial.uniforms[ 'time' ].value = .0025 * (clock.getElapsedTime());
+		
+		
+		particleSystem.rotation.x += Math.PI * xMovement * 0.00000008;
+		particleSystem.rotation.y += Math.PI * yMovement * 0.00000008;
+		particleSystem.rotation.z += Math.PI * (xMovement+yMovement)/2 * 0.00000008;
+		
+		// var pCount = particleCount;
+		// while (pCount--) {
+			// var particle = particles.vertices[pCount];
+			
+			// if (particle.y < -200) {
+				// particle.y = 200;
+				// particle.velocity.y = 0;
+			// }
+			// particle.velocity.y -= Math.random() * 0.1;
+			// particle.add(particle.velocity);
+		// }
+		// particleSystem.geometry.__dirtyVertices = true;
 	}
 	
-	//Mousemove
-	camera.position.x += (mouse.x*0.5 - camera.position.x);
-    camera.position.y += (mouse.y*0.5 - camera.position.y);
-	cssCamera.position.x += (mouse.x*0.15 - cssCamera.position.x);
-    cssCamera.position.y += (mouse.y*0.15 - cssCamera.position.y);
-    camera.lookAt( scene.position );
-    cssCamera.lookAt(cssScene.position);
-
-    bgMaterial.uniforms[ 'time' ].value = .0025 * (clock.getElapsedTime());
-
 	render();
 }
 
