@@ -28,6 +28,7 @@ function agentController($scope, $http) {
 			updateControl(article.symbols);
 			updateSceneParameters(article);				
 			displayNewScene();
+			//initGraph();
 		})
 		.error(function(err){
 			console.error(err);
@@ -42,7 +43,7 @@ function agentController($scope, $http) {
 				updateControl(article.symbols);
 				updateSceneParameters(article);
 				displayNewScene();
-				//displayNewScene(article.text);
+				updateGraph(article.book);
 			})
 			.error(function(err){
 				console.error(err);
@@ -77,6 +78,18 @@ function agentController($scope, $http) {
 		
 };
 
+
+agent.directive('ekgGraph', function() {
+	return {
+		restrict: 'E',
+		scope:{onClick:'&'},
+		link: function(scope, element, attrs) {
+			
+		
+		}
+	}
+});	
+	
 
 /** directive tag <agent-control>, ermoeglicht Verknuepfung angular und d3 **/
 agent.directive('agentControl', function() {

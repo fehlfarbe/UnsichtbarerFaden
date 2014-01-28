@@ -5,10 +5,11 @@
 <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1">
 <title>Der Unsichtbare Faden</title>
 
+
 <!-- bootstrap -->
 <link rel="stylesheet" type="text/css" href="/lib/bootstrap/css/bootstrap.min.css">
 <link rel="stylesheet" type="text/css" href="css/frontend.css">
-
+<link rel="stylesheet" type="text/css" href="css/graph.css">
 
 <script src="/lib/d3/d3.v3.min.js"></script>
 <script src="/lib/threejs/three.min.js"></script>
@@ -32,10 +33,13 @@
 		<script src="js/postprocessing/ShaderPass.js"></script>
 <script src="/lib/angular/angular.min.js"></script>
 <script src="js/agent.js"></script>
-<script src="js/control.js"></script>
 
-
+<script src="js/graph.js"></script>
 <script src="js/scene.js"></script>
+
+<style>
+			
+		</style>
 </head>
 <body>
 <script type="x-shader/x-vertex" id="vertexShader">
@@ -249,6 +253,7 @@ void main() {
  
 
     </script>
+    <div id="graph" class="aGraph"><p>Persönlicher Faden</p></div>
 	<div id="view" ng-view>
 		
 	</div>

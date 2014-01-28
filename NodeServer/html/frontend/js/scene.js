@@ -1,15 +1,15 @@
 /**
  * The webgl scene
  */
-var scene, renderer, camera, composer, group, skyBox, shapeMesh, clock, lastTime, width, height, waitTime;
+var scene, renderer, camera, composer, group, skyBox, meshArray, clock, lastTime, width, height, waitTime;
 
-var cssRenderer, cssScene, cssCamera;
+var cssRenderer, cssScene, cssCamera, cssObject;
 
 var articleDiv;
 
-var shapeForm, numberOfShapes, bgColor, articleSrc;
+var meshForm, numberOfMeshes, bgColor, articleSrc;
 
-var lastShapeForm, lastBgColor, lastNumberOfShapes;
+var lastmeshForm, lastBgColor, lastnumberOfMeshes;
 
 var numberOfLastArticles, totalArticleCount;
 
@@ -19,7 +19,7 @@ var mouse = {x : 0, y : 0};
 
 var xMovement, yMovement;
 
-var bgPlane, bgMaterial;
+var bgObject, bgMaterial;
 
 function init() {
 	scene = new THREE.Scene(); 
@@ -41,7 +41,8 @@ function init() {
     if (Detector.webgl){
     	renderer = new THREE.WebGLRenderer({antialias:true});
     } else {
-        //renderer = new THREE.CanvasRenderer();
+    	/* TODO: Message kein Web GL ausgeben */
+//        renderer = new THREE.CanvasRenderer();
     }
     
     THREEx.WindowResize(cssRenderer, cssCamera);  
@@ -68,7 +69,7 @@ function init() {
 
 	
 	var skyBoxGeometry = new THREE.CubeGeometry(1000,1000,1000);
-	var skyBoxMaterial = new THREE.MeshBasicMaterial({color:0x000000, side:THREE.BackSide });
+	var skyBoxMaterial = new THREE.MeshBasicMaterial({color:0xffffff, side:THREE.BackSide });
 	skyBox = new THREE.Mesh(skyBoxGeometry, skyBoxMaterial);
 	skyBox.name = "skyBox";
 	scene.add(skyBox);
@@ -85,7 +86,7 @@ function init() {
 
 
 
-	shapeMesh = new Array();
+	meshArray = new Array();
 
 
     clock = new THREE.Clock(true);
@@ -154,17 +155,17 @@ function init() {
     wireframe:true
 } );
 
-    //bgPlane = new THREE.Mesh(new THREE.CubeGeometry(10,10,10,100,100,100), material);
-    //bgPlane = new THREE.Mesh(new THREE.SphereGeometry(1,32,16, 0, Math.PI*2, 0, Math.PI), material);
-    bgPlane = new THREE.Mesh(new THREE.IcosahedronGeometry( 10, 4 ), bgMaterial);
-    bgPlane.position.z = -1 * cameraZStartPoint;
-    
+    //bgObject = new THREE.Mesh(new THREE.CubeGeometry(10,10,10,100,100,100), material);
+    //bgObject = new THREE.Mesh(new THREE.SphereGeometry(1,32,16, 0, Math.PI*2, 0, Math.PI), material);
+    bgObject = new THREE.Mesh(new THREE.IcosahedronGeometry( 10, 4 ), bgMaterial);
+    bgObject.position.z = -1 * cameraZStartPoint;
+    bgObject.name = "bgObject";
 
-    scene.add(bgPlane);
+    scene.add(bgObject);
 
     //render();
-//    shapeForm = 'cube';
-//    numberOfShapes = 5;
+//    meshForm = 'cube';
+//    numberOfMeshes = 5;
 //    fillScene();
     //animate();
     //triangle();
@@ -235,8 +236,19 @@ function makeTextSprite( message, parameters ) {
 	
 	
 
-/** Display new Scene, fade between changes in shapeForm and Background */
+/** Display new Scene, fade between changes in meshForm and Background */
 function displayNewScene() {
+	
+	//first Start of Page
+	if (meshArray.length == 0) {
+		initMeshArray();
+		updateSkyBoxColor(bgColor);
+	} /*else {
+		updateMeshes();
+	}*/
+	
+	
+
 	if (cssScene.children.length == 0) {
 		console.log("fadeIn");
 		fadeIn();
@@ -254,45 +266,44 @@ function displayNewScene() {
 /** helper function, update the parameters for the new scene */
 function updateSceneParameters(article) {
 
-		
 	if (totalArticleCount === undefined) {
 		totalArticleCount = article.totalCount;
 	}
 	
-	lastNumberOfShapes = numberOfShapes
-	lastShapeForm = shapeForm;
+	lastnumberOfMeshes = numberOfMeshes
+	lastmeshForm = meshForm;
 	lastBgColor = bgColor;
 	
 	numberOfLastArticles = article.lastArticles.length;
 	articleSrc = article.text;
-	numberOfShapes = Math.pow(2, article.book);
+	numberOfMeshes = Math.pow(2, article.book);
 	switch (article.symbol) {
 	case 1:
-		shapeForm = 'triangle';
+		meshForm = 'triangle';
 		bgColor = 0xffffff;
 		break;
 	case 2:
-		shapeForm = 'cube';
+		meshForm = 'cube';
 		bgColor = 0x000000;
 		break;
 	case 3:
-		shapeForm = 'cube';
+		meshForm = 'cube';
 		bgColor = 0xffffff;
 		break;
 	case 4:
-		shapeForm = 'end';
+		meshForm = 'end';
 		bgColor = 0x000000;
 		break;
 	case 5:
-		shapeForm = 'triangle';
+		meshForm = 'triangle';
 		bgColor = 0x000000;
 		break;
 	case 6:
-		shapeForm = 'point';
+		meshForm = 'point';
 		bgColor = 0x000000;
 		break;
 	case 7:
-		shapeForm = 'point';
+		meshForm = 'point';
 		bgColor = 0xffffff;
 		break;
 	}
@@ -316,16 +327,16 @@ function updateSceneParameters(article) {
 function cleanScene() {
 	
 	// if shapes are the same, and new number is lower remove only the difference from scene
-//	if (lastShapeForm == shapeForm) {
-//		if (lastNumberOfShapes > numberOfShapes) {
-//			var shapesToRemove = lastNumberOfShapes - numberOfShapes;
+//	if (lastmeshForm == meshForm) {
+//		if (lastnumberOfMeshes > numberOfMeshes) {
+//			var shapesToRemove = lastnumberOfMeshes - numberOfMeshes;
 //			
 //
 //			for (var i = 0; i < shapesToRemove; i++) {
 //			    scene.traverse (function (object){
 //			    	if (object instanceof THREE.Mesh)
 //			    	{
-//			    		if (object.name === shapeMesh.name) {
+//			    		if (object.name === meshArray.name) {
 //			    			console.log("scene removed object");
 //			    			scene.remove(object);
 //			    		}
@@ -336,118 +347,240 @@ function cleanScene() {
 //		}
 //	} else {
 		for (var i = scene.children.length -1; i >= 0; i--) {
-			if (scene.children[i].name == shapeMesh.name) {
+			if (scene.children[i] instanceof THREE.Mesh && scene.children[i].name != "bgObject" && scene.children[i].name != "skyBox") {
 				scene.remove(scene.children[i]);
 			}
 		}
+//		meshArray = []
 //	}
 }
 
 
-function updateShapeColor() {
-	for (var i = 0; i < shapeMesh.length; i++) {
-		if (bgColor == 0x000000) {
-			shapeMesh[i].material.color.setHex('0xffffff');
-		} else if (bgColor == 0xffffff) {
-			shapeMesh[i].material.color.setHex('0x000000');
-		}
+function updateMeshColor(mesh) {
+	if (bgColor == 0x000000) {
+		mesh.material.color.setHex(0xffffff);
+	} else if (bgColor == 0xffffff) {
+		mesh.material.color.setHex(0x000000);
 	}
 }
 
-/** Helper function, update ShapeMesh and fill new scene */
+
+function updateMeshes() {
+	if (lastnumberOfMeshes != numberOfMeshes) {
+		updateNumberOfMeshes();
+	}
+	
+	if (lastmeshForm != meshForm) {
+		for (var i = 0; i < meshArray.length; i++) {
+			updateMeshGeometry(meshArray[i]);
+		}
+	}
+	
+	if (lastBgColor != bgColor) {
+		for (var i = 0; i < meshArray.length; i++) {
+			updateMeshColor(meshArray[i]);
+		}
+	}
+}
+	
+	
+function updateNumberOfMeshes() {
+	if (lastnumberOfMeshes > numberOfMeshes) {
+		var meshesToRemove = lastnumberOfMeshes - numberOfMeshes;
+		for (var i = 0; i < meshesToRemove; i++) {
+		    meshArray.pop();
+//		    scene.children.pop();
+//		    console.log("pop");
+		}
+	} else if (lastnumberOfMeshes < numberOfMeshes) {
+		var meshesToAdd = numberOfMeshes - lastnumberOfMeshes;
+		for (var i = 0; i < meshesToAdd; i++) {
+			addMesh();
+			//TODO BUG!!!!
+
+//			var tempMesh = meshArray.slice(0,1);
+//			console.log(tempMesh);
+//			//tempMesh.position.set(rand(-4,4)* camera.position.z/2, rand(-1,1)* camera.position.z/2, rand(-0.5,0));
+//		    meshArray.push(tempMesh);
+//		    this.meshArray.push(new THREE.Mesh(getMeshGeometry(), getMeshMaterial()));
+//			updateMeshColor();
+			//this.meshArray.name = meshForm;
+			//this.meshArray[i].name = meshForm;
+//			this.meshArray[i].position.set(rand(-4,4) * camera.position.z/2, rand(-1,1)* camera.position.z/2, rand(-6.5,0));
+//		    scene.add(meshArray[meshArray.length-1]);
+//		    console.log("push and add");
+		}		
+	}
+}
+
+function updateMeshGeometry(mesh) {
+	//cleanScene();
+	var tempArray = meshArray.slice();
+	meshArray = [];
+	for (var i = 0; i < numberOfMeshes; i++) {
+		addMesh(tempArray[i].position);
+	}
+	
+	//mesh.geometry = getMeshGeometry();
+	
+	
+	
+//	mesh.setGeometry(getMeshGeometry());
+}
+
+	
+	
+/** Helper function, determines the geometry from meshForm */	
+function getMeshGeometry() {
+	//Shape kann entfernt werden, wenn Objekte 3D bleiben
+	
+	var shape = new THREE.Shape();
+	var geometry;
+	switch(meshForm) {
+	case 'cube':
+		shape.moveTo(-1,-1);
+		shape.lineTo(1,-1);
+		shape.lineTo(1,1);
+		shape.lineTo(-1,1);
+		shape.lineTo(-1,-1);
+		geometry = new THREE.CubeGeometry(2,2,2);
+		break;
+	case 'triangle':
+		shape.moveTo(-1,-1);
+		shape.lineTo(1,-1);
+		shape.lineTo(0,0.5);
+		shape.lineTo(-1,-1);
+		geometry = new THREE.CylinderGeometry(0, 1, 1, 4, false); 
+		break;
+	case 'point':
+		shape.absarc( 0, 0, 1, 0, Math.PI*2, false );
+		geometry = new THREE.SphereGeometry(1,32,16, 0, Math.PI*2, 0, Math.PI);
+		break;
+	}
+	return geometry;
+}
+
+function initMeshArray() {
+	for (var i = 0; i < numberOfMeshes; i++) {
+		addMesh();
+	}	
+}
+
+function getMeshMaterial() {
+	var material = new THREE.MeshBasicMaterial({wireframe: true});
+	return material;
+}
+
+
+function addMesh(position) {
+	var mesh = new THREE.Mesh(getMeshGeometry(), getMeshMaterial());
+	updateMeshColor(mesh);
+	mesh.name = meshForm;
+	if (!position) {
+		mesh.position.set(rand(-4,4) * camera.position.z/2, rand(-1,1) * camera.position.z/2, rand(-6.5,0));
+	} else {
+		mesh.position.set(position.x, position.y, position.z);
+	}
+	meshArray.name = meshForm;
+	meshArray.push(mesh);
+	
+//	scene.add(mesh);
+}	
+	
+/** Helper function fills the scene */
 function fillScene() {
-//	if (lastShapeForm == shapeForm) {
-//		if (lastNumberOfShapes > numberOfShapes) {
-//			var shapesToRemove = lastNumberOfShapes - numberOfShapes;
+	
+	if (meshForm == 'end') {
+		var k = 1 - numberOfLastArticles/totalArticleCount;
+		var spritey = makeTextSprite( "The End",
+        { fontsize: 24, borderColor: {r:255, g:0, b:0, a:1.0}, backgroundColor: {r:255, g:100, b:100, a:0.8} } );
+		spritey.position.set(-10*k,5*k,0);
+		scene.add( spritey );
+		//animate;
+		//return;
+	} else {
+
+		cleanScene();
+		updateMeshes();
+		for (var i = 0; i < meshArray.length; i++) {
+			scene.add(meshArray[i]);
+		}
+	}
+	
+	
+	
+	
+
+//	if (lastmeshForm == meshForm) {
+//		if (lastnumberOfMeshes > numberOfMeshes) {
+//			var shapesToRemove = lastnumberOfMeshes - numberOfMeshes;
 //			for (var i = 0; i < shapesToRemove; i++) {
-////			    shapeMesh.pop();
+////			    meshArray.pop();
 ////			    console.log("pop");
 //			}
-//		} else if (lastNumberOfShapes < numberOfShapes) {
-//			var shapesToAdd = numberOfShapes - lastNumberOfShapes;
+//		} else if (lastnumberOfMeshes < numberOfMeshes) {
+//			var shapesToAdd = numberOfMeshes - lastnumberOfMeshes;
 //			for (var i = 0; i < shapesToAdd; i++) {
 //				
 //				//TODO BUG!!!!
 //
-////				var tempMesh = shapeMesh.slice(0,1);
+////				var tempMesh = meshArray.slice(0,1);
 ////				console.log(tempMesh);
 ////				//tempMesh.position.set(rand(-4,4)* camera.position.z/2, rand(-1,1)* camera.position.z/2, rand(-0.5,0));
-////			    shapeMesh.push(tempMesh);
-////			    scene.add(shapeMesh[shapeMesh.length-1]);
+////			    meshArray.push(tempMesh);
+////			    scene.add(meshArray[meshArray.length-1]);
 ////			    console.log("push and add");
 //			}		
 //		}
-//		updateShapeColor();
+//		updateMeshColor();
 //	} else {
 		//reset Array
-		this.shapeMesh = new Array();
-		var k = 1 - numberOfLastArticles/totalArticleCount;
-		if (shapeForm == 'end') {
-			var spritey = makeTextSprite( "The End",
-	        { fontsize: 24, borderColor: {r:255, g:0, b:0, a:1.0}, backgroundColor: {r:255, g:100, b:100, a:0.8} } );
-			spritey.position.set(-10*k,5*k,0);
-			scene.add( spritey );
-			//animate;
-			//return;
-		} else {
-			for (var i = 0; i < numberOfShapes; i++) {
-				var shape = new THREE.Shape();
-				var geometry;
-				switch(shapeForm) {
-				case 'cube':
-					shape.moveTo(-1,-1);
-					shape.lineTo(1,-1);
-					shape.lineTo(1,1);
-					shape.lineTo(-1,1);
-					shape.lineTo(-1,-1);
-					geometry = new THREE.CubeGeometry(2,2,2);
-					break;
-				case 'triangle':
-					shape.moveTo(-1,-1);
-					shape.lineTo(1,-1);
-					shape.lineTo(0,0.5);
-					shape.lineTo(-1,-1);
-					geometry = new THREE.CylinderGeometry(0, 1, 1, 4, false); 
-					break;
-				case 'point':
-					shape.absarc( 0, 0, 1, 0, Math.PI*2, false );
-					geometry = new THREE.SphereGeometry(1,32,16, 0, Math.PI*2, 0, Math.PI);
-					break;
-				}
-			
-				//geometry = new THREE.ShapeGeometry(shape);
-				//geometry = new THREE.SphereGeometry(1,32,16, 0, Math.PI*2, 0, Math.PI);
-				
-				var material = new THREE.MeshBasicMaterial({wireframe: true});
-						
-				this.shapeMesh.push(new THREE.Mesh(geometry, material));
-				
-				updateShapeColor();
-				
-				this.shapeMesh.name = shapeForm;
-				this.shapeMesh[i].name = shapeForm;
-//				this.shapeMesh[i].material.depthWrite = true;
-//				this.shapeMesh[i].material.transparent = true;
-				//this.shapeMesh[i].material.opacity = 1;
-	
-	//			var j;
-	//			if (i%2) 
-	//				j = -1;
-	//			else
-	//				j = 1;
-	
-				
-				console.log("k" + k);
-		
-				this.shapeMesh[i].position.set(rand(-4,4) * camera.position.z/2, rand(-1,1)* camera.position.z/2, rand(-6.5,0));
-				console.log("shapeMesh.positon.x " + shapeMesh[i].position.x);
-				scene.add(this.shapeMesh[i]);
-			}
+//		this.meshArray = new Array();
+//		var k = 1 - numberOfLastArticles/totalArticleCount;
+//		if (meshForm == 'end') {
+//			var spritey = makeTextSprite( "The End",
+//	        { fontsize: 24, borderColor: {r:255, g:0, b:0, a:1.0}, backgroundColor: {r:255, g:100, b:100, a:0.8} } );
+//			spritey.position.set(-10*k,5*k,0);
+//			scene.add( spritey );
+//			//animate;
+//			//return;
+//		} else {
+//			for (var i = 0; i < numberOfMeshes; i++) {
+//				
+//			
+//				//geometry = new THREE.ShapeGeometry(shape);
+//				//geometry = new THREE.SphereGeometry(1,32,16, 0, Math.PI*2, 0, Math.PI);
+//				
+//				var material = new THREE.MeshBasicMaterial({wireframe: true});
+//						
+//				this.meshArray.push(new THREE.Mesh(geometry, material));
+//				
+//				updateMeshColor();
+//				
+//				this.meshArray.name = meshForm;
+//				this.meshArray[i].name = meshForm;
+////				this.meshArray[i].material.depthWrite = true;
+////				this.meshArray[i].material.transparent = true;
+//				//this.meshArray[i].material.opacity = 1;
+//	
+//	//			var j;
+//	//			if (i%2) 
+//	//				j = -1;
+//	//			else
+//	//				j = 1;
+//	
+//				
+//				console.log("k" + k);
+//		
+//				this.meshArray[i].position.set(rand(-4,4) * camera.position.z/2, rand(-1,1)* camera.position.z/2, rand(-6.5,0));
+//				console.log("meshArray.positon.x " + meshArray[i].position.x);
+//				scene.add(this.meshArray[i]);
+//			}
 			//animate();
 			//render();
-		}
+//		}
 //	}
-	updateSkyBoxColor(bgColor);
+	//updateSkyBoxColor(bgColor);
 
 			//var div = document.createElement('div');
 	//	element.src = src;
@@ -472,12 +605,14 @@ function fillScene() {
 		
 	    //document.body.appendChild(iframe);
 		articleDiv.innerHTML = articleSrc;
-	    var cssObject = new THREE.CSS3DObject(articleDiv);
+	    cssObject = new THREE.CSS3DObject(articleDiv);
 	    cssObject.position.z = -320;
 	    //cssObject.position.x = -400;
 	    //cssObject.position.y = -20;
 	//    cssObject.position.x = 20;
-	    cssScene.add(cssObject);
+	    if (!cssScene.children[0]) {
+	    	cssScene.add(cssObject);
+	    }
 	    console.log("add cssObject");
 
 }
@@ -501,26 +636,30 @@ function moveCamera() {
 
 function fadeOutIn() {
 	var time = rand(2000,3000);
-	new TWEEN.Tween({v: 1.0})
-	.to({v: 0.0}, time)
+	new TWEEN.Tween({v: 1.0, hex: lastBgColor})
+	.to({v: 0.0, hex: bgColor}, 1000)
 	.easing(TWEEN.Easing.Sinusoidal.InOut)
 	.onUpdate( function () {
-	    cssScene.children[0].element.style.opacity = this.v-0.1;
-	    if (lastShapeForm == shapeForm) {
-	    	if (lastNumberOfShapes > numberOfShapes) {
-			    var difference = lastNumberOfShapes - numberOfShapes;
-			    for (var i = 1; i <= difference; i++) {
-			    	shapeMesh[shapeMesh.length-i].material.opacity = this.v;
-			    }
-		    }
-	    } else {
-	    	for (var i = 0; i < shapeMesh.length; i++) {
-		    	shapeMesh[i].material.opacity = this.v;
-		    }
-	    }
+			cssScene.children[0].element.style.opacity = this.v-0.1;
+	    
+
+
+//	    if (lastmeshForm == meshForm) {
+//	    	if (lastnumberOfMeshes > numberOfMeshes) {
+//			    var difference = lastnumberOfMeshes - numberOfMeshes;
+//			    for (var i = 1; i <= difference; i++) {
+//			    	meshArray[meshArray.length-i].material.opacity = this.v;
+//			    }
+//		    }
+//	    } else {
+//	    	for (var i = 0; i < meshArray.length; i++) {
+//		    	meshArray[i].material.opacity = this.v;
+//		    }
+//	    }
 	    
 	    if (lastBgColor != bgColor) {
-	    	document.getElementsByTagName('canvas')[0].style.opacity = this.v;
+	    	updateSkyBoxColor(this.hex);
+	    	//document.getElementsByTagName('canvas')[0].style.opacity = this.v;
 	    }
 	    
 	    //renderer.setClearColor(composer.getClearColor(), this.v);
@@ -536,11 +675,11 @@ function fadeOutIn() {
 //	    	}
 //	    });
 	    
-	} )
+	})
 	.onComplete(function () {
 		console.log("complete!!!");
-		cssScene.remove(cssScene.children[0]);
-		cleanScene();
+		//cssScene.remove(cssScene.children[0]);
+		//cleanScene();
 		//fillScene();
 		fadeIn();
 	    })
@@ -557,22 +696,27 @@ function fadeIn() {
         })
         .onUpdate(function() {
             cssScene.children[0].element.style.opacity = this.v-0.1;
-            if (lastShapeForm == shapeForm) {
-            	if (lastNumberOfShapes < numberOfShapes) {
-	    		    var difference = numberOfShapes - lastNumberOfShapes;
-	    		    for (var i = 1; i <= difference; i++) {
-	    		    	shapeMesh[shapeMesh.length-i].material.opacity = this.v;
-	    		    }
-    		    }
-    	    } else {
-    	    	for (var i = 0; i < shapeMesh.length; i++) {
-    		    	shapeMesh[i].material.opacity = this.v;
-    		    }
-    	    }
+//            if (lastmeshForm == meshForm) {
+//            	if (lastnumberOfMeshes < numberOfMeshes) {
+//	    		    var difference = numberOfMeshes - lastnumberOfMeshes;
+//	    		    for (var i = 1; i <= difference; i++) {
+//	    		    	meshArray[meshArray.length-i].material.opacity = this.v;
+//	    		    }
+//    		    }
+//    	    } else {
+//    	    	for (var i = 0; i < meshArray.length; i++) {
+//    		    	meshArray[i].material.opacity = this.v;
+//    		    	meshArray[i].geometry
+//    		    }
+//    	    }
+            
+            
+
             //renderer.setClearColor(bgColor, this.v);
-            if (lastBgColor != bgColor) {
-            	document.getElementsByTagName('canvas')[0].style.opacity = this.v;
-            }
+//            if (lastBgColor != bgColor) {
+//            	updateSkyBoxColor(this.hex);
+//            	document.getElementsByTagName('canvas')[0].style.opacity = this.v;
+//            }
         })
         .onComplete(function () {
         	console.log("complete!!!");
@@ -586,18 +730,17 @@ function fadeIn() {
 /** Update the Color of the SkyBox/Background */
 function updateSkyBoxColor(color) {
 	skyBox.material.color.setHex(color);
-	//renderer.setClearColor(bgColor, 1);
 }
 
 
 function moveObjects() {
 	
-	for (var i = 0; i < shapeMesh.length; i++) {
+	for (var i = 0; i < meshArray.length; i++) {
 		
-		var newXPosition = (1 - numberOfLastArticles/totalArticleCount) + shapeMesh[i].position.x;
-		var	newYPosition = (1 - numberOfLastArticles/totalArticleCount) + shapeMesh[i].position.y;
+		var newXPosition = (1 - numberOfLastArticles/totalArticleCount) + meshArray[i].position.x;
+		var	newYPosition = (1 - numberOfLastArticles/totalArticleCount) + meshArray[i].position.y;
 		console.log("newYPosition " + newYPosition);
-		new TWEEN.Tween({x:shapeMesh[i].position.x,y:shapeMesh[i].position.y})
+		new TWEEN.Tween({x:meshArray[i].position.x,y:meshArray[i].position.y})
 		.to({x:newXPosition,y:newYPosition}, 5000)
 		.yoyo(true)
 		.repeat(100)
@@ -605,8 +748,8 @@ function moveObjects() {
 			
 				console.log("y " + this.y);
 				
-				shapeMesh[i].position.x = this.x;
-				shapeMesh[i].position.y = this.y;
+				meshArray[i].position.x = this.x;
+				meshArray[i].position.y = this.y;
 		
 		}).start();
 	
@@ -622,33 +765,33 @@ function animate() {
 		//cssScene.children[0].rotation.y += Math.PI * 2  * 0.001;
 	}
 	
-	//bgPlane.rotation.y += Math.PI * 2  * 0.0001;
+	//bgObject.rotation.y += Math.PI * 2  * 0.0001;
 	if ((clock.getElapsedTime() - lastTime) > waitTime) {
-		bgPlane.position.x += xMovement * 0.000001;
+		bgObject.position.x += xMovement * 0.000001;
 	} else {
-		bgPlane.position.x -= xMovement * 0.000001;
+		bgObject.position.x -= xMovement * 0.000001;
 	}
 	
 	requestAnimationFrame(animate);
 	TWEEN.update();
 	var j = 1;
-	for (var i = 0; i < shapeMesh.length; i++) {
+	for (var i = 0; i < meshArray.length; i++) {
 		if (i%2)
 			j = -1;
 		else
 			j = 1;
 			
 		if ((clock.getElapsedTime() - lastTime) > waitTime) {
-			shapeMesh[i].position.x += xMovement * 0.00001 * j;
-			shapeMesh[i].position.y += yMovement * 0.00001 * j;
-			shapeMesh[i].position.z += 2 * 0.00001 * j;
+			meshArray[i].position.x += xMovement * 0.00001 * j;
+			meshArray[i].position.y += yMovement * 0.00001 * j;
+			meshArray[i].position.z += 2 * 0.00001 * j;
 			
-			shapeMesh[i].rotation.x += Math.PI * 0.000001 * xMovement;
-			shapeMesh[i].rotation.y += Math.PI * 0.000001 * yMovement;
-			shapeMesh[i].rotation.z += Math.PI * 0.000001 * xMovement;
-			//shapeMesh[i].position.z += Math.random() * 0.001 * j;
-//			if (shapeMesh[i].material.opacity < 1.0)
-//				shapeMesh[i].material.opacity += Math.random() * 0.004;
+			meshArray[i].rotation.x += Math.PI * 0.000001 * xMovement;
+			meshArray[i].rotation.y += Math.PI * 0.000001 * yMovement;
+			meshArray[i].rotation.z += Math.PI * 0.000001 * (xMovement+yMovement)/2;
+			//meshArray[i].position.z += Math.random() * 0.001 * j;
+//			if (meshArray[i].material.opacity < 1.0)
+//				meshArray[i].material.opacity += Math.random() * 0.004;
 //			if (cssScene.children[0]) {
 			//console.log(cssScene.children[0].element);
 				//cssScene.children[0].position.x += Math.random() * 2;
@@ -656,16 +799,16 @@ function animate() {
 					//cssScene.children[0].element.style.opacity += Math.random() * 0.004;
 //			}
 		} else {
-			shapeMesh[i].position.x -= xMovement * 0.00001 * j;
-			shapeMesh[i].position.y -= yMovement * 0.00001 * j;
-			shapeMesh[i].position.z -= 2 * 0.00001 * j;
+			meshArray[i].position.x -= xMovement * 0.00001 * j;
+			meshArray[i].position.y -= yMovement * 0.00001 * j;
+			meshArray[i].position.z -= 2 * 0.00001 * j;
 			
-			shapeMesh[i].rotation.x -= Math.PI * 0.000001 * xMovement;
-			shapeMesh[i].rotation.y -= Math.PI * 0.000001 * yMovement;
-			shapeMesh[i].rotation.z -= Math.PI * 0.000001 * yMovement;
-			//shapeMesh[i].position.z -= Math.random() * 0.001 * j;
-//			if (shapeMesh[i].material.opacity > 0.0)
-//				shapeMesh[i].material.opacity -= Math.random() * 0.004;
+			meshArray[i].rotation.x -= Math.PI * 0.000001 * xMovement;
+			meshArray[i].rotation.y -= Math.PI * 0.000001 * yMovement;
+			meshArray[i].rotation.z -= Math.PI * 0.000001 * (xMovement+yMovement)/2;
+			//meshArray[i].position.z -= Math.random() * 0.001 * j;
+//			if (meshArray[i].material.opacity > 0.0)
+//				meshArray[i].material.opacity -= Math.random() * 0.004;
 //			if (cssScene.children[0]) {
 				//cssScene.children[0].position.x -= Math.random() * 2;
 				//if (cssScene.children[0].element.style.opacity > 0.0)
@@ -682,10 +825,10 @@ function animate() {
 	//Mousemove
 	camera.position.x += (mouse.x*0.5 - camera.position.x);
     camera.position.y += (mouse.y*0.5 - camera.position.y);
-	cssCamera.position.x += (mouse.x*6 - cssCamera.position.x);
-    cssCamera.position.y += (mouse.y*6 - cssCamera.position.y);
-    //camera.lookAt( scene.position );
-    //cssCamera.lookAt(cssScene.position);
+	cssCamera.position.x += (mouse.x*0.15 - cssCamera.position.x);
+    cssCamera.position.y += (mouse.y*0.15 - cssCamera.position.y);
+    camera.lookAt( scene.position );
+    cssCamera.lookAt(cssScene.position);
 
     bgMaterial.uniforms[ 'time' ].value = .0025 * (clock.getElapsedTime());
 
