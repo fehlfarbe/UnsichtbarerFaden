@@ -308,7 +308,7 @@ function agent(param, callback){
 	switch(lastSymbol){
 	case 1: //moeglich
 		/* book >= lastbook, minimum 1 equal tag */
-		console.log("Agent: possible");		
+		console.log("\n*** Agent: possible ***\n");		
 		
 		getArticle(lastArticleId, function(lastArticle){
 			console.log("CALLBACK", lastArticle);
@@ -347,7 +347,7 @@ function agent(param, callback){
 		break;
 	case 2: //notwendig
 		/* book >= lastbook, connected tag*/
-		console.log("Agent: possible");
+		console.log("\n*** Agent: possible ***\n");
 		
 		getArticle(lastArticleId, function(lastArticle){
 			console.log("Last Article", lastArticle);
@@ -386,7 +386,7 @@ function agent(param, callback){
 		break;
 	case 3: //wahr
 		/* book >= lastbook, max(tag==tag)*/
-		console.log("Agent: possible");
+		console.log("\n*** Agent: possible ***\n");
 		
 		getArticle(lastArticleId, function(lastArticle){
 			console.log("Last Article", lastArticle);
@@ -413,6 +413,7 @@ function agent(param, callback){
 						return;
 					}
 					
+					console.log(articles);
 					var article = articles[0];
 					
 					//delete amount because we don't need it
@@ -429,7 +430,7 @@ function agent(param, callback){
 		break;
 	case 4: //nicht -> ausstieg
 		/* Print END article */
-		console.log("Agent: not");
+		console.log("\n*** Agent: not ***\n");
 		
 		var query = "SELECT articleid AS id, text, symbol, book FROM articles WHERE symbol = 4 ORDER BY RAND() LIMIT 1";
 		connection.query(query, function(err, articles, fields) {
@@ -446,7 +447,7 @@ function agent(param, callback){
 		break;
 	case 5: //kontigent
 		/* connected tags */
-		console.log("Agent: possible");
+		console.log("\n*** Agent: possible ***\n");
 		
 		getArticle(lastArticleId, function(lastArticle){
 			console.log("Last Article", lastArticle);
@@ -464,8 +465,17 @@ function agent(param, callback){
 				connection.query(query, [lastArticle.book, categories, lastArticles],function(err, articles, fields) {
 					if(err) throw err;
 					
-					console.log(articles);
+					console.log("KONTIGENT ARTIKEL", articles);
+					
+					//no article was found
+					if(articles.length == 0){
+						param.symbol = 6; //random
+						agent(param, callback);
+						return;
+					}
+					
 					var article = articles[0];
+					
 					addArticleInfo(article, function(article){
 						lastArticles.push(article.id);
 						article.lastArticles = lastArticles;
@@ -477,7 +487,7 @@ function agent(param, callback){
 		break;
 	case 6: //unendlich
 		/* Select a random article */
-		console.log("Agent: infinity");
+		console.log("\n*** Agent: infinity ***\n");
 		
 		var query = "SELECT articleid AS id, text, symbol, book " +
 					"FROM articles " +
@@ -498,7 +508,7 @@ function agent(param, callback){
 		break;
 	case 7: //wirklich
 		/* max(tag==tag)*/
-		console.log("Agent: real");
+		console.log("\n*** Agent: real ***\n");
 		
 		getArticle(lastArticleId, function(lastArticle){
 			console.log("Last Article", lastArticle);
@@ -541,7 +551,7 @@ function agent(param, callback){
 		break;	
 	default: // no/unknown symbol -> startarticle
 		/* Select one random article from book 1 */
-		console.log("Agent: startarticle");
+		console.log("\n***Agent: startarticle ***\n");
 		
 		var query = "SELECT articleid AS id, text, symbol, book FROM articles WHERE book = 1 ORDER BY RAND() LIMIT 1";
 		connection.query(query, function(err, articles, fields) {
