@@ -3,7 +3,7 @@
  */
 var scene, renderer, camera, composer, group, skyBox, meshArray, clock, lastTime, width, height, waitTime;
 
-var cssRenderer, cssScene, cssCamera;
+var cssRenderer, cssScene, cssCamera, cssObject;
 
 var articleDiv;
 
@@ -605,12 +605,14 @@ function fillScene() {
 		
 	    //document.body.appendChild(iframe);
 		articleDiv.innerHTML = articleSrc;
-	    var cssObject = new THREE.CSS3DObject(articleDiv);
+	    cssObject = new THREE.CSS3DObject(articleDiv);
 	    cssObject.position.z = -320;
 	    //cssObject.position.x = -400;
 	    //cssObject.position.y = -20;
 	//    cssObject.position.x = 20;
-	    cssScene.add(cssObject);
+	    if (!cssScene.children[0]) {
+	    	cssScene.add(cssObject);
+	    }
 	    console.log("add cssObject");
 
 }
@@ -635,10 +637,10 @@ function moveCamera() {
 function fadeOutIn() {
 	var time = rand(2000,3000);
 	new TWEEN.Tween({v: 1.0, hex: lastBgColor})
-	.to({v: 0.0, hex: bgColor}, time)
+	.to({v: 0.0, hex: bgColor}, 1000)
 	.easing(TWEEN.Easing.Sinusoidal.InOut)
 	.onUpdate( function () {
-	    cssScene.children[0].element.style.opacity = this.v-0.1;
+			cssScene.children[0].element.style.opacity = this.v-0.1;
 	    
 
 
@@ -676,7 +678,7 @@ function fadeOutIn() {
 	})
 	.onComplete(function () {
 		console.log("complete!!!");
-		cssScene.remove(cssScene.children[0]);
+		//cssScene.remove(cssScene.children[0]);
 		//cleanScene();
 		//fillScene();
 		fadeIn();
