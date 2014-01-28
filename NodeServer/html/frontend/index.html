@@ -4,7 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1">
 <title>Der Unsichtbare Faden</title>
+
+<!-- bootstrap -->
+<link rel="stylesheet" type="text/css" href="/lib/bootstrap/css/bootstrap.min.css">
 <link rel="stylesheet" type="text/css" href="css/frontend.css">
+
+
 <script src="/lib/d3/d3.v3.min.js"></script>
 <script src="/lib/threejs/three.min.js"></script>
 <script src="/lib/threejs/CSS3DRenderer.js"></script>
@@ -248,20 +253,26 @@ void main() {
 		
 	</div>
 	<div ng-controller="agentController">
-	<agent-control  on-click="symbolOnClick(item)"></agent-control>
-	<div ng-bind-html-unsafe="actualArticle">
+		<agent-control  on-click="symbolOnClick(item)"></agent-control>
+		<div ng-bind-html-unsafe="actualArticle">
 
-	</div>
-	<script type="text/javascript">
-		init();
-		/* city(); */
- 		//cubes('spheres');
- 		//draw();
- 	</script>
+		</div>
+		<script type="text/javascript">
+			init();
+			/* city(); */
+	 		//cubes('spheres');
+	 		//draw();
+	 	</script>
+	 	
+	 	<noscript>
+		 	<div class="panel panel-danger noscript">
+				<div class="panel-heading">Achtung</div>
+				<div class="panel-body">
+			    	Zur korrekten Darstellung dieser Seite muss JavaScript aktiviert sein!
+			 	</div>
+			</div>
+		</noscript>
  	</div>
-	
-	
-	
 	
 </body>
 </html>

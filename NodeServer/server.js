@@ -733,15 +733,18 @@ app.get('/get/articles', auth, function(req, res) {
 });
 
 app.post('/delete/article', auth, function(req, res) {
+	
 	if (req.method == 'POST') {
-    	var id = req.body;
-    	console.log("delete artice "+ id);
+		console.log("Body", req.body);
+    	var id = req.body.id;
+    	console.log("delete artice", id);
     	connection.query("DELETE FROM articles WHERE articleid = ?", id, function(err, result) {
 			if(err) throw err;
 			
 			res.send('OK');
 		});
 	}	
+	
 });
 
 /*** nodes ***/

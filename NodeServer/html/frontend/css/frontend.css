@@ -1,5 +1,14 @@
 @CHARSET "UTF-8";
 
+.noscript{
+	width: 300px;
+	margin: 200px auto;
+}
+
+.noscript .panel-heading{
+	font-weight: bold;
+}
+
 .control {
 	fill: "none";
 	stroke: "gray";

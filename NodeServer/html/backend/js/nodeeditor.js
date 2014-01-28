@@ -3,10 +3,22 @@
  */
 var nodeEditor = angular.module('nodeeditor',[]);
 
-
 nodeEditor.initNodes = function($scope, $http) {
 	
 	$scope.nodes = null;
+	
+	$scope.force = null;
+	$scope.linkProp = {length: 150};
+	$scope.changeLinkLength = function(){
+		console.log($scope.linkProp);
+		console.log($scope.force);
+		
+		if($scope.force != null){
+			console.log("change length to", $scope.linkProp.length);
+			$scope.force.linkDistance($scope.linkProp.length).start();
+		}
+	};
+	
 	$('#grapheditor').block();
 	
 	
@@ -25,7 +37,13 @@ nodeEditor.initNodes = function($scope, $http) {
 			$('#grapheditor').unblock();
 		});
 	};
+	
+	//reset nodes
+	$scope.resetNodes = function(){
+		//Todo
+	};
 
+	//load relations
 	$scope.relations = $http.get('/get/nodessymbols').then(function(result) {
 		 $scope.nodes = result.data;
          $scope.nodes.deletedNodes = Array();
@@ -71,11 +89,11 @@ nodeEditor.initNodes = function($scope, $http) {
          result.data.links = links;
          
          // init D3 force layout
-         var force = d3.layout.force()
+         $scope.force = d3.layout.force()
              .nodes(nodes)
              .links(links)
              .size([width, height])
-             .linkDistance(150)
+             .linkDistance($scope.linkProp.length)
              .charge(-500)
              .on('tick', tick);
          
@@ -281,7 +299,7 @@ nodeEditor.initNodes = function($scope, $http) {
            circle.exit().remove();
 
            // set the graph in motion
-           force.start();
+           $scope.force.start();
          }
 
          function mousedown() {
@@ -356,7 +374,7 @@ nodeEditor.initNodes = function($scope, $http) {
 
            // ctrl
            if(d3.event.keyCode === 17) {
-             circle.call(force.drag);
+             circle.call($scope.force.drag);
              svg.classed('ctrl', true);
            }
 
