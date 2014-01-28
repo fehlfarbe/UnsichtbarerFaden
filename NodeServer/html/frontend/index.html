@@ -253,11 +253,33 @@ void main() {
  
 
     </script>
+    
+    <noscript>
+		 	<div class="panel panel-danger noscript">
+				<div class="panel-heading">Achtung</div>
+				<div class="panel-body">
+			    	Zur korrekten Darstellung dieser Seite muss JavaScript aktiviert sein!
+			 	</div>
+			</div>
+	</noscript>
+    
+    <div id="start" class="jumbotron">
+	  <h1>Der unsichtbare Faden</h1>
+	  <h2>Idee</h2>
+	  <p>...</p>
+	  <h2>Technische Voraussetzungen</h2>
+	  <p>WebGl Unterstützung</p>
+	  <p>Javascript aktiviert</p>
+	  <p><a class="btn btn-primary btn-lg" role="button">Learn more</a></p>
+	</div>
+    
+    
     <div id="graph" class="aGraph"><p>Persönlicher Faden</p></div>
 	<div id="view" ng-view>
 		
 	</div>
 	<div ng-controller="agentController">
+	
 		<agent-control  on-click="symbolOnClick(item)"></agent-control>
 		<div ng-bind-html-unsafe="actualArticle">
 
@@ -268,15 +290,6 @@ void main() {
 	 		//cubes('spheres');
 	 		//draw();
 	 	</script>
-	 	
-	 	<noscript>
-		 	<div class="panel panel-danger noscript">
-				<div class="panel-heading">Achtung</div>
-				<div class="panel-body">
-			    	Zur korrekten Darstellung dieser Seite muss JavaScript aktiviert sein!
-			 	</div>
-			</div>
-		</noscript>
  	</div>
 	
 </body>
