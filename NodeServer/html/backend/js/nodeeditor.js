@@ -90,13 +90,18 @@ nodeEditor.initNodes = function($scope, $http) {
          
          var outer = d3.select("#grapheditor")
          	.append("svg:svg")
-           .attr("width", width)
-           .attr("height", height)
-           .attr("pointer-events", "all");
+         		.attr("width", width)
+         		.attr("height", height)
+         		.attr("pointer-events", "all")
+           		.on('mousedown', mousedown)
+           		.on('mousemove', mousemove)
+           		.on('mouseup', mouseup)
+           		.on('contextmenu', function(){console.log("CONTEXT");d3.event.preventDefault();})
+           		.call(d3.behavior.zoom().on("zoom", redraw));
 
          var svg = outer
-           .append('svg')
-           .call(d3.behavior.zoom().on("zoom", redraw));
+           .append('svg')           	
+           .append('svg:g');
          
          // force layout
          $scope.force = d3.layout.force()
@@ -124,7 +129,9 @@ nodeEditor.initNodes = function($scope, $http) {
              selected_link = null,
              mousedown_link = null,
              mousedown_node = null,
-             mouseup_node = null;
+             mouseup_node = null,
+             lastScale = 1.0,
+             lastTranslate = [0, 0];
          
          function nodeExists(name){
              for(var i=0; i<nodes.length; i++){
@@ -166,13 +173,24 @@ nodeEditor.initNodes = function($scope, $http) {
          }
          
          function redraw(){
-        	 console.log("ZOOM REDRAW");
         	 
-        	 console.log("here", d3.event.translate, d3.event.scale);
-        	 console.log(svg);
-        	  //svg.attr("transform",);
-        	  svg.attr("transform","translate(" + -d3.event.translate[0] + "," + -d3.event.translate[1] + ")" +
+        	 if( !d3.event.scale || d3.event.scale > 10 || d3.event.scale < 0.1 )
+        		 return;
+        	 
+        	 if( d3.event.ctrlKey || mousedown_node || mousedown_link )
+        		 return;
+        	 
+        	 if( d3.event.sourceEvent.type != 'wheel' && d3.event.sourceEvent.buttons < 2 )
+        		 return;
+        	 
+        	 console.log(d3.event.sourceEvent);
+        	 console.log("ZOOM REDRAW", d3.event.translate, d3.event.scale);
+        	 lastScale = d3.event.scale;
+        	 lastTranslate = d3.event.translate;
+        	 svg.attr("transform","translate(" + d3.event.translate + ")" +
         			  "scale(" + d3.event.scale + ")");
+//        	 path.attr(
+//       			  "scale(" + d3.event.scale + ")");
          }
 
          // update graph (called when needed)
@@ -329,7 +347,13 @@ nodeEditor.initNodes = function($scope, $http) {
            // because :active only works in WebKit?
            svg.classed('active', true);
            
-           if(d3.event.ctrlKey || mousedown_node || mousedown_link) return;
+//           if(d3.event.button == 2){
+//        	   console.log("Right click");
+//        	   svg.call(d3.behavior.zoom().on("zoom"), redraw);
+//        	   return;
+//           }
+           
+           if(d3.event.ctrlKey || mousedown_node || mousedown_link || d3.event.button == 2) return;
 
            // insert new node at point
            var name = $.trim(prompt("Name","Neuer Knoten"));
@@ -351,10 +375,18 @@ nodeEditor.initNodes = function($scope, $http) {
          }
 
          function mousemove() {
+        	 if(d3.event.button == 2){
+          	   svg.call(d3.behavior.zoom().on("zoom"), redraw);
+          	   return;
+             }
+        	 
            if(!mousedown_node) return;
 
            // update drag line
-           drag_line.attr('d', 'M' + mousedown_node.x + ',' + mousedown_node.y + 'L' + d3.mouse(this)[0] + ',' + d3.mouse(this)[1]);
+//           console.log(d3.mouse(this));
+//           console.log(this);
+//           console.log(svg[0]);
+           drag_line.attr('d', 'M' + mousedown_node.x + ',' + mousedown_node.y + 'L' + d3.mouse(svg[0][0])[0] + ',' + d3.mouse(svg[0][0])[1]);
 
            restart();
          }
@@ -444,11 +476,6 @@ nodeEditor.initNodes = function($scope, $http) {
              svg.classed('ctrl', false);
            }
          }
-
-         // app starts here
-         svg.on('mousedown', mousedown)
-           .on('mousemove', mousemove)
-           .on('mouseup', mouseup);
          
          d3.select(window)
            .on('keydown', keydown)
