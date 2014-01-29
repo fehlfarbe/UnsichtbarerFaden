@@ -526,6 +526,14 @@ function agent(param, callback){
 				connection.query(query, [categories, lastArticleId],function(err, articles, fields) {
 					if(err) throw err;
 					
+					//no article was found
+					if(articles.length == 0){
+						console.log("\n*** No 'kontigent' article found -> RANDOM ***\n");
+						param.symbol = 6; //random
+						agent(param, callback);
+						return;
+					}
+					
 					//can't select all articles with most same tags, so do it with JS
 					var maxTags = new Array();
 					for(var i=0; i<articles.length; i++)
@@ -693,11 +701,13 @@ app.post('/upload', auth, function(req, res) {
 				console.log("NEW PATH", newPath);
 				fs.writeFile(newPath, data, function(err) {
 					//TODO Fehlermeldung ausgeben
-					console.log("Error", err);
+					if(err)
+						console.log("Error", err);
+					
+					res.send("<script>top.$('.mce-btn.mce-open').parent().find('.mce-textbox').val('"+ req.protocol + "://" + req.get('host') + '/upload/images/' + imageName + "').closest('.mce-window').find('.mce-primary').click();</script>");
 				});
 			};
       	});
-        res.send("<script>top.$('.mce-btn.mce-open').parent().find('.mce-textbox').val('"+ req.protocol + "://" + req.get('host') + '/upload/images/' + imageName + "').closest('.mce-window').find('.mce-primary').click();</script>");
     });
 });
 

@@ -48,16 +48,6 @@ nodeEditor.initNodes = function($scope, $http) {
 		 $scope.nodes = result.data;
          $scope.nodes.deletedNodes = Array();
          $scope.nodes.deletedLinks = Array();
-         
-      // set up SVG for D3
-         var width  = $('#grapheditor').width(),
-             height = $('#grapheditor').height(),
-             colors = d3.scale.category10();
-
-         var svg = d3.select('#grapheditor')
-           .append('svg')
-           .attr('width', width)
-           .attr('height', height);
 
          // set up initial nodes and links
          //  - nodes are known by 'id', not by index in array.
@@ -88,7 +78,27 @@ nodeEditor.initNodes = function($scope, $http) {
          }
          result.data.links = links;
          
-         // init D3 force layout
+         /*********************************
+          * 
+          *  init D3 force layout
+          * 
+          **********************************/
+         // set up SVG for D3
+         var width  = $('#grapheditor').width(),
+             height = $('#grapheditor').height(),
+             colors = d3.scale.category20();
+         
+         var outer = d3.select("#grapheditor")
+         	.append("svg:svg")
+           .attr("width", width)
+           .attr("height", height)
+           .attr("pointer-events", "all");
+
+         var svg = outer
+           .append('svg')
+           .call(d3.behavior.zoom().on("zoom", redraw));
+         
+         // force layout
          $scope.force = d3.layout.force()
              .nodes(nodes)
              .links(links)
@@ -153,6 +163,16 @@ nodeEditor.initNodes = function($scope, $http) {
            circle.attr('transform', function(d) {
              return 'translate(' + d.x + ',' + d.y + ')';
            });
+         }
+         
+         function redraw(){
+        	 console.log("ZOOM REDRAW");
+        	 
+        	 console.log("here", d3.event.translate, d3.event.scale);
+        	 console.log(svg);
+        	  //svg.attr("transform",);
+        	  svg.attr("transform","translate(" + -d3.event.translate[0] + "," + -d3.event.translate[1] + ")" +
+        			  "scale(" + d3.event.scale + ")");
          }
 
          // update graph (called when needed)
