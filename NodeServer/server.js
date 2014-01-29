@@ -269,6 +269,7 @@ function addArticleInfo(article, callback){
 				article.totalCount = count;
 				getNodes(article.id, function(nodes){
 					article.nodes = nodes;
+					console.log("*** ARTICLE ***", article);
 					callback(article);
 				});
 			});
@@ -311,9 +312,9 @@ function agent(param, callback){
 		console.log("\n*** Agent: possible ***\n");		
 		
 		getArticle(lastArticleId, function(lastArticle){
-			console.log("CALLBACK", lastArticle);
+			//console.log("CALLBACK", lastArticle);
 			getCategories(lastArticle.id, function(categories){
-				console.log(categories);
+				//console.log(categories);
 				
 				var query = "SELECT articles.articleid AS id, text, symbol, book FROM articles " +
 							"JOIN articlenodes " +
@@ -325,11 +326,10 @@ function agent(param, callback){
 							"LIMIT 1";
 				connection.query(query, [lastArticle.book, categories, lastArticles],function(err, articles, fields) {
 					if(err) throw err;
-					
-					console.log(articles);
-					
+										
 					//no article was found
 					if(articles.length == 0){
+						console.log("\n*** No 'possible' article found -> RANDOM ***\n");
 						param.symbol = 6; //random
 						agent(param, callback);
 						return;
@@ -347,12 +347,12 @@ function agent(param, callback){
 		break;
 	case 2: //notwendig
 		/* book >= lastbook, connected tag*/
-		console.log("\n*** Agent: possible ***\n");
+		console.log("\n*** Agent: necessary ***\n");
 		
 		getArticle(lastArticleId, function(lastArticle){
-			console.log("Last Article", lastArticle);
+			//console.log("Last Article", lastArticle);
 			getCategoriesEnv(lastArticle.id, function(categories){
-				console.log(categories);
+				//console.log(categories);
 				
 				var query = "SELECT articles.articleid AS id, text, symbol, book FROM articles " +
 							"JOIN articlenodes " +
@@ -365,10 +365,11 @@ function agent(param, callback){
 				connection.query(query, [lastArticle.book, categories, lastArticles],function(err, articles, fields) {
 					if(err) throw err;
 					
-					console.log(articles);
+					//console.log(articles);
 					
 					//no article was found
 					if(articles.length == 0){
+						console.log("\n*** No 'necessary' article found -> RANDOM ***\n");
 						param.symbol = 6; //random
 						agent(param, callback);
 						return;
@@ -386,12 +387,12 @@ function agent(param, callback){
 		break;
 	case 3: //wahr
 		/* book >= lastbook, max(tag==tag)*/
-		console.log("\n*** Agent: possible ***\n");
+		console.log("\n*** Agent: true ***\n");
 		
 		getArticle(lastArticleId, function(lastArticle){
-			console.log("Last Article", lastArticle);
+			//console.log("Last Article", lastArticle);
 			getCategories(lastArticle.id, function(categories){
-				console.log(categories);
+				//console.log(categories);
 				
 				var query = "SELECT articles.articleid AS id, text, symbol, book, count(articles.articleid) AS amount FROM articles " +
 							"JOIN articlenodes " +
@@ -403,17 +404,16 @@ function agent(param, callback){
 							"LIMIT 1";
 				connection.query(query, [lastArticle.book, categories, lastArticles],function(err, articles, fields) {
 					if(err) throw err;
-					
-					console.log(articles);
-					
+										
 					//no article was found
 					if(articles.length == 0){
+						console.log("\n*** No 'true' article found -> RANDOM ***\n");
 						param.symbol = 6; //random
 						agent(param, callback);
 						return;
 					}
 					
-					console.log(articles);
+					//console.log(articles);
 					var article = articles[0];
 					
 					//delete amount because we don't need it
@@ -437,7 +437,7 @@ function agent(param, callback){
 			if(err) throw err;
 			
 			var article = articles[0];
-			console.log("article", article);
+			//console.log("article", article);
 			addArticleInfo(article, function(article){
 				lastArticles.push(article.id);
 				article.lastArticles = lastArticles;
@@ -447,12 +447,12 @@ function agent(param, callback){
 		break;
 	case 5: //kontigent
 		/* connected tags */
-		console.log("\n*** Agent: possible ***\n");
+		console.log("\n*** Agent: kontigent ***\n");
 		
 		getArticle(lastArticleId, function(lastArticle){
-			console.log("Last Article", lastArticle);
+			//console.log("Last Article", lastArticle);
 			getCategoriesEnv(lastArticle.id, function(categories){
-				console.log(categories);
+				//console.log(categories);
 				
 				var query = "SELECT articles.articleid AS id, text, symbol, book FROM articles " +
 							"JOIN articlenodes " +
@@ -464,11 +464,10 @@ function agent(param, callback){
 							"LIMIT 1";
 				connection.query(query, [lastArticle.book, categories, lastArticles],function(err, articles, fields) {
 					if(err) throw err;
-					
-					console.log("KONTIGENT ARTIKEL", articles);
-					
+										
 					//no article was found
 					if(articles.length == 0){
+						console.log("\n*** No 'kontigent' article found -> RANDOM ***\n");
 						param.symbol = 6; //random
 						agent(param, callback);
 						return;
@@ -498,7 +497,7 @@ function agent(param, callback){
 			if(err) throw err;
 			
 			var article = articles[0];
-			console.log("article", article);
+			//console.log("article", article);
 			addArticleInfo(article, function(article){
 				lastArticles.push(article.id);
 				article.lastArticles = lastArticles;
@@ -511,9 +510,9 @@ function agent(param, callback){
 		console.log("\n*** Agent: real ***\n");
 		
 		getArticle(lastArticleId, function(lastArticle){
-			console.log("Last Article", lastArticle);
+			//console.log("Last Article", lastArticle);
 			getCategories(lastArticle.id, function(categories){
-				console.log(categories);
+				//console.log(categories);
 				
 				var query = "SELECT articles.articleid AS id, text, symbol, book, count(articles.articleid) AS amount FROM articles " +
 							"JOIN articlenodes " +
@@ -525,8 +524,6 @@ function agent(param, callback){
 							//"LIMIT 1";
 				connection.query(query, [categories, lastArticleId],function(err, articles, fields) {
 					if(err) throw err;
-					
-					console.log(articles);
 					
 					//can't select all articles with most same tags, so do it with JS
 					var maxTags = new Array();
@@ -558,7 +555,7 @@ function agent(param, callback){
 			if(err) throw err;
 			
 			var article = articles[0];
-			console.log("article", article);
+			//console.log("article", article);
 			addArticleInfo(article, function(article){
 				lastArticles.push(article.id);
 				article.lastArticles = lastArticles;
@@ -672,19 +669,30 @@ app.post('/save/article', auth, function(req, res) {
 
 app.post('/upload', auth, function(req, res) {
 	
-	var form = new multiparty.Form({uploadDir: __dirname + '/html/upload/images'});
+	var form = new multiparty.Form({uploadDir: __dirname + '/html/upload/images/'});
+	
     form.parse(req, function(err, fields, files) {
-    	var path = files.image[0].path;
+    	
+    	console.log(req.files.image);
+    	
+    	var path = req.files.image.path;
     	var imageName = path.substr(path.lastIndexOf('/') +1);
-      	fs.readFile(path, function (err, data) {
+    	
+//    	console.log(path);
+//    	console.log(imageName);
+    	
+      	fs.readFile(path, function (err, data) {      		
 			if (!imageName) {
 				console.log("Error Image Upload");
 				res.redirect("/");
 				res.end();
 			} else {
-				var newPath = __dirname + "/images/" + imageName;
+				var newPath = __dirname + "/html/upload/images/" + imageName;
+				console.log("PATH", path);
+				console.log("NEW PATH", newPath);
 				fs.writeFile(newPath, data, function(err) {
 					//TODO Fehlermeldung ausgeben
+					console.log("Error", err);
 				});
 			};
       	});
