@@ -100,6 +100,7 @@ var app = express();
 
 
 app.use(express.compress()); // compress content
+app.use(express.bodyParser({limit: '50mb'}));
 app.use(express.static(__dirname + '/html'));
 app.use(express.cookieParser());
 app.use(express.bodyParser());

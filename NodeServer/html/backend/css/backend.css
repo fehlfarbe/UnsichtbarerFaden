@@ -24,10 +24,6 @@ div#view{
 	width: 500px;
 }
 
-/* .article img{
-	width: 470px;
-} */
-
 .articleCtrl{
 	width: 500px;
 	margin: 0px auto;
@@ -35,6 +31,11 @@ div#view{
 
 .article h3{
 	font-weight: bold;
+}
+
+.article img{
+	max-width: 470px;
+	height: auto;
 }
 
 /*** EDITOR ***/
@@ -70,6 +71,7 @@ div#view{
 
 .articleInput div{
 	margin-top: 3px;
+	-moz-box-sizing: content-box;
 }
 
 .articleEditor{
@@ -83,4 +85,11 @@ div#view{
 
 .articleCategories{
 	margin: 5px;
+	min-width:350px;
+}
+
+#articleWrapper *{
+    -moz-box-sizing: content-box;
+    -webkit-box-sizing: content-box;
+    box-sizing: content-box;
 }

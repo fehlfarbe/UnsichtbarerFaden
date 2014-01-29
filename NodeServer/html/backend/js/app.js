@@ -261,6 +261,7 @@ App.controller('newarticle', function($scope, $http, $location) {
 	    save_enablewhendirty: false,
 	    save_onsavecallback: 
 	    	function() {
+	    		console.log("SAVE");
 		    	html2canvas(tinymce.activeEditor.getBody(),  {
 		    		onrendered: function(canvas) {
 		    			$("#articleWrapper").block({message : "<h2>Speichern...</h2>"});
