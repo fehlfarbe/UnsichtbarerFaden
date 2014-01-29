@@ -20,9 +20,15 @@ function agentController($scope, $http) {
 	
 	//scene parameter
 	var shapeForm, bgColor, numberOfSymbols;
+	
+	var startMode = false;
+	
+	
 
 	$http.get("/agent" + "?symbol=0&lastArticles=[]")
 		.success(function(article) {
+			
+			//showStartDiv(startText);
 			lastArticles = article.lastArticles;
 			this.symbols = article.symbols;
 			updateControl(article.symbols);
@@ -36,7 +42,6 @@ function agentController($scope, $http) {
 	
 	
 	$scope.symbolOnClick = function(symbol) {
-	
 		$http.get("/agent" + "?symbol=" + symbol + "&lastArticles=[" + lastArticles + "]")
 			.success(function(article) {
 				lastArticles = article.lastArticles;

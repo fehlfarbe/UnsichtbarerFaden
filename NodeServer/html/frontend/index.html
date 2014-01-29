@@ -16,8 +16,9 @@
 
 		<script src="js/shaders/CopyShader.js"></script>
 		<script src="js/shaders/DotScreenShader.js"></script>
-		<script src="js/shaders/FilmShader.js"></script>
 		<script src="js/shaders/RGBShiftShader.js"></script>
+		<script src="js/shaders/HorizontalBlurShader.js"></script>
+		<script src="js/shaders/VerticalBlurShader.js"></script>
 
 		<script src="js/postprocessing/EffectComposer.js"></script>
 		<script src="js/postprocessing/RenderPass.js"></script>
@@ -229,7 +230,7 @@ void main() {
  
 }
     </script>
- 
+
     <script type="x-shader/x-vertex" id="fragmentShader">
         varying vec2 vUv;
 varying float noise;
