@@ -4,6 +4,7 @@ var qs = require('querystring');
 var url = require('url');
 var crypto = require('crypto');
 var fs = require('fs');
+var path = require('path');
 var http = require("http");
 var https = require("https");
 var connect = require('connect');
@@ -675,20 +676,20 @@ app.post('/upload', auth, function(req, res) {
     	
     	console.log(req.files.image);
     	
-    	var path = req.files.image.path;
-    	var imageName = path.substr(path.lastIndexOf('/') +1);
+    	var tmpImagePath = req.files.image.path;
+    	var imageName = path.basename(tmpImagePath);
     	
 //    	console.log(path);
 //    	console.log(imageName);
     	
-      	fs.readFile(path, function (err, data) {      		
+      	fs.readFile(tmpImagePath, function (err, data) {      		
 			if (!imageName) {
 				console.log("Error Image Upload");
 				res.redirect("/");
 				res.end();
 			} else {
 				var newPath = __dirname + "/html/upload/images/" + imageName;
-				console.log("PATH", path);
+				console.log("TMP PATH", tmpImagePath);
 				console.log("NEW PATH", newPath);
 				fs.writeFile(newPath, data, function(err) {
 					//TODO Fehlermeldung ausgeben
