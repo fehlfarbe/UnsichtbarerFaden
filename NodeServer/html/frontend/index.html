@@ -266,12 +266,14 @@ void main() {
 	<div id="view" ng-view>
 		
 	</div>
+	<button id="ReloadButton">Reboot</button>
 	<div ng-controller="agentController">
 	
 		<agent-control  on-click="symbolOnClick(item)"></agent-control>
 		<div ng-bind-html-unsafe="actualArticle">
 
 		</div>
+		
 		<script type="text/javascript">
 			graph();
 			init();
