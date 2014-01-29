@@ -450,7 +450,9 @@ App.articleList = function($scope, $http, $route, $location) {
 		
 		if( confirm("Artikel wirklich löschen?") ){
 			$('#articleList').block();
-			$http.post('/delete/article', id)
+			var data = new Object();
+			data.id = id;
+			$http.post('/delete/article', data)
 			.success(function(data, status, headers, config){
 				console.log("article deleted!");
 				$route.reload();
