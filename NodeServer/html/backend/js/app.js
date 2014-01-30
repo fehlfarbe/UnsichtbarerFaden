@@ -247,7 +247,8 @@ App.controller('newarticle', function($scope, $http, $location) {
 	$("#articleWrapper").block({message : "<h2>initialisiere Editor...</h2>"});
 	
 	// Setup TinyMCE
-	tinymce.init({
+//	tinymce.EditorManager.triggerSave();
+	var editor = tinymce.init({
 	    selector: "textarea",
 	    plugins: "save image media", 
 	    file_browser_callback: 
@@ -262,13 +263,13 @@ App.controller('newarticle', function($scope, $http, $location) {
 	    save_onsavecallback: 
 	    	function() {
 	    		console.log("SAVE");
-		    	html2canvas(tinymce.activeEditor.getBody(),  {
-		    		onrendered: function(canvas) {
+		    	//html2canvas(tinymce.activeEditor.getBody(),  {
+		    	//	onrendered: function(canvas) {
 		    			$("#articleWrapper").block({message : "<h2>Speichern...</h2>"});
 		    			//document.body.appendChild(canvas);
 		    			//setup data
 		    			var article = new Object();
-		    			article.screen = canvas.toDataURL();
+		    			article.screen = '';
 		    			article.headline = $('#headline').val();
 		    			article.content = tinymce.activeEditor.getContent();
 		    			article.categories = $("#category").val();
@@ -317,8 +318,8 @@ App.controller('newarticle', function($scope, $http, $location) {
 		    				console.log(data, status, headers);
 		    				$("#articleWrapper").unblock();
 		    			});
-		    		}
-		    	});
+		    		//}
+		    	//});
 	    }
 	 });
 	

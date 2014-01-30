@@ -180,7 +180,12 @@ nodeEditor.initNodes = function($scope, $http) {
         	 if( d3.event.ctrlKey || mousedown_node || mousedown_link )
         		 return;
         	 
-        	 if( d3.event.sourceEvent.type != 'wheel' && d3.event.sourceEvent.buttons < 2 )
+        	 //Firefox
+        	 if( d3.event.sourceEvent.type != 'wheel' && d3.event.sourceEvent.buttons < 2)
+        		 return;
+        	 
+        	 //Chrome
+        	 if(  d3.event.sourceEvent.type != 'wheel' && d3.event.sourceEvent.buttons == undefined &&  d3.event.sourceEvent.button < 2)
         		 return;
         	 
         	 console.log(d3.event.sourceEvent);
