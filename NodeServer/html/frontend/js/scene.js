@@ -31,6 +31,8 @@ var video, videoScreen, videoTexture, videoImageContext;
 
 var dotScreenShader;
 
+var reloadButton;
+
 function init() {
 	scene = new THREE.Scene(); 
 	
@@ -218,15 +220,20 @@ function init() {
 	videoTexture.minFilter = THREE.LinearFilter;
     videoTexture.magFilter = THREE.LinearFilter
 	
-	var videoGeometry = new THREE.PlaneGeometry(1280,720, 1, 1);
+	var videoGeometry = new THREE.PlaneGeometry(10,5.67, 1, 1);
 	var videoMaterial = new THREE.MeshBasicMaterial({map: videoTexture, overdraw: true, side:THREE.DoubleSide});
 	videoScreen = new THREE.Mesh(videoGeometry, videoMaterial);
-	videoScreen.position.set(-100,-50, -50);
+	videoScreen.position.set(-250,-50, 0);
+	videoScreen.name = "videoScreen";
 	scene.add(videoScreen);
 	
     animate();
     
-    
+	reloadButton = document.getElementById("ReloadButton");
+	reloadButton.addEventListener( 'click', function() {
+		window.location.reload();
+	});
+	reloadButton.style.opacity = 0;
 }
 
 
@@ -254,6 +261,7 @@ function initParticles() {
     particleSystem = new THREE.ParticleSystem(particles, pMaterial);
     particleSystem.sortParticles = true; 
     particleSystem.position.set(0,0,-cameraZStartPoint);
+	particleSystem.name = "particleSystem";
 	
 	console.log(particles.vertices.length);
 	console.log(numberOfParticles);
@@ -347,8 +355,6 @@ function displayNewScene() {
 	
 	fillScene();
 	
-	moveCamera();
-	
 }
 
 
@@ -419,13 +425,14 @@ function updateArticleDiv(text) {
 }
 
 	
-/** Helper function, cleaning the scene */
+/** Helper function, cleaning the scene except videoScreen */
 function cleanScene() {
-	for (var i = scene.children.length -1; i >= 0; i--) {
-		if (scene.children[i] instanceof THREE.Mesh && scene.children[i].name != "bgObject" && scene.children[i].name != "skyBox") {
+	for (var i = 0; i < scene.children.length; i++) {
+		if (scene.children[i].name != "videoScreen") {
 			scene.remove(scene.children[i]);
-		}
+		 }
 	}
+	cssScene.remove(cssObject);
 }
 
 function showStartDiv() {
@@ -526,24 +533,27 @@ function fillScene() {
 	
 	if (particleForm == 'end') {
 	
-		moveCameraToVideoScreen()
+		
 	
 		// var k = 1 - numberOfLastArticles/totalArticleCount;
 		// var spritey = makeTextSprite( "The End",
         // { fontsize: 24*k, borderColor: {r:255, g:0, b:0, a:1.0}, backgroundColor: {r:255, g:100, b:100, a:0.8} } );
 		// spritey.position.set(-10*k,5*k,0);
-		
-		removeAllParticlesFromView();
-		for (var i = 0; i < scene.children.length; i++) {
-			console.log("remove " + scene.children[i].name);
-			scene.remove(scene.children[i]);
-		}
-		
-		//cssScene.remove(cssObject);
-		
-		// scene.add( spritey );
-		
+		//scene.add( spritey );
+		//removeAllParticlesFromView();
 		console.log(scene);
+		// for (var i = 0; i < scene.children.length; i++) {
+		// if (scene.children[i].name != "videoScreen") {
+			// console.log("remove " + i + scene.children[i].name);
+			// scene.remove(scene.children[i]);
+			// }
+		// }
+		
+		// cssScene.remove(cssObject);
+		moveCameraToVideoScreen();
+		//scene.add( spritey );
+		
+		
 		
 		animate;
 		//return;
@@ -554,7 +564,7 @@ function fillScene() {
 		for (var i = 0; i < meshArray.length; i++) {
 			scene.add(meshArray[i]);
 		}
-		
+		moveCamera();
 		//document.body.appendChild(iframe);
 		//updateArticleDiv(articleSrc);
 	    //cssObject.position.x = -400;
@@ -569,7 +579,8 @@ function moveCamera() {
 	
 	var newZPosition = (1 - numberOfLastArticles/totalArticleCount) * cameraZStartPoint;
 	console.log("camera.position.z " + camera.position.z);
-	if (newZPosition >= 0) {
+	console.log("newZPosition " + newZPosition);
+	if (newZPosition > 0) {
 		//console.log("Number articles " + numberOfLastArticles);
 		new TWEEN.Tween({z: camera.position.z})
 		.to({z: newZPosition})
@@ -579,7 +590,8 @@ function moveCamera() {
 			camera.position.z = this.z;
 		}).start();
 	} else {
-		moveCameraToVideoScreen()
+		//cleanScene();
+		moveCameraToVideoScreen();
 	}
 	console.log((1- numberOfLastArticles/totalArticleCount) * 0.01);
 	var factor = (1 - numberOfLastArticles/totalArticleCount) * 0.01;
@@ -590,10 +602,15 @@ function moveCamera() {
 }
 
 function moveCameraToVideoScreen() {
+console.log("moveCameraToVideoScreen");
 
-new TWEEN.Tween({x:camera.position.x,y:camera.position.y, z: camera.position.z})
-		.to({x: videoScreen.position.x,y: videoScreen.position.y,z: videoScreen.position.z+500}, 3000)
+new TWEEN.Tween({x:camera.position.x,y:camera.position.y, z:camera.position.z})
+		.to({x: videoScreen.position.x,y: videoScreen.position.y,z: videoScreen.position.z+3}, 1000)
 		.easing(TWEEN.Easing.Sinusoidal.InOut)
+		.onStart(function() {
+			//camera.position.z += 1;
+			//console.log("camera.position.z s" + camera.position.z);
+		})
 		.onUpdate(function() {
 			//console.log("camera.position.z " + camera.position.z);
 			camera.position.x = this.x;
@@ -601,8 +618,12 @@ new TWEEN.Tween({x:camera.position.x,y:camera.position.y, z: camera.position.z})
 			camera.position.z = this.z;
 		})
 		.onComplete(function() {
+			// console.log("at postion videoscreen");
+			// console.log(videoScreen.position);
+			// console.log(camera.position);
 			camera.lookAt(videoScreen.position);
 			video.play();
+			video.onended = function(e) { reloadButton.style.opacity = 1;};
 		}).start();
 }
 

@@ -2,6 +2,16 @@
 
 /*** welcome ***/
 
+#ReloadButton{
+position: absolute;
+z-index:8;
+left:55%;
+top:80.5%;
+font-family:Courier;
+font-size:30px;
+background-color:white;
+}
+
 #start{
 	
 	position: absolute;
