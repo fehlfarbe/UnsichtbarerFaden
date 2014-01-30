@@ -247,80 +247,23 @@ App.controller('newarticle', function($scope, $http, $location) {
 	$("#articleWrapper").block({message : "<h2>initialisiere Editor...</h2>"});
 	
 	// Setup TinyMCE
-//	tinymce.EditorManager.triggerSave();
-	var editor = tinymce.init({
+	tinymce.init({
 	    selector: "textarea",
 	    plugins: "save image media", 
 	    file_browser_callback: 
 	    	function(field_name, url, type, win) {
 	    		if (type=='media' || type=='image') $('#upload_form input').click();
 	    	},
-	    toolbar: "save",
+	    //toolbar: "save",
 	    body_id: "sad",
 	    force_br_newlines : true,
         force_p_newlines : false,
-	    save_enablewhendirty: false,
-	    save_onsavecallback: 
-	    	function() {
-	    		console.log("SAVE");
-		    	//html2canvas(tinymce.activeEditor.getBody(),  {
-		    	//	onrendered: function(canvas) {
-		    			$("#articleWrapper").block({message : "<h2>Speichern...</h2>"});
-		    			//document.body.appendChild(canvas);
-		    			//setup data
-		    			var article = new Object();
-		    			article.screen = '';
-		    			article.headline = $('#headline').val();
-		    			article.content = tinymce.activeEditor.getContent();
-		    			article.categories = $("#category").val();
-		    			article.symbol = $("#symbol").val();
-		    			article.book = $('#book').val();
-		    			if( id != undefined )
-		    				article.id = id;
-		    					    			
-		    			//replace newlines at end of text
-		    			article.content = article.content.replace(new RegExp(/<p>&nbsp;<\/p>/g), '')
-		    								.replace(new RegExp(/\n/g), '');
-
-		    			console.log("send article", article);
-		    			
-		    			if( article.headline == ""){
-		    				alert("Keine Überschrift!");
-		    				$("#articleWrapper").unblock();
-		    				return;
-		    			} else if ( article.content == "" ){
-		    				alert("Kein Text!");
-		    				$("#articleWrapper").unblock();
-		    				return;
-		    			} else if( article.categories == null ){
-		    				alert("Achtung! Keine Kategorien gewählt");
-		    				$("#articleWrapper").unblock();
-		    				return;
-		    			} else if( article.symbol == null){
-		    				alert("Achtung! Kein Symbol gewählt");
-		    				$("#articleWrapper").unblock();
-		    				return;
-		    			} else if( isNaN(parseInt(article.book)) || parseInt(article.book) < 0 ){
-		    				alert("Fehler bei Buchnummer!");
-		    				$("#articleWrapper").unblock();
-		    				return;
-		    			}
-		    			
-		    			console.log(parseInt(article.book));
-		    			
-		    			$http.post('/save/article', article)
-		    			.success(function(data, status, headers, config){
-		    				console.log("article saved!", data);
-		    				$("#articleWrapper").unblock();
-		    				$location.search('id', data.id);
-		    			}).error(function(data, status, headers, config){
-		    				alert("I can't do this, Dave!");
-		    				console.log(data, status, headers);
-		    				$("#articleWrapper").unblock();
-		    			});
+	    //save_enablewhendirty: false,
+	    //save_onsavecallback: 
+	    	
 		    		//}
 		    	//});
-	    }
+	    //}
 	 });
 	
 	// chosen init
@@ -388,6 +331,64 @@ App.controller('newarticle', function($scope, $http, $location) {
 			$("#articleWrapper").unblock();
 		}
 	});
+	
+	//Save article
+	$scope.saveArticle = function() {
+		console.log("SAVE");
+		$("#articleWrapper").block({message : "<h2>Speichern...</h2>"});
+		//document.body.appendChild(canvas);
+		//setup data
+		var article = new Object();
+		article.screen = '';
+		article.headline = $('#headline').val();
+		article.content = tinymce.activeEditor.getContent();
+		article.categories = $("#category").val();
+		article.symbol = $("#symbol").val();
+		article.book = $('#book').val();
+		if( id != undefined )
+			article.id = id;
+				    			
+		//replace newlines at end of text
+		article.content = article.content.replace(new RegExp(/<p>&nbsp;<\/p>/g), '')
+							.replace(new RegExp(/\n/g), '');
+
+		console.log("send article", article);
+		
+		if( article.headline == ""){
+			alert("Keine Überschrift!");
+			$("#articleWrapper").unblock();
+			return;
+		} else if ( article.content == "" ){
+			alert("Kein Text!");
+			$("#articleWrapper").unblock();
+			return;
+		} else if( article.categories == null ){
+			alert("Achtung! Keine Kategorien gewählt");
+			$("#articleWrapper").unblock();
+			return;
+		} else if( article.symbol == null){
+			alert("Achtung! Kein Symbol gewählt");
+			$("#articleWrapper").unblock();
+			return;
+		} else if( isNaN(parseInt(article.book)) || parseInt(article.book) < 0 ){
+			alert("Fehler bei Buchnummer!");
+			$("#articleWrapper").unblock();
+			return;
+		}
+		
+		console.log(parseInt(article.book));
+		
+		$http.post('/save/article', article)
+		.success(function(data, status, headers, config){
+			console.log("article saved!", data);
+			$("#articleWrapper").unblock();
+			$location.search('id', data.id);
+		}).error(function(data, status, headers, config){
+			alert("I can't do this, Dave!");
+			console.log(data, status, headers);
+			$("#articleWrapper").unblock();
+		});
+	};
 });
 
 App.controller('nodeeditor', function($scope, $http) {

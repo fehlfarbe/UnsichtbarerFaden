@@ -41,7 +41,7 @@ div#view{
 /*** EDITOR ***/
 .articleHeadline, .articlebook{
 	min-width: 300px;
-	padding: 5px;
+	padding: 3px;
 	margin: 5px;
 	font-size: medium;
 	font-weight: bold;
@@ -92,4 +92,9 @@ div#view{
     -moz-box-sizing: content-box;
     -webkit-box-sizing: content-box;
     box-sizing: content-box;
+}
+
+.editor-savebtn{
+	margin: 10px;
+	margin-top: 22px;
 }
