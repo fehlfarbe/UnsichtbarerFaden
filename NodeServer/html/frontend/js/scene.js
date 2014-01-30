@@ -52,8 +52,9 @@ function init() {
 
     if (Detector.webgl){
     	renderer = new THREE.WebGLRenderer({antialias:true});
-		startText = "Sie betreten die Welt des unsichtbaren Fadens. <br/> Es handelt sich um ein interdisziplinäres Projekt zwischen Kunst und Informatik. <br/> Mit dem Control unten links navigieren sie" 
-					+ " durch die Geschichte. Sie bestimmen den Verlauf.";
+		startText = "<img src='src/000_INTRO-02.png' style='max-width:850px;'>";
+		// startText = "Sie betreten die Welt des unsichtbaren Fadens. <br/> Es handelt sich um ein interdisziplinäres Projekt zwischen Kunst und Informatik. <br/> Mit dem Control unten links navigieren sie" 
+					// + " durch die Geschichte. Sie bestimmen den Verlauf.";
     } else {
     	startText = "Diese Website ist ein WebGL Experiment. Bitte verwenden sie den Chrome oder Firefox Browser."
     }
@@ -142,7 +143,7 @@ function init() {
     //scene.add(cubes('tedra'));
     
     articleDiv = document.createElement('div');
-    articleDiv.style.background = '#D3D3D3';
+    articleDiv.style.background = '#ffffff';
     articleDiv.style.color = '#008B8B';
     articleDiv.style.fontFamily = 'Courier';
     articleDiv.style.fontWeight = 'bold';
@@ -154,13 +155,16 @@ function init() {
     articleDiv.style.position = 'absolute';
     //articleDiv.style.textAlign = 'center';
     articleDiv.style.width = 'auto';
+	articleDiv.style.maxWidth = '870px';
+	articleDiv.style.maxHeight = '652px';
     articleDiv.style.height = 'auto';
 	articleDiv.style.opacity = '0';
+	articleDiv.style.overflow = 'auto'
 //    
 //    articleDiv.style.backgroundImage = "url('src/div_bg.png')";
     console.log("bg: " + articleDiv.style.backgroundImage);
-    articleDiv.style.border = 'solid';
-    articleDiv.style.borderColor = 'black';
+    // articleDiv.style.border = 'solid';
+    // articleDiv.style.borderColor = 'black';
 	
 	cssObject = new THREE.CSS3DObject(articleDiv);
 	cssObject.position.z = -320;
@@ -223,7 +227,7 @@ function init() {
 	var videoGeometry = new THREE.PlaneGeometry(10,5.67, 1, 1);
 	var videoMaterial = new THREE.MeshBasicMaterial({map: videoTexture, overdraw: true, side:THREE.DoubleSide});
 	videoScreen = new THREE.Mesh(videoGeometry, videoMaterial);
-	videoScreen.position.set(-250,-50, 0);
+	videoScreen.position.set(0,0, 250);
 	videoScreen.name = "videoScreen";
 	scene.add(videoScreen);
 	
@@ -548,22 +552,20 @@ function fillScene() {
 			// scene.remove(scene.children[i]);
 			// }
 		// }
-		
+		cleanScene();
 		// cssScene.remove(cssObject);
 		moveCameraToVideoScreen();
 		//scene.add( spritey );
 		
 		
 		
-		animate;
+		//animate;
 		//return;
 	} else {
 
 		//cleanScene();
 		updateParticles();
-		for (var i = 0; i < meshArray.length; i++) {
-			scene.add(meshArray[i]);
-		}
+		
 		moveCamera();
 		//document.body.appendChild(iframe);
 		//updateArticleDiv(articleSrc);
@@ -583,7 +585,7 @@ function moveCamera() {
 	if (newZPosition > 0) {
 		//console.log("Number articles " + numberOfLastArticles);
 		new TWEEN.Tween({z: camera.position.z})
-		.to({z: newZPosition})
+		.to({z: newZPosition}, 2000)
 		.easing(TWEEN.Easing.Sinusoidal.InOut)
 		.onUpdate(function() {
 			//console.log("camera.position.z " + camera.position.z);
@@ -591,7 +593,10 @@ function moveCamera() {
 		}).start();
 	} else {
 		//cleanScene();
+		camera.position.z = 0;
+		particleForm = 'end';
 		moveCameraToVideoScreen();
+		
 	}
 	console.log((1- numberOfLastArticles/totalArticleCount) * 0.01);
 	var factor = (1 - numberOfLastArticles/totalArticleCount) * 0.01;
@@ -603,8 +608,10 @@ function moveCamera() {
 
 function moveCameraToVideoScreen() {
 console.log("moveCameraToVideoScreen");
-
-new TWEEN.Tween({x:camera.position.x,y:camera.position.y, z:camera.position.z})
+var posX = camera.position.x,
+posY = camera.position.y,
+posZ = camera.position.z;
+new TWEEN.Tween({x:posX,y:posY,z:posZ})
 		.to({x: videoScreen.position.x,y: videoScreen.position.y,z: videoScreen.position.z+3}, 1000)
 		.easing(TWEEN.Easing.Sinusoidal.InOut)
 		.onStart(function() {
@@ -621,6 +628,7 @@ new TWEEN.Tween({x:camera.position.x,y:camera.position.y, z:camera.position.z})
 			// console.log("at postion videoscreen");
 			// console.log(videoScreen.position);
 			// console.log(camera.position);
+			cleanScene();
 			camera.lookAt(videoScreen.position);
 			video.play();
 			video.onended = function(e) { reloadButton.style.opacity = 1;};
@@ -637,7 +645,7 @@ function changeBgColor() {
 }
 
 function fadeOutIn(object) {
-	var time = rand(1000,1500);
+	var time = rand(2000,2500);
 	new TWEEN.Tween({v: 1.0})
 	.to({v: 0.0}, time)
 	.easing(TWEEN.Easing.Sinusoidal.InOut)
@@ -653,10 +661,11 @@ function fadeOutIn(object) {
 }
 
 function fadeIn(object, startScreen) {
-	var time = rand(1000,1500);
+	var time = rand(3000,3500);
     new TWEEN.Tween( {v: 0.0} )
         .to( {v: 1.0}, time)
         .easing(TWEEN.Easing.Sinusoidal.InOut)
+		.delay(500)
         .onStart(function () {
 			if (!startScreen)
 				updateArticleDiv(articleSrc);

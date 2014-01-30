@@ -12,6 +12,24 @@ font-size:30px;
 background-color:white;
 }
 
+#articleDiv{
+background:#D3D3D3;
+color:#008B8B;
+font-family: 'Courier';
+font-weight: bold;
+top: -50%;
+z-index: 1;
+padding: 5px;
+left: 50%;
+position: absolute;
+width: auto;
+max-width: 870px;
+max-height: 652px;
+height: auto;
+opacity: 0;
+overflow:auto;
+}
+
 #start{
 	
 	position: absolute;
