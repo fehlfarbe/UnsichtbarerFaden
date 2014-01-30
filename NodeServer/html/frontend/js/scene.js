@@ -144,7 +144,7 @@ function init() {
     
     articleDiv = document.createElement('div');
     articleDiv.style.background = '#ffffff';
-    articleDiv.style.color = '#008B8B';
+    articleDiv.style.color =  '#000000';  //'#008B8B';
     articleDiv.style.fontFamily = 'Courier';
     articleDiv.style.fontWeight = 'bold';
     //articleDiv.style.top = -50 + '%';
@@ -240,6 +240,11 @@ function init() {
 	reloadButton.style.opacity = 0;
 }
 
+
+function updateVideo(path) {
+	video.src = path;
+	video.load();
+}
 
 function initParticles() {
 	console.log("initParticles");
@@ -439,16 +444,6 @@ function cleanScene() {
 	cssScene.remove(cssObject);
 }
 
-function showStartDiv() {
-	cssRenderer.render(cssScene, cssCamera);
-	return true;
-}
-
-function removeStartDiv() {
-	//fadeOutIn(cssObject);
-	//cssScene.remove(cssScene.children[0]);
-	//cssRenderer.render(cssScene, cssCamera);
-}
 
 
 function updateParticles() {
@@ -502,34 +497,7 @@ function addParticlesToView() {
 	particleSystem.geometry.__dirtyVertices = true;
 }	
 	
-function updateNumberOfParticles() {
-	if (lastnumberOfParticles > numberOfParticles) {
-		var particlesToRemove = lastnumberOfParticles - numberOfParticles;
-		for (var i = 0; i < particlesToRemove; i++) {
-		    meshArray.pop();
-//		    scene.children.pop();
-//		    console.log("pop");
-		}
-	} else if (lastnumberOfParticles < numberOfParticles) {
-		var particlesToAdd = numberOfParticles - lastnumberOfParticles;
-		for (var i = 0; i < particlesToAdd; i++) {
-			addMesh();
-			//TODO BUG!!!!
 
-//			var tempMesh = meshArray.slice(0,1);
-//			console.log(tempMesh);
-//			//tempMesh.position.set(rand(-4,4)* camera.position.z/2, rand(-1,1)* camera.position.z/2, rand(-0.5,0));
-//		    meshArray.push(tempMesh);
-//		    this.meshArray.push(new THREE.Mesh(getMeshGeometry(), getMeshMaterial()));
-//			updateMeshColor();
-			//this.meshArray.name = meshForm;
-			//this.meshArray[i].name = meshForm;
-//			this.meshArray[i].position.set(rand(-4,4) * camera.position.z/2, rand(-1,1)* camera.position.z/2, rand(-6.5,0));
-//		    scene.add(meshArray[meshArray.length-1]);
-//		    console.log("push and add");
-		}		
-	}
-}
 
 	
 /** Helper function fills the scene */
@@ -593,6 +561,8 @@ function moveCamera() {
 		}).start();
 	} else {
 		//cleanScene();
+		updateVideo("src/video/end.mp4");
+		reloadButton.innerHTML = "Start";
 		camera.position.z = 0;
 		particleForm = 'end';
 		moveCameraToVideoScreen();
