@@ -1,0 +1,34 @@
+<div ng-controller="nodeEditor.initNodes">
+	<!-- <h2>Node-Editor</h2> -->
+	
+	<div class="grapheditorWrap">
+		<div class="btn-group">
+			<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+				Steuerung <span class="caret"></span>
+			</button>
+			<ul class="dropdown-menu" role="menu">
+				<li><a><h4>Auf Leerer Fläche</h4></a></li>
+				<li><a>[RMaus + Move] Ansicht verschieben</a></li>
+				<li><a>[Mausrad] Zoom</a></li>
+				<li><a>[LMaus] neues Schlagwort</a></li>
+				<li><a><h4>Auf Schlagwort</h4></a></li>
+				<li><a>[LMaus] Schlagwort selektieren</a></li>
+				<li><a>[LMaus + Move] Link aus Schlagwort ziehen</a></li>
+				<li><a>[STRG + LMaus] Schlagwort verschieben</a></li>
+				<li><a>[r] umbenennen</a></li>
+				<li><a>[Entf] löschen</a></li>
+				<li><a><h4>Auf Link</h4></a></li>
+				<li><a>[LMaus] Link selektieren</a></li>
+				<li><a>[Entf] Link löschen</a></li>
+			</ul>
+		</div>
+		
+		<!-- <input type="number" ng-model="linkProp.length" ng-change="changeLinkLength()"/> -->
+		
+		<!-- <button ng-click="resetNodes()" class="btn btn-defalut">Reset</button> -->
+		<button ng-click="saveNodes()" class="btn btn-success">Speichern</button>
+		   
+		<div id="grapheditor" class="grapheditor"></div>
+	</div>
+
+</div>

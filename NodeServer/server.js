@@ -33,7 +33,7 @@ var HTTPSoptions = {
  *  **************************************************************/
 var connection = mysql.createConnection({
 	  	host     	: 'kolbe.no-ip.org',
-		//host		: 'localhost',
+		host		: 'localhost',
 		user     	: 'faden',
 		password 	: 'unsichtbar',
 		database 	: 'derunsichtbarefaden'
@@ -560,7 +560,7 @@ function agent(param, callback){
 		/* Select one random article from book 1 */
 		console.log("\n***Agent: startarticle ***\n");
 		
-		var query = "SELECT articleid AS id, text, symbol, book FROM articles WHERE book = 1 ORDER BY RAND() LIMIT 1";
+		var query = "SELECT articleid AS id, text, symbol, book FROM articles WHERE book = 0 ORDER BY RAND() LIMIT 1";
 		connection.query(query, function(err, articles, fields) {
 			if(err) throw err;
 			

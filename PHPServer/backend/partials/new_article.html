@@ -1,0 +1,37 @@
+<div id="articleWrapper">
+	
+	<!-- headline -->
+	<div id="symbolContainer" class="articleInput">
+		<div class="smallLabel">Symbol</div>
+		<div></div>
+		<select id="symbol" data-placeholder="Symbol wählen" class="chosen-select"></select>
+	</div>	
+	<div class="articleInput">
+		<div class="smallLabel">Tagebuch</div>
+		<input id="book" type="number" min="0" max="99" placeholder="Nr" class="articlebook"></input>
+	</div>	
+	<div class="articleInput">
+		<div class="smallLabel">Titel</div>
+		<input id="headline" type="text" placeholder="Titel" class="articleHeadline"></input>
+	</div>
+	<!-- category select -->
+	<div class="articleInput">
+		<div class="smallLabel">Schlagworte</div>
+		<div></div>
+		<select id="category" data-placeholder="Schlagworte wählen" multiple="multiple" class="chosen-select articleCategories"></select>
+	</div>
+	<div class="articleInput">
+		<button ng-click="saveArticle()" class="btn btn-success editor-savebtn">Speichern</button>
+	</div>
+	
+	
+	
+	<!-- tiny mce editor -->
+	<div id="editor" class="articleEditor">
+		<textarea id="editortext"></textarea>
+		<iframe id = "form_target" name="form_target" style="display:none"></iframe>
+		<form id ="upload_form" method="post" action="/upload" target="form_target"  enctype="multipart/form-data" style="width:0px;height:0px;overflow:hidden">
+			<input name="image" type="file" onchange="$('#upload_form').submit();this.value='';">
+		</form>
+	</div>
+</div>
