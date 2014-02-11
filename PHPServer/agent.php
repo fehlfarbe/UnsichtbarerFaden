@@ -66,8 +66,16 @@ switch ($agentSymbol){
 
 		if ($result = $con->query($query)) {
 			$article = $result->fetch_object();
+			
+			if( $article == null){
+				error_log("No article was found!");
+				echo json_encode(null);
+				return;
+				//ToDo: restart
+			}
+			
 			$article = addArticleInfo($con, $article);
-			error_log(json_encode($article));
+			error_log("Article: ".json_encode($article));
 			echo json_encode($article);
 			return;
 		}
@@ -312,7 +320,7 @@ switch ($agentSymbol){
 			
 			unset($article->amount);
 			$article = addArticleInfo($con, $article);
-			error_log($article);
+			error_log(json_encode($article));
 			echo json_encode($article);
 			return;
 		}

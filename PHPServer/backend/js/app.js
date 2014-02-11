@@ -28,7 +28,7 @@ var App = angular.module('App', ['nodeeditor']);
 App.factory('UserService', [function() {
 	var sdo = {
 		isInit: false,
-		isLogged: false,
+		isLogged: false, /////////////////////////////////////////////// DEBUG
 		username: ''
 	};
 	
@@ -93,7 +93,7 @@ App.config(function($routeProvider, $httpProvider) {
 			// get only the 401
 			function(response) {
 				if (response.status === 401){
-					$location.url('/login');
+					$location.url('/login.php');
 				}
 					
 				return $q.reject(response);
@@ -132,7 +132,7 @@ App.controller('loginController', ['$scope', '$http', '$location', 'UserService'
 		
 		var data = {username : user.name, password : user.password}; // configuration object
 
-		$http.post('/login', data)
+		$http.post('/login.php', data)
 		.success(function(data, status, headers, config) {
 			console.log("status", status, data);
 			console.log("Succ");
@@ -171,7 +171,7 @@ App.controller('HeaderController', ['$scope', '$location', '$http', 'UserService
     //test if I'm already logged in
     if( !User.isInit ){
     	console.log("Not init!", User);
-    	$http.get('/loggedin').success(function(user) {
+    	$http.get('/loggedin.php').success(function(user) {
     		User.isInit = true;
     		console.log(user);
     		// Authenticated
@@ -193,11 +193,11 @@ App.controller('HeaderController', ['$scope', '$location', '$http', 'UserService
     
     //logout
     $scope.logout = function(){
-    	$http.post('/logout')
+    	$http.post('/logout.php')
 		.success(function(data, status, headers, config) {
 			console.log("status", status, data);
 			if (status == 200) {
-				// succefull login
+				// succefull logout
 				User.isLogged = false;
 				User.username = '';
 				$location.url('/login');
@@ -233,7 +233,7 @@ App.controller('articleoverview', function($scope, $http) {
 	
 	//Get article
 	$('#articleList').block({ message : "<h2>Lade Einträge</h2>"} );
-	$scope.articles = $http.get('/get/articles')
+	$scope.articles = $http.get('/backend.php?action=articles')
 	.then(function(result) {
 		console.log(result.data);
 		$('#articleList').unblock();
@@ -270,7 +270,7 @@ App.controller('newarticle', function($scope, $http, $location) {
 	// chosen init
 	$("#category").chosen();
 	$("#symbol").chosen();
-	$http.get('/get/nodessymbols').then(function(result) {
+	$http.get('/backend.php?action=nodessymbols').then(function(result) {
 		
 		//categories
 		var categories = result.data.nodes;		
@@ -285,7 +285,7 @@ App.controller('newarticle', function($scope, $http, $location) {
 		
 		//// edit article
 		if( id != undefined ){
-			$http.get('/get/articles')
+			$http.get('/backend.php?action=articles')
 			.then(function(result) {			
 				for(var i=0; i<result.data.length; i++)
 					if(result.data[i].id == id){
@@ -379,7 +379,7 @@ App.controller('newarticle', function($scope, $http, $location) {
 		
 		console.log(parseInt(article.book));
 		
-		$http.post('/save/article', article)
+		$http.post('/backend.php?action=save_article', article)
 		.success(function(data, status, headers, config){
 			console.log("article saved!", data);
 			$("#articleWrapper").unblock();
@@ -423,11 +423,11 @@ App.filter('orderObjectBy', function(){
 
 App.articleList = function($scope, $http, $route, $location) {
 
-	$scope.articles = $http.get('/get/articles')
-	.then(function(result) {
-		console.log(result.data);
-        return result.data;
-     });
+//	$scope.articles = $http.get('/backend.php?action=articles')
+//	.then(function(result) {
+//		$('#articleList').unblock();
+//        return result.data;
+//     });
 	
 	$scope.editArticle = function(id){
 		console.log("editiere..." + id);
@@ -456,7 +456,7 @@ App.articleList = function($scope, $http, $route, $location) {
 			$('#articleList').block();
 			var data = new Object();
 			data.id = id;
-			$http.post('/delete/article', data)
+			$http.post('/backend.php?action=delete_article', data)
 			.success(function(data, status, headers, config){
 				console.log("article deleted!");
 				$route.reload();

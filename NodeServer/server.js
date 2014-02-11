@@ -33,7 +33,7 @@ var HTTPSoptions = {
  *  **************************************************************/
 var connection = mysql.createConnection({
 	  	host     	: 'kolbe.no-ip.org',
-		host		: 'localhost',
+		//host		: 'localhost',
 		user     	: 'faden',
 		password 	: 'unsichtbar',
 		database 	: 'derunsichtbarefaden'

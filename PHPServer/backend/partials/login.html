@@ -1,0 +1,18 @@
+<div class="container" ng-controller="loginController">
+
+	<form class="form-signin" role="form" novalidate>
+		<h2 class="form-signin-heading">Login</h2>
+		<input 	type="text"
+				class="form-control"
+				placeholder="Benutzername"
+				required
+				autofocus
+				ng-model="user.name">
+		<input type="password" class="form-control" placeholder="Passwort" required ng-model="user.password">
+		
+		<button class="btn btn-lg btn-primary btn-block" ng-click="login(user)">Login</button>
+	</form>
+	
+	<div class="alert alert-danger" style="width: 350px; margin: 10px auto;" ng-show="isError">{{errorText}}</div>
+
+</div>
