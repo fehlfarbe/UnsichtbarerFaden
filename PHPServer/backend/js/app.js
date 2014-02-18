@@ -233,7 +233,7 @@ App.controller('articleoverview', function($scope, $http) {
 	
 	//Get article
 	$('#articleList').block({ message : "<h2>Lade Einträge</h2>"} );
-	$scope.articles = $http.get('/backend.php?action=articles')
+	$scope.articles = $http.post('/backend.php?action=articles')
 	.then(function(result) {
 		console.log(result.data);
 		$('#articleList').unblock();
@@ -253,18 +253,21 @@ App.controller('newarticle', function($scope, $http, $location) {
 	    plugins: "save image media", 
 	    file_browser_callback: 
 	    	function(field_name, url, type, win) {
-	    		if (type=='media' || type=='image') $('#upload_form input').click();
+	    	console.log("Filebrowser", field_name, url, type, win);
+	    	$("#upload_form").bind('ajax:complete', function(x) {
+
+	            console.log("submit", x);
+
+
+	    	});
+	    	
+	    		if (type=='media' || type=='image')
+	    			$('#upload_form input').click();
+	    		console.log("clicked");
 	    	},
-	    //toolbar: "save",
 	    body_id: "sad",
 	    force_br_newlines : true,
         force_p_newlines : false,
-	    //save_enablewhendirty: false,
-	    //save_onsavecallback: 
-	    	
-		    		//}
-		    	//});
-	    //}
 	 });
 	
 	// chosen init
@@ -285,7 +288,9 @@ App.controller('newarticle', function($scope, $http, $location) {
 		
 		//// edit article
 		if( id != undefined ){
-			$http.get('/backend.php?action=articles')
+			var data = new Object();
+			data.id = id;
+			$http.post('/backend.php?action=articles', data)
 			.then(function(result) {			
 				for(var i=0; i<result.data.length; i++)
 					if(result.data[i].id == id){

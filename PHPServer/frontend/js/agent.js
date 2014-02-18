@@ -25,7 +25,7 @@ function agentController($scope, $http) {
 	
 	
 
-	$http.get("/agent" + "?symbol=0&lastArticles=[]")
+	$http.get("/agent.php" + "?symbol=0&lastArticles=[]")
 		.success(function(article) {
 			
 			//showStartDiv(startText);
@@ -42,7 +42,7 @@ function agentController($scope, $http) {
 	
 	
 	$scope.symbolOnClick = function(symbol) {
-		$http.get("/agent" + "?symbol=" + symbol + "&lastArticles=[" + lastArticles + "]")
+		$http.get("/agent.php" + "?symbol=" + symbol + "&lastArticles=[" + lastArticles + "]")
 			.success(function(article) {
 				lastArticles = article.lastArticles;
 				updateControl(article.symbols);

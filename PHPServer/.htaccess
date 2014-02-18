@@ -1,5 +1,0 @@
-//301 Redirect Old File
-Redirect 301 / frontend/index.php
-
-//Custom 404 errors
-ErrorDocument 404 Nix gefunden

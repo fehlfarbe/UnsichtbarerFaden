@@ -22,6 +22,11 @@ switch ($action) {
 				'LEFT JOIN  nodes 			ON articlenodes.nodeid = nodes.nodeid ' .
 				'JOIN symbols ON articles.symbol = symbols.id';
 		
+		if( isset($data['id']) ){
+			error_log("Data ID: ". $data['id']);
+			$query .= " WHERE articles.articleid = " . intval($data['id']);
+		}
+		
 		$articles = Array();
 		if ($result = $con->query($query)) {
 			while ($article =  $result->fetch_object()){
@@ -127,12 +132,11 @@ switch ($action) {
 		$article = Array();
 		$article['name'] = $data['headline'];
 		$article['text'] = $data['content'];
-		//$article['screen'] = $data['screen'];
 		$article['symbol'] = $data['symbol'];
 		$article['book'] = $data['book'];
 		
 		$columns = implode(", ",array_keys($article));
-		$escaped_values = array_map('mysql_real_escape_string', array_values($article));
+		$escaped_values = array_map($con->real_escape_string, array_values($article));
 		foreach( $escaped_values as &$val){
 			if( !is_numeric($val) )
 				$val = "'$val'";
@@ -148,7 +152,7 @@ switch ($action) {
 			for($i=0; $i<count($keys); $i++){
 				if( $i != 0)
 					$query .= ", ";
-				$query .= " $keys[$i] = '" . mysql_real_escape_string($article[$keys[$i]]) ."'";
+				$query .= " $keys[$i] = '" . $con->real_escape_string($article[$keys[$i]]) ."'";
 			}
 			$query .= " WHERE articleid = " . intval($data['id']);
 		} else {
@@ -255,6 +259,31 @@ switch ($action) {
 		
 		return;
 		
+	case 'upload':
+		
+		error_log(json_encode($_FILES));
+		error_log(json_encode($_FILES['image']));
+		
+		$basename = $_FILES['image']['name'];
+		$tmp_name = $_FILES['image']['tmp_name'];
+		$dst = "/upload/images/";
+		$newname = $dst.time()."_".$basename;
+		
+		//error_log("$basename, $tmp_name");
+		
+		if ( move_uploaded_file($tmp_name, __DIR__.$newname) )
+		{
+			error_log("Uploaded $newname");
+			
+			header('Content-Type: text/html');				
+			$ret = "<script>top.$('.mce-btn.mce-open').parent().find('.mce-textbox').val('$newname').closest('.mce-window').find('.mce-primary').click();</script>";
+			error_log($ret);
+			echo $ret;
+			return;
+		}
+			
+		
+		return;
 }
 
 
