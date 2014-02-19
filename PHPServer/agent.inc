@@ -189,4 +189,21 @@ function addArticleInfo($con, $article, $lastSymbol){
 	
 	return $article;
 }
+
+function getThumbs($con){
+	
+	$query = "SELECT articleid, screen FROM articles WHERE screen != ''";
+	
+	$thumbs = Array();
+	if( $result = $con->query($query) ){
+		while( $thumb = $result->fetch_object() )
+			$thumbs[] = $thumb;
+		
+		return $thumbs;
+				
+	}
+	
+	return null;
+	
+}
 ?>

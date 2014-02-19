@@ -9,6 +9,13 @@ include_once 'agent.inc';
 /// Set header to JSON for return type
 header('Content-Type: application/json');
 
+if( isset($_GET['action']) && @$_GET['action'] == 'getthumbnails' ){
+	$thumbs = json_encode(getThumbs($con));
+	//error_log($thumbs);
+	echo $thumbs;
+	return;
+}
+
 //symbol clicked
 if ( empty($_GET['symbol']))
 	$symbol = 0;
@@ -29,6 +36,7 @@ if( count($lastArticles) > 0){
 }	
 else{
 	//no last articles? so choose a start article
+	$lastArticleId = null;
 	$agentSymbol = 0;
 }
 
@@ -37,21 +45,11 @@ error_log("Symbol clicked: $symbol");
 error_log( json_encode($lastArticles) );
 error_log( "Last article ID $lastArticleId");
 
-// echo json_encode(getSymbols($con, 1));
-// echo json_encode(getArticle($con, 5));
-// echo json_encode(getCategories($con, 31));
-// echo "<br />";
-// echo json_encode(getCategoriesEnv($con, 31));
-// echo "<br />";
-// echo json_encode(getBookCount($con, 3));
-// echo "<br />Total articles: ";
-// echo json_encode(getArticleCount($con));
-// echo "<br />Nodes: ";
-// echo json_encode(getNodes($con, 5));
-
-
-
-//// Agent Switch Loop
+/***************************
+ * 
+ * Agent Switch Loop
+ * 
+ ***************************/ 
 
 switch ($agentSymbol){
 	

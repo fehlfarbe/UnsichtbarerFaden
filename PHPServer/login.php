@@ -8,7 +8,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       session_start();
 
       $data = json_decode(file_get_contents("php://input"), true);
-      error_log(json_encode($_POST) . "\n\n".json_encode($data));
+      //error_log(json_encode($_POST) . "\n\n".json_encode($data));
       //error_log("DATA: " . json_encode($data));
       
       $username = $con->real_escape_string($data['username']); //escape strings!!!!!!!!!!!!!!!!!!!
