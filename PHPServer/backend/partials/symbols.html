@@ -1,0 +1,15 @@
+<div ng-controller="App.symbols" id="symbols">
+
+	<div class="alert alert-success">
+		Eine kleine Übersicht, welcher Symbolklick, welche neuen Navigationssymbole bewirkt :)
+	</div>
+	
+	<ul ng-repeat="symbol in symbols.symbols" style="list-style-type: none;">
+		<li><span ng-bind-html-unsafe="symbol.icon"></span> {{symbol.name}}
+		<ul ng-repeat="link in symbol.links"  style="list-style-type: none;">
+				<li><span ng-bind-html-unsafe="link.icon"></span> {{link.name}}</li>
+		</ul>
+		</li>
+	</ul>
+
+</div>
