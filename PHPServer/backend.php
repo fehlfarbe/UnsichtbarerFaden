@@ -280,10 +280,44 @@ switch ($action) {
 			error_log($ret);
 			echo $ret;
 			return;
-		}
-			
+		}			
 		
 		return;
+		
+		
+	case 'get_symlinks':
+		
+		$query = "SELECT * FROM symbols";
+		
+		$ret = new stdClass();
+		$ret->symbols = Array();
+		$ret->symlinks = Array();
+		
+		if( $result = $con->query($query) ){
+			while ( $symbol = $result->fetch_object() )
+				$ret->symbols[] = $symbol;
+		} else {
+			echo "null";
+			return;
+		}
+		
+		$query = "SELECT * FROM symlinks";
+		if( $result = $con->query($query) ){
+			while ( $link = $result->fetch_object() ){
+				$link->source = intval($link->source);
+				$link->target = intval($link->target);
+				$ret->symlinks[] = $link;
+			}
+				
+		} else {
+			echo "null";
+			return;
+		}
+		
+		
+		echo json_encode($ret);
+		return;
+		
 }
 
 

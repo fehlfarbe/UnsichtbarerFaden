@@ -14,7 +14,7 @@ function arrayToString($arr){
 }
 
 /**
- * @method Returns the possiblie navigation symbols for an article
+ * @method Returns the possiblie navigation symbols
  * @param int $articleId
  */
 function getSymbols($con, $symbolId){
@@ -179,11 +179,12 @@ function getNodes($con, $articleId){
 	return $nodes;
 }
 
-function addArticleInfo($con, $article){
+function addArticleInfo($con, $article, $lastSymbol){
 	
 	$article->bookCount = getBookCount($con, $article->book);
 	$article->totalCount = getArticleCount($con);
 	$article->nodes = getNodes($con, $article->id);
+	$article->symbols = getSymbols($con, $lastSymbol);
 	
 	
 	return $article;

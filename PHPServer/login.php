@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       } else {
       	error_log("\n\nLogin Error: ".  $con->error);
       	//error_log($con->insert_id);
-      	//header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
+      	header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
       	exit;
       }
       

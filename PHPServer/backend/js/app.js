@@ -67,6 +67,10 @@ App.config(function($routeProvider, $httpProvider) {
 		templateUrl : 'partials/frontpage.html',
 		controller : 'login'
 	});
+	$routeProvider.when('/symbols', {
+		templateUrl : 'partials/symbols.html',
+//		controller : 'symbols'
+	});
 	$routeProvider.when('/articleoverview', {
 		templateUrl : 'partials/article_overview.html',
 		controller : 'articleoverview',
@@ -225,6 +229,30 @@ App.controller('login', ['$scope', '$location', 'UserService',function($scope, $
     
 	$scope.name = User.username;
 }]);
+
+
+App.symbols = function($scope, $http, $route, $location) {
+	console.log("Hello from symbols");
+	
+	$scope.symbols = $http.post('/backend.php?action=get_symlinks')
+	.then(function(result) {
+		console.log(result.data);
+		var links = Array();
+		
+		for(var i=0; i < result.data.symlinks.length; i++){
+			
+			var s = result.data.symlinks[i].source-1;
+			//console.log(result.data.symbols[s].links);
+			if ( result.data.symbols[s].links == undefined )
+				result.data.symbols[s].links = Array();
+			
+			result.data.symbols[s].links.push(result.data.symbols[result.data.symlinks[i].target-1]);
+			//result.data.symbols
+		}
+		console.log(result.data.symbols);
+        return result.data;
+     });
+}
 
 //backend article overview controller
 App.controller('articleoverview', function($scope, $http) {
@@ -424,7 +452,6 @@ App.filter('orderObjectBy', function(){
 	    return array;
 	 };
 });
-
 
 App.articleList = function($scope, $http, $route, $location) {
 

@@ -74,7 +74,7 @@ switch ($agentSymbol){
 				//ToDo: restart
 			}
 			
-			$article = addArticleInfo($con, $article);
+			$article = addArticleInfo($con, $article, $symbol);
 			error_log("Article: ".json_encode($article));
 			echo json_encode($article);
 			return;
@@ -115,7 +115,7 @@ switch ($agentSymbol){
 				//ToDo: restart
 			}
 			
-			$article = addArticleInfo($con, $article);
+			$article = addArticleInfo($con, $article, $symbol);
 			error_log($article);
 			echo json_encode($article);
 			return;			
@@ -155,7 +155,7 @@ switch ($agentSymbol){
 				//ToDo: restart
 			}
 
-			$article = addArticleInfo($con, $article);
+			$article = addArticleInfo($con, $article, $symbol);
 			error_log($article);
 			echo json_encode($article);
 			return;
@@ -195,7 +195,7 @@ switch ($agentSymbol){
 				//ToDo: restart
 			}
 			unset($article->amount);
-			$article = addArticleInfo($con, $article);
+			$article = addArticleInfo($con, $article, $symbol);
 			error_log($article);
 			echo json_encode($article);
 			return;
@@ -241,7 +241,7 @@ switch ($agentSymbol){
 				//ToDo: restart
 			}
 
-			$article = addArticleInfo($con, $article);
+			$article = addArticleInfo($con, $article, $symbol);
 			error_log($article);
 			echo json_encode($article);
 			return;
@@ -268,7 +268,7 @@ switch ($agentSymbol){
 				return;
 			}
 
-			$article = addArticleInfo($con, $article);
+			$article = addArticleInfo($con, $article, $symbol);
 			error_log(json_encode($article));
 			echo json_encode($article);
 			return;
@@ -319,7 +319,7 @@ switch ($agentSymbol){
 			$article = $maxTags[array_rand($articles)];
 			
 			unset($article->amount);
-			$article = addArticleInfo($con, $article);
+			$article = addArticleInfo($con, $article, $symbol);
 			error_log(json_encode($article));
 			echo json_encode($article);
 			return;
