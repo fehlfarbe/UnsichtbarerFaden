@@ -16,4 +16,9 @@ if ($con->connect_errno) {
 	error_log("mySQL successfully connected!");
 }
 
+/* change character set to utf8 */
+if (!$con->set_charset("utf8")) {
+	error_log("Error loading character set utf8: $con->error");
+}
+
 ?>

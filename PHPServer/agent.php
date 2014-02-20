@@ -72,6 +72,8 @@ switch ($agentSymbol){
 				//ToDo: restart
 			}
 			
+			//error_log(json_encode($article));
+			
 			$article = addArticleInfo($con, $article, $symbol);
 			error_log("Article: ".json_encode($article));
 			echo json_encode($article);

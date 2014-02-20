@@ -183,9 +183,8 @@ function addArticleInfo($con, $article, $lastSymbol){
 	
 	$article->bookCount = getBookCount($con, $article->book);
 	$article->totalCount = getArticleCount($con);
-	$article->nodes = getNodes($con, $article->id);
+	$article->nodes = getNodes($con, $article->articleid);
 	$article->symbols = getSymbols($con, $lastSymbol);
-	
 	
 	return $article;
 }
