@@ -57,7 +57,7 @@ switch ($agentSymbol){
 		/* Select one random article from book 0 with symbol $symbol*/
 		error_log("\n*** Agent: startarticle ***\n");
 		
-		$query = "SELECT *
+		$query = "SELECT articles.articleid AS id, text, symbol, book  
 				FROM articles
 				WHERE book = 0 AND symbol = $symbol
 				ORDER BY RAND()";
