@@ -179,12 +179,13 @@ function getNodes($con, $articleId){
 	return $nodes;
 }
 
-function addArticleInfo($con, $article, $lastSymbol){
+function addArticleInfo($con, $article, $lastSymbol, $lastArticles){
 	
 	$article->bookCount = getBookCount($con, $article->book);
 	$article->totalCount = getArticleCount($con);
 	$article->nodes = getNodes($con, $article->articleid);
 	$article->symbols = getSymbols($con, $lastSymbol);
+	$article->lastArticles = $lastArticles;
 	
 	return $article;
 }
