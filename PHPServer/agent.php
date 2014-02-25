@@ -116,7 +116,7 @@ switch ($agentSymbol){
 			}
 			
 			$article = addArticleInfo($con, $article, $symbol, $lastArticles);
-			error_log($article);
+			error_log(json_encode($article));
 			echo json_encode($article);
 			return;			
 		}
@@ -156,7 +156,7 @@ switch ($agentSymbol){
 			}
 
 			$article = addArticleInfo($con, $article, $symbol, $lastArticles);
-			error_log($article);
+			error_log(json_encode($article));
 			echo json_encode($article);
 			return;
 		}
@@ -196,7 +196,7 @@ switch ($agentSymbol){
 			}
 			unset($article->amount);
 			$article = addArticleInfo($con, $article, $symbol, $lastArticles);
-			error_log($article);
+			error_log(json_encode($article));
 			echo json_encode($article);
 			return;
 		}
@@ -242,7 +242,7 @@ switch ($agentSymbol){
 			}
 
 			$article = addArticleInfo($con, $article, $symbol, $lastArticles);
-			error_log($article);
+			error_log(json_encode($article));
 			echo json_encode($article);
 			return;
 		}

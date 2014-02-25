@@ -95,6 +95,7 @@ switch ($action) {
 				$node->x = intval($node->x);
 				$node->y = intval($node->y);
 				$nodes[] = $node;
+				//erro_log(json_encode($node->name));
 			}
 		
 		$query = 'SELECT * FROM links';

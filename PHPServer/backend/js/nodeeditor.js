@@ -8,7 +8,7 @@ nodeEditor.initNodes = function($scope, $http) {
 	$scope.nodes = null;
 	
 	$scope.force = null;
-	$scope.linkProp = {length: 150};
+	$scope.linkProp = {length: 300};
 	$scope.changeLinkLength = function(){
 		console.log($scope.linkProp);
 		console.log($scope.force);
@@ -260,7 +260,7 @@ nodeEditor.initNodes = function($scope, $http) {
              })
              .on('mousedown', function(d) {
                if(d3.event.ctrlKey) return;
-
+               console.log("clicked", d);
                // select node
                mousedown_node = d;
                if(mousedown_node === selected_node) selected_node = null;
