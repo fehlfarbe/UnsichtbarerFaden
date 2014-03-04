@@ -3,47 +3,86 @@
 /*** welcome ***/
 
 #ReloadButton{
-position: absolute;
-z-index:8;
-left:55%;
-top:80.5%;
-font-family:Courier;
-font-size:30px;
-background-color:white;
+    position: absolute;
+    z-index:8;
+    left:55%;
+    top:80.5%;
+    font-family:Courier;
+    font-size:30px;
+    background-color:white;
+    opacity:1;
 }
 
 #articleDiv{
-background:#D3D3D3;
-color:#008B8B;
-font-family: 'Courier';
-font-weight: bold;
-top: -50%;
-z-index: 1;
-padding: 5px;
-left: 50%;
-position: absolute;
-width: auto;
-max-width: 870px;
-max-height: 652px;
-height: auto;
-opacity: 0;
-overflow:auto;
+    background:#D3D3D3;
+    color:#008B8B;
+    font-family: 'Courier';
+    font-weight: bold;
+    top: -50%;
+    z-index: 1;
+    padding: 5px;
+    left: 50%;
+    position: absolute;
+    width: auto;
+    max-width: 870px;
+    max-height: 652px;
+    height: auto;
+    opacity: 0;
+    overflow:auto;
 }
 
-#start{
-	
-	position: absolute;
-	margin: 10px auto;
-	width: 100%;
-	height: 100%;
-	left: 0px;
-	top: 0px;
-	background-color: #fff;
-	/* border: 1px solid #000; */
-	z-index: 999;
-	
+#menu {
+    width:14%;
+    float:left;
+    line-height:18px;
+    text-align:center;
 }
 
+#menu ul {
+    list-style-type:none;    
+}
+
+#menu button {
+    background-color:white;
+    border-style:solid;
+    border-color:black;
+    width:100px;
+    height:100px;    
+    margin-left: auto;
+    margin-right: auto;
+    margin-top:20px;
+    padding:0;
+}
+
+#menu #enter {
+    background-image:url(../src/png/emblem.png);
+    width:234px;
+    height:234px;
+    color:white;
+}
+
+#main {
+    width:80%;
+    float:right;
+    text-align:center;
+}
+
+#main h1 {
+    font-style:italic;
+    margin-bottom:20px;   
+}
+
+#main #text {
+    margin-bottom:20px;   
+}
+
+#main #browserText {
+    border-style:solid;
+    width:50%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom:20px;   
+}
 
 /*** javascript disabled warning ***/
 .noscript{
