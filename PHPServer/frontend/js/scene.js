@@ -19,8 +19,6 @@ var mouse = {x : 0, y : 0};
 
 var xMovement, yMovement;
 
-var bgObject, bgMaterial;
-
 var particleSystem, particleCount, particles;
 
 var startText;
@@ -170,26 +168,7 @@ function init() {
 	cssObject.position.z = -320;
 	cssScene.add(cssObject);
 	
-    
-    bgMaterial = new THREE.ShaderMaterial( {
-    uniforms: {
-        time: { // float initialized to 0
-            type: "f",
-            value: 0.0
-        }
-    },
-    vertexShader: document.getElementById( 'vertexShader' ).textContent,
-    fragmentShader: document.getElementById( 'fragmentShader' ).textContent,
-    wireframe:true
-} );
-
-    //bgObject = new THREE.Mesh(new THREE.CubeGeometry(10,10,10,100,100,100), material);
-    //bgObject = new THREE.Mesh(new THREE.SphereGeometry(1,32,16, 0, Math.PI*2, 0, Math.PI), material);
-    bgObject = new THREE.Mesh(new THREE.IcosahedronGeometry( 10, 4 ), bgMaterial);
-    bgObject.position.z = -1 * cameraZStartPoint - 10;
-    bgObject.name = "bgObject";
-
-    scene.add(bgObject);
+  
 
     //render();
 //    meshForm = 'cube';
@@ -233,11 +212,11 @@ function init() {
 	
     animate();
     
-	reloadButton = document.getElementById("ReloadButton");
-	reloadButton.addEventListener( 'click', function() {
+	
+	$("#ReloadButton").click(function() {
 		window.location.reload();
 	});
-	reloadButton.style.opacity = 0;
+	$("#ReloadButton").css("opacity","0");
 }
 
 
@@ -562,7 +541,7 @@ function moveCamera() {
 	} else {
 		//cleanScene();
 		updateVideo("src/video/end.mp4");
-		reloadButton.innerHTML = "Start";
+		$("#ReloadButton").html("Start");
 		camera.position.z = 0;
 		particleForm = 'end';
 		moveCameraToVideoScreen();
@@ -703,7 +682,8 @@ function animate() {
 		camera.lookAt( scene.position );
 		cssCamera.lookAt(cssScene.position);
 
-		bgMaterial.uniforms[ 'time' ].value = .0025 * (clock.getElapsedTime());
+	
+
 		
 		
 		particleSystem.rotation.x += Math.PI * xMovement * 0.00000008;
