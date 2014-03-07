@@ -83,6 +83,10 @@ App.config(function($routeProvider, $httpProvider) {
 		templateUrl : 'partials/nodeeditor.html',
 		controller : 'nodeeditor',
 	});
+	$routeProvider.when('/nodeoverview', {
+		templateUrl : 'partials/node_overview.html',
+		//controller : 'nodeeditor',
+	});
 	$routeProvider.otherwise({
 		redirectTo : '/login'
 	});
@@ -452,6 +456,21 @@ App.filter('orderObjectBy', function(){
 	    return array;
 	 };
 });
+
+App.nodeList = function($scope, $http, $route, $location) {
+
+	console.log('Hello from the Nodes overview Controller');
+	
+	//Get article
+//	$('#articleList').block({ message : "<h2>Lade Einträge</h2>"} );
+	$scope.nodes = $http.post('/backend.php?action=nodessymbols')
+	.then(function(result) {
+		console.log("Nodes", result.data);
+//		$('#articleList').unblock();
+        return result.data.nodes;
+     });
+	
+}
 
 App.articleList = function($scope, $http, $route, $location) {
 

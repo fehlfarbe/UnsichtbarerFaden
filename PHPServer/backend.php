@@ -12,6 +12,7 @@ $data = json_decode(file_get_contents("php://input"), true);
 error_log("DATA: " . json_encode($data));
 
 switch ($action) {
+	
 	case 'articles':
 		error_log("Get articles");
 		$query = 'SELECT articles.articleid AS id, articles.name AS name, text,  book, ' .

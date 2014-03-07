@@ -124,9 +124,44 @@ switch ($agentSymbol){
 		break;
 		
 	case 2: //notwendig
-		/* book >= lastbook, connected tag*/
+		/* book >= lastbook, max(tag==tag)*/
 		error_log("\n*** Agent: necessary ***\n");
+
+		$lastArticle = getArticle($con, $lastArticleId);
+		$lastCategories = getCategories($con, $lastArticleId);
 		
+		error_log("lastArticle". json_encode($lastArticle));
+		error_log("lastCats". json_encode($lastCategories));
+		
+		$query = "SELECT articles.articleid AS id, text, symbol, book, count(articles.articleid) AS amount FROM articles " .
+				"JOIN articlenodes " .
+				"ON articles.articleid = articlenodes.articleid " .
+				"WHERE articles.book >= $lastArticle->book AND articlenodes.nodeid IN ("
+				. arrayToString($lastCategories).") " .
+				"AND articles.articleid NOT IN (" .
+				arrayToString($lastArticles).") " .
+				"GROUP BY id, text, symbol, book " .
+				"ORDER BY amount DESC, book ASC " .
+				"LIMIT 1";
+		
+		if ($result = $con->query($query)) {
+			$article = $result->fetch_object();
+			$result->close();
+		
+			if( $article == null){
+				error_log("No article was found!");
+				echo json_encode(null);
+				return;
+				//ToDo: restart
+			}
+			unset($article->amount);
+			$article = addArticleInfo($con, $article, $symbol, $lastArticles);
+			error_log(json_encode($article));
+			echo json_encode($article);
+			return;
+		}
+		break;
+		/*
 		$lastArticle = getArticle($con, $lastArticleId);
 		$lastCategories = getCategoriesEnv($con, $lastArticleId);
 		
@@ -161,27 +196,25 @@ switch ($agentSymbol){
 			return;
 		}
 		break;
+		*/
 	
 	case 3: //wahr
-		/* book >= lastbook, max(tag==tag)*/
+		/* book >= lastbook */
 		error_log("\n*** Agent: true ***\n");
-		
 		
 		$lastArticle = getArticle($con, $lastArticleId);
 		$lastCategories = getCategories($con, $lastArticleId);
 		
 		error_log("lastArticle". json_encode($lastArticle));
 		error_log("lastCats". json_encode($lastCategories));
-		
-		$query = "SELECT articles.articleid AS id, text, symbol, book, count(articles.articleid) AS amount FROM articles " .
-				"JOIN articlenodes " .
-				"ON articles.articleid = articlenodes.articleid " .
-				"WHERE articles.book >= $lastArticle->book AND articlenodes.nodeid IN ("
-						. arrayToString($lastCategories).") " .
+
+		$query = "SELECT articleid AS id, text, symbol, book " .
+				"FROM articles " .
+				"WHERE articles.book >= $lastArticle->book " .
 				"AND articles.articleid NOT IN (" .
 					arrayToString($lastArticles).") " .
-				"GROUP BY id, text, symbol, book " .
-				"ORDER BY amount DESC, book ASC " .
+				"GROUP BY articles.articleid " .
+				"ORDER BY book ASC " .
 				"LIMIT 1";
 		
 		if ($result = $con->query($query)) {
@@ -192,15 +225,16 @@ switch ($agentSymbol){
 				error_log("No article was found!");
 				echo json_encode(null);
 				return;
-				//ToDo: restart
 			}
-			unset($article->amount);
+		
 			$article = addArticleInfo($con, $article, $symbol, $lastArticles);
 			error_log(json_encode($article));
 			echo json_encode($article);
 			return;
 		}
+		
 		break;
+		
 	
 	case 4: //nicht -> ausstieg
 		/* Print END article */
@@ -210,11 +244,11 @@ switch ($agentSymbol){
 		break;
 	
 	case 5: //kontigent
-		/* connected tags */
+		/* mind one tag */
 		error_log("\n*** Agent: kontigent ***\n");
 		
 		$lastArticle = getArticle($con, $lastArticleId);
-		$lastCategories = getCategoriesEnv($con, $lastArticleId);
+		$lastCategories = getCategories($con, $lastArticleId);
 		
 		error_log("lastArticle". json_encode($lastArticle));
 		error_log("lastCats". json_encode($lastCategories));
@@ -222,30 +256,31 @@ switch ($agentSymbol){
 		$query = "SELECT articles.articleid AS id, text, symbol, book FROM articles " .
 				"JOIN articlenodes " .
 				"ON articles.articleid = articlenodes.articleid " .
-				"WHERE articles.book >= $lastArticle->book AND articlenodes.nodeid IN ("
+				"WHERE articlenodes.nodeid IN ("
 						. arrayToString($lastCategories).") " .
 				"AND articles.articleid NOT IN (" .
 					arrayToString($lastArticles).") " .
 				"GROUP BY articles.articleid " .
 				"ORDER BY RAND() " .
 				"LIMIT 1";
-		
+
 		if ($result = $con->query($query)) {
 			$article = $result->fetch_object();
 			$result->close();
-				
+			
 			if( $article == null){
 				error_log("No article was found!");
 				echo json_encode(null);
 				return;
 				//ToDo: restart
 			}
-
+			
 			$article = addArticleInfo($con, $article, $symbol, $lastArticles);
 			error_log(json_encode($article));
 			echo json_encode($article);
-			return;
+			return;			
 		}
+
 		break;
 		
 	case 6: //unendlich
