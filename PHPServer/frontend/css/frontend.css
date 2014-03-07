@@ -1,6 +1,13 @@
 @CHARSET "UTF-8";
 
-/*** welcome ***/
+* {
+    margin:0;
+    padding:0;
+}
+
+canvas {
+    overflow:hidden;
+}
 
 #ReloadButton{
     position: absolute;
@@ -14,8 +21,8 @@
 }
 
 #articleDiv{
-    background:#D3D3D3;
-    color:#008B8B;
+    background:#ffffff;
+    color:#000000;
     font-family: 'Courier';
     font-weight: bold;
     top: -50%;
@@ -28,14 +35,17 @@
     max-height: 652px;
     height: auto;
     opacity: 0;
-    overflow:auto;
+    overflow:hidden;
 }
 
+/** Startseite */
+
 #menu {
-    width:14%;
+    width:153px;
     float:left;
     line-height:18px;
     text-align:center;
+    margin-left:100px;
 }
 
 #menu ul {
@@ -46,42 +56,146 @@
     background-color:white;
     border-style:solid;
     border-color:black;
-    width:100px;
-    height:100px;    
+    width:153px;
+    height:153px;    
     margin-left: auto;
     margin-right: auto;
     margin-top:20px;
     padding:0;
+    font-size:16pt;
+    margin-top:60px;
 }
 
 #menu #enter {
-    background-image:url(../src/png/emblem.png);
-    width:234px;
-    height:234px;
+    background-image:url(../src/png/emblem_klein.png);
+    width:153px;
+    height:153px;
     color:white;
+}
+
+#menu #impressum {
+    font-size:7pt;
+    text-align:left;
+    display:block;
+    margin-top:60px;    
 }
 
 #main {
     width:80%;
     float:right;
     text-align:center;
+    margin-top:95px;
 }
 
 #main h1 {
     font-style:italic;
-    margin-bottom:20px;   
+    font-size:38pt;
+    margin-top:40px;
 }
 
 #main #text {
-    margin-bottom:20px;   
+    margin-top:48px;   
 }
 
 #main #browserText {
     border-style:solid;
-    width:50%;
+    width:480px;
+    height:153px;
     margin-left: auto;
     margin-right: auto;
-    margin-bottom:20px;   
+    margin-top:173px;   
+}
+
+#main #persons {
+    margin-top:52px;  
+}
+
+/** Intro */
+#loadingBar {
+    width:70%;
+    margin-left:15%;
+    margin-top:5%;
+    height:200px;
+}
+
+#introText {
+    text-align:center;
+    width:70%;
+    margin-left:15%;
+    margin-top:5%;
+}
+
+/** Faden Szene*/
+
+#footer {
+    position:absolute;
+    bottom:0;
+    width:90%;
+    height:8%;
+    z-index:2;
+    left:5%;
+}
+
+#control {
+    background-color:white;
+    border-color:gray;
+    border-style:solid;
+    border-width:thin;
+    height:100%;
+    width:310px;
+    top:0;
+    right:0;
+    /*min-width:300px;*/
+    /*float:right;*/
+    position:absolute;
+}
+
+/* tell the SVG path to be a thin blue line without any area fill */
+.aGraph path {
+	stroke: #778899;
+	stroke-width: 2;
+	fill: none;
+}
+
+.aGraph {
+    background-color:white;
+    border-color:gray;
+    border-style:solid;
+    border-width:thin;
+    height:100%;
+    /*width:85%;*/
+    /*min-width:910px;*/
+    /*float:left;*/
+    right:310px;
+    position:absolute;
+    left:0;
+    top:0;
+    margin-right:10px;
+}
+
+.aGraph svg {
+	padding-left: -30px;
+}
+
+.axis {
+  shape-rendering: crispEdges;
+}
+
+.x.axis line {
+  stroke: lightgrey;
+}
+
+.x.axis .minor {
+  stroke-opacity: .5;
+}
+
+.x.axis path {
+  display: none;
+}
+
+.y.axis line, .y.axis path {
+  fill: none;
+  stroke: #000;
 }
 
 /*** javascript disabled warning ***/
@@ -104,11 +218,3 @@ noscript{
 	background-color: #fff;
 }
 
-/*** agent control ***/
-
-.control {
-	fill: "none";
-	stroke: "gray";
-	stroke-width: "55";
-	stroke-opacity: "0.5";
-}
