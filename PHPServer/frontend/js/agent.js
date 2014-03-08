@@ -71,7 +71,7 @@ function introController($scope, $http, clickedSymbol) {
 
     use.enter().append("use")
     .attr("xlink:href", function (d) { return d.path; })
-    .attr("transform", "scale(3)")
+    .attr("transform", "scale(2)")
     .style("opacity", "0");
 
     var counter = 0;
@@ -95,10 +95,16 @@ function introController($scope, $http, clickedSymbol) {
         
     function finalAnimation() {
         use.style("opacity", "1")
-            .attr("x", "0px")
-            .transition()
-            .duration(1000)
-            .attr("x", function (d, i) { return i / 7 * 450; });
+           .attr("x", "0px")
+           .transition()
+           .duration(1000)
+           .attr("x", function (d, i) { return i / 7 * 450; });
+
+        //d3.select("#loadingBar")
+        //    .style("margin-left", "15%")
+        //    .transition()
+        //    .duration(1000)
+        //    .style("margin-left", "40%");
     }
 
     function makeLinks() {

@@ -97,13 +97,19 @@ canvas {
     margin-top:48px;   
 }
 
-#main #browserText {
-    border-style:solid;
+#main #browserTextDiv {
     width:480px;
     height:153px;
     margin-left: auto;
     margin-right: auto;
-    margin-top:173px;   
+    margin-top:173px;
+    background-color:black;   
+}
+
+#main #browserText {
+    position:relative;
+    top:25%;
+    color:white;
 }
 
 #main #persons {
@@ -119,7 +125,7 @@ canvas {
 }
 
 #introText {
-    text-align:center;
+    text-align:left;
     width:70%;
     margin-left:15%;
     margin-top:5%;
