@@ -427,6 +427,50 @@ App.controller('newarticle', function($scope, $http, $location) {
 			$("#articleWrapper").unblock();
 		});
 	};
+	
+	$scope.newCategory = function(){
+		console.log("TODO new cat");
+		var name = prompt("eingeben:");
+		
+		if( !name )
+			return;
+		
+		$("#category").block();
+		
+		var duplicate = false;
+		$('#category').find("option").each(function(id, elem) {
+			if(name.toLowerCase() == elem.innerHTML.toLowerCase()){
+				duplicate = true;
+				return;
+			}
+		});
+		
+		if( duplicate ){
+			alert(name + " existiert schon!");
+			return;
+		}
+		
+		var data = new Object();
+		data.name = name;
+		$http.post('/backend.php?action=newcat', data)
+		.success(function(data, status, headers, config){
+			console.log("success!", data);
+			$("#category").append("<option value='" + data.id + "'>" + data.name + "</option>");		
+			$('#category').find("option").each(function(id, elem) {
+				if( elem.value == data.id){
+					elem.selected = true;
+					return;
+				}
+			});
+			$("#category").trigger("chosen:updated");
+			$("#category").unblock();
+			
+		}).error(function(data, status, headers, config){
+			alert("I can't do this, Dave!");
+			console.log(data, status, headers);
+			$("#category").unblock();
+		});
+	}
 });
 
 App.controller('nodeeditor', function($scope, $http) {

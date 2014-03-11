@@ -320,6 +320,43 @@ switch ($action) {
 		echo json_encode($ret);
 		return;
 		
+	case 'newcat' :
+		
+		$name = $data['name'];
+		
+		$query = "SELECT count(*) as count FROM nodes WHERE name LIKE '$name'";
+		if( $result = $con->query($query) ){
+			if(intval($result->fetch_object()->count) > 0){
+				echo "null";
+				return;
+			} else {
+				$query = "INSERT INTO nodes (name) VALUES ('$name')";
+				if( $result = $con->query($query) ){
+					//error_log("id:" . json_encode( $con->insert_id ));
+					$ret = new stdClass();
+					$ret->id = $con->insert_id;
+					$ret->name = $name;
+					echo json_encode($ret);					
+				} else {
+					error_log($con->error);
+					echo "null";
+					header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
+					return;
+				}
+			}
+		} else {
+			error_log($con->error);
+			echo "null";
+			header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
+			return;
+		}
+		
+		
+		
+		error_log(json_encode($name));
+		
+		return;
+		
 }
 
 
