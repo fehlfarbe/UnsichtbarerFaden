@@ -193,7 +193,7 @@ function addArticleInfo($con, $article, $lastSymbol, $lastArticles){
 
 function getThumbs($con){
 	
-	$query = "SELECT articleid, screen FROM articles WHERE screen != ''";
+	$query = "SELECT articleid, name, text, symbol, book FROM articles";
 	
 	$thumbs = Array();
 	if( $result = $con->query($query) ){
