@@ -119,28 +119,42 @@ function introController($scope, $http, clickedSymbol) {
 
 function agentController($scope, $http, clickedSymbol) {
 
-    $http.get("/agent.php" + "?symbol=" + clickedSymbol.getSymbol() + "&lastArticles=[" + lastArticles + "]")
+    $http.get("/agent.php" + "?action=getthumbnails")
+    .success(function (thumbs) {
+        console.log("thumb " + thumbs);
+        fillScene(thumbs);
+    })
+    .error(function (err) {
+        console.error(err);
+    });
+
+    $http.get("/agent.php" + "?symbol=" + clickedSymbol.getSymbol() + "&lastArticles=[]")
             .success(function (article) {
-                console.log(article);
+                console.log(article.lastArticles);
                 lastArticles = article.lastArticles;
                 this.symbols = article.symbols;
                 updateControl(article.symbols);
-                updateSceneParameters(article);
-                startScene();
+                //updateSceneParameters(article);
+                //startScene();
             })
             .error(function (err) {
                 console.error(err);
             });
 
+    
+
     function symbolOnClick() {
-        console.log("symbolOnClick");
         $http.get("/agent.php" + "?symbol=" + clickedSymbol.getSymbol() + "&lastarticles=[" + lastArticles + "]")
             .success(function (article) {
+                console.log(lastArticles);
+                console.log(article.lastArticles);
+                console.log(article.book);
                 console.log(article);
-                lastArticles = article.lastArticles;
+                lastArticles.push(article.lastArticles[0]);
                 updateControl(article.symbols);
-                updateSceneParameters(article);
-                displayNewScene();
+                moveToArticle(article.id);
+                //updateSceneParameters(article);
+                //displayNewScene();
                 updateGraph(article.book);
             })
             .error(function(err){
@@ -148,7 +162,6 @@ function agentController($scope, $http, clickedSymbol) {
             });
         };
     
-
 
     /** Helper function, update the control with new symbols */
     function updateControl(symbols) {

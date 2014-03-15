@@ -29,6 +29,8 @@ var dotScreenShader;
 
 var reloadButton;
 
+var controls;
+
 function initScene() {
 	scene = new THREE.Scene(); 
 	
@@ -72,7 +74,7 @@ function initScene() {
 	cssScene = new THREE.Scene();
 
 	var skyBoxGeometry = new THREE.CubeGeometry(1000,1000,1000);
-	var skyBoxMaterial = new THREE.MeshBasicMaterial({ color: 0xEDEDED, side: THREE.BackSide });
+	var skyBoxMaterial = new THREE.MeshBasicMaterial({ color: 0x333333, side: THREE.BackSide });
 	skyBox = new THREE.Mesh(skyBoxGeometry, skyBoxMaterial);
 	skyBox.name = "skyBox";
 	scene.add(skyBox);
@@ -122,6 +124,7 @@ function initScene() {
     //scene.add(cubes('tedra'));
     
     articleDiv = document.createElement('div');
+    articleDiv.className = "zoom";
     articleDiv.style.background = '#ffffff';
     articleDiv.style.color =  '#000000';  //'#008B8B';
     articleDiv.style.fontFamily = 'Courier';
@@ -138,7 +141,7 @@ function initScene() {
 	articleDiv.style.maxHeight = '652px';
     articleDiv.style.height = 'auto';
 	articleDiv.style.opacity = '0';
-	articleDiv.style.overflow = 'auto'
+	articleDiv.style.overflow = 'auto';
 //    
 //    articleDiv.style.backgroundImage = "url('src/div_bg.png')";
    // console.log("bg: " + articleDiv.style.backgroundImage);
@@ -187,6 +190,9 @@ function initScene() {
 		window.location.reload();
 	});
 	$("#ReloadButton").css("opacity","0");
+
+	//controls = new THREE.OrbitControls(camera);
+	//controls.addEventListener('change', render);
 }
 
 function updateVideo(path) {

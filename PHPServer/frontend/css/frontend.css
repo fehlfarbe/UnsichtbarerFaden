@@ -38,6 +38,18 @@ canvas {
     overflow:hidden;
 }
 
+.zoom {
+   -webkit-transition: all .3s ease-out;
+   -moz-transition: all .3s ease-out;
+   -o-transition: all .3s ease-out;
+   transition: all .3s ease-out;
+}
+
+.zoom:hover {
+    transform:scale(2);    
+}
+
+
 /** Startseite */
 
 #menu {
@@ -94,7 +106,9 @@ canvas {
 }
 
 #main #text {
-    margin-top:48px;   
+    margin-top:48px;
+    padding: 2px 150px 2px 150px;
+    text-align:left;
 }
 
 #main #browserTextDiv {
