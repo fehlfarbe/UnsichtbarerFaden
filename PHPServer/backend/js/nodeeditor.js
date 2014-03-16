@@ -44,10 +44,12 @@ nodeEditor.initNodes = function($scope, $http) {
 	};
 
 	//load relations
-	$scope.relations = $http.get('/backend.php?action=nodessymbols').then(function(result) {
+	$scope.relations = $http.get('/backend.php?action=nodearticles').then(function(result) {
 		 $scope.nodes = result.data;
          $scope.nodes.deletedNodes = Array();
          $scope.nodes.deletedLinks = Array();
+         
+         console.log("nodes", result.data);
 
          // set up initial nodes and links
          //  - nodes are known by 'id', not by index in array.
@@ -109,7 +111,7 @@ nodeEditor.initNodes = function($scope, $http) {
              .links(links)
              .size([width, height])
              .linkDistance($scope.linkProp.length)
-             .charge(-500)
+             .charge(-1500)
              .on('tick', tick);
          
          //unblock element
@@ -127,6 +129,7 @@ nodeEditor.initNodes = function($scope, $http) {
          // mouse event vars
          var selected_node = null,
              selected_link = null,
+             mouseover_node = null,
              mousedown_link = null,
              mousedown_node = null,
              mouseup_node = null,
@@ -149,8 +152,12 @@ nodeEditor.initNodes = function($scope, $http) {
            mousedown_link = null;
          }
 
-         // update force layout (called automatically each iteration)
-         function tick() {
+         /*****************************************
+          * 
+          * update force layout (called automatically each iteration)
+          * 
+          *****************************************/
+         function tick(e) {
            // draw directed edges with proper padding from node centers
            path.attr('d', function(d) {
              var deltaX = d.target.x - d.source.x,
@@ -167,11 +174,63 @@ nodeEditor.initNodes = function($scope, $http) {
              return 'M' + sourceX + ',' + sourceY + 'L' + targetX + ',' + targetY;
            });
 
+           
+//           circle
+//           //.each(cluster(10 * e.alpha * e.alpha))
+//           .each(collide(.5))
+//           .attr("cx", function(d) { return d.x; })
+//           .attr("cy", function(d) { return d.y; });
+           
            circle.attr('transform', function(d) {
-             return 'translate(' + d.x + ',' + d.y + ')';
+               return 'translate(' + d.x + ',' + d.y + ')';
            });
+             
          }
          
+
+      // Move nodes toward cluster focus.
+      function gravity(alpha) {
+        return function(d) {
+          d.y += (d.cy - d.y) * alpha;
+          d.x += (d.cx - d.x) * alpha;
+        };
+      }
+
+      // Resolve collisions between nodes.
+      function collide(alpha) {
+        var quadtree = d3.geom.quadtree(nodes);
+        return function(d) {
+          var r = d.radius + 100 + 10,
+              nx1 = d.x - r,
+              nx2 = d.x + r,
+              ny1 = d.y - r,
+              ny2 = d.y + r;
+          quadtree.visit(function(quad, x1, y1, x2, y2) {
+            if (quad.point && (quad.point !== d)) {
+              var x = d.x - quad.point.x,
+                  y = d.y - quad.point.y,
+                  l = Math.sqrt(x * x + y * y),
+                  r = d.radius + quad.point.radius + (d.color !== quad.point.color) * 10;
+              if (l < r) {
+                l = (l - r) / l * alpha;
+                d.x -= x *= l;
+                d.y -= y *= l;
+                quad.point.x += x;
+                quad.point.y += y;
+              }
+            }
+            return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
+          });
+        };
+      }
+         
+         
+         
+         /**********************************************************
+          * 
+          * REDRAW
+          * 
+          *********************************************************/         
          function redraw(){
         	 
         	 if( !d3.event.scale || d3.event.scale > 10 || d3.event.scale < 0.1 )
@@ -188,8 +247,8 @@ nodeEditor.initNodes = function($scope, $http) {
         	 if(  d3.event.sourceEvent.type != 'wheel' && d3.event.sourceEvent.buttons == undefined &&  d3.event.sourceEvent.button < 2)
         		 return;
         	 
-        	 console.log(d3.event.sourceEvent);
-        	 console.log("ZOOM REDRAW", d3.event.translate, d3.event.scale);
+        	 //console.log(d3.event.sourceEvent);
+        	 //console.log("ZOOM REDRAW", d3.event.translate, d3.event.scale);
         	 lastScale = d3.event.scale;
         	 lastTranslate = d3.event.translate;
         	 svg.attr("transform","translate(" + d3.event.translate + ")" +
@@ -198,23 +257,39 @@ nodeEditor.initNodes = function($scope, $http) {
 //       			  "scale(" + d3.event.scale + ")");
          }
 
-         // update graph (called when needed)
+         /********************************************************
+          * 
+          * update graph (called when needed)
+          * 
+          *******************************************************/
          function restart() {
            // path (link) group
            path = path.data(links);
 
            // update existing links
            path.classed('selected', function(d) { return d === selected_link; })
+           .classed('active', function(d) { return d.target === mouseover_node || d.source === mouseover_node; })
              .style('marker-start', function(d) { return d.left ? 'url(#start-arrow)' : ''; })
-             .style('marker-end', function(d) { return d.right ? 'url(#end-arrow)' : ''; });
+             .style('marker-end', function(d) { return d.right ? 'url(#end-arrow)' : ''; })
+             .classed('hidden', function(d) { 
+            	 if( selected_node == null )
+            		 return false;
+            	 return !(d.target === selected_node || d.source === selected_node);
+            });
 
 
            // add new links
            path.enter().append('svg:path')
              .attr('class', 'link')
              .classed('selected', function(d) { return d === selected_link; })
-             .style('marker-start', function(d) { return d.left ? 'url(#start-arrow)' : ''; })
-             .style('marker-end', function(d) { return d.right ? 'url(#end-arrow)' : ''; })
+             .classed('active', function(d) { return d.target === mouseover_node || d.source === mouseover_node; })
+             .classed('hidden', function(d) { 
+            	 if( selected_node == null )
+            		 return false;
+            	 return !(d.target === selected_node || d.source === selected_node);
+            })
+             //.style('marker-start', function(d) { return d.left ? 'url(#start-arrow)' : ''; })
+             //.style('marker-end', function(d) { return d.right ? 'url(#end-arrow)' : ''; })
              .on('mousedown', function(d) {
                if(d3.event.ctrlKey) return;
 
@@ -236,7 +311,26 @@ nodeEditor.initNodes = function($scope, $http) {
 
            // update existing nodes (reflexive & selected visual states)
            circle.selectAll('circle')
-             .style('fill', function(d) { return (d === selected_node) ? d3.rgb(colors(d.id)).brighter().toString() : colors(d.id); })
+             .style('fill', function(d) { 
+            	 //console.log("node", mouseover_node, d);
+            	 if( mouseover_node === null && selected_node === null)
+            		 return colors(d.id);
+            	 
+            	 return (d === selected_node || d === mouseover_node) ? d3.rgb(colors(d.id)).brighter().toString() : d3.rgb(colors(d.id)).darker().toString();
+             
+             })
+             .classed('hidden', function(d){ 
+            	 if( selected_node === null)
+            		 return false;
+            	 
+            	 for( var i=0; i<links.length; i++){
+            		 if(selected_node === links[i].target || selected_node === links[i].source){
+            			 if( links[i].target === d || links[i].source === d)
+            				 return false;
+            		 }
+            	 }
+            	 return d !== selected_node;
+            });
              
              
            // add new nodes
@@ -244,19 +338,28 @@ nodeEditor.initNodes = function($scope, $http) {
 
            g.append('svg:circle')
              .attr('class', 'node')
-             .attr('r', 15)
-             .style('fill', function(d) { return (d === selected_node) ? d3.rgb(colors(d.id)).brighter().toString() : colors(d.id); })
+             .attr('r', function(d){
+            	 return Math.max(15, d.count * 10);
+              })
+             .style('fill', function(d) {
+            	 //console.log("node", mouseover_node, d);
+            	 if( mouseover_node === null && selected_node === null)
+            		 return colors(d.id);
+            	             	 
+            	 return (d === selected_node || d === mouseover_node) ? d3.rgb(colors(d.id)).brighter().toString() : d3.rgb(colors(d.id)).darker().toString(); })
              .style('stroke', function(d) { return d3.rgb(colors(d.id)).darker().toString(); })
-             .classed('reflexive', function(d) { return d.reflexive; })
              .on('mouseover', function(d) {
-               if(!mousedown_node || d === mousedown_node) return;
-               // enlarge target node
-               d3.select(this).attr('transform', 'scale(1.1)');
+            	 mouseover_node = d;
+            	 //d3.select(this).attr('transform', 'scale(1.5)');
+
+               restart();
              })
              .on('mouseout', function(d) {
-               if(!mousedown_node || d === mousedown_node) return;
+               //if(!mousedown_node || d === mousedown_node) return;
                // unenlarge target node
-               d3.select(this).attr('transform', '');
+            	 mouseover_node = null;
+               //d3.select(this).attr('transform', '');
+               restart();
              })
              .on('mousedown', function(d) {
                if(d3.event.ctrlKey) return;
@@ -329,14 +432,27 @@ nodeEditor.initNodes = function($scope, $http) {
                .attr('x', 0)
                .attr('y', 4)
                .attr('class', 'id')
-               .text(function(d) { return d.name; });
+               .text(function(d) { return d.name + "(" + d.count + ")"; })
+               .classed('hidden', function(d){
+            	   if( selected_node == null)
+            		   return false;
+            	   
+            	   for( var i=0; i<links.length; i++){
+		          		 if(selected_node === links[i].target || selected_node === links[i].source){
+		          			 if( links[i].target === d || links[i].source === d)
+		          				 return false;
+		          		 }
+              	 	}
+            	   
+            	   return d !== selected_node;
+               });
            
            //resize circles by textsize
-           var c = 0;
-           circle.selectAll("text").each(function () {
-        	   //console.log(circle.selectAll("circle"));
-        	   circle.selectAll("circle")[c++][0].setAttribute('r', this.getComputedTextLength()/2+2);
-           });
+//           var c = 0;
+//           circle.selectAll("text").each(function () {
+//        	   //console.log(circle.selectAll("circle"));
+//        	   circle.selectAll("circle")[c++][0].setAttribute('r', this.getComputedTextLength()/2+2);
+//           });
            
            // remove old nodes
            circle.exit().remove();
@@ -344,19 +460,19 @@ nodeEditor.initNodes = function($scope, $http) {
            // set the graph in motion
            $scope.force.start();
          }
-
+         
+         
+         /******************************************
+          * 
+          * Mousehandler
+          * 
+          ******************************************/
          function mousedown() {
            // prevent I-bar on drag
            //d3.event.preventDefault();
            
            // because :active only works in WebKit?
            svg.classed('active', true);
-           
-//           if(d3.event.button == 2){
-//        	   console.log("Right click");
-//        	   svg.call(d3.behavior.zoom().on("zoom"), redraw);
-//        	   return;
-//           }
            
            if(d3.event.ctrlKey || mousedown_node || mousedown_link || d3.event.button == 2) return;
 
@@ -388,9 +504,6 @@ nodeEditor.initNodes = function($scope, $http) {
            if(!mousedown_node) return;
 
            // update drag line
-//           console.log(d3.mouse(this));
-//           console.log(this);
-//           console.log(svg[0]);
            drag_line.attr('d', 'M' + mousedown_node.x + ',' + mousedown_node.y + 'L' + d3.mouse(svg[0][0])[0] + ',' + d3.mouse(svg[0][0])[1]);
 
            restart();
@@ -420,6 +533,11 @@ nodeEditor.initNodes = function($scope, $http) {
            });
          }
 
+         /************************************************
+          * 
+          * KeyBoardHandler
+          * 
+          ***********************************************/
          // only respond once per keydown
          var lastKeyDown = -1;
 
@@ -491,4 +609,47 @@ nodeEditor.initNodes = function($scope, $http) {
          return result.data;
      });
 };
+
+
+nodeEditor.initBubbles = function($scope, $http) {
+	
+	//load relations
+//	$scope.relations = $http.get('/backend.php?action=nodearticles').then(function(result) {
+//		 var nodes = result.data.nodes;
+//		 
+//		 var diameter = 960,
+//		    format = d3.format(",d"),
+//		    color = d3.scale.category20c();
+//
+//		var bubble = d3.layout.pack()
+//		    .sort(null)
+//		    .size([diameter, diameter])
+//		    .padding(1.5);
+//
+//		var svg = d3.select("#bubbles").append("svg")
+//		    .attr("width", diameter)
+//		    .attr("height", diameter)
+//		    .attr("class", "bubble");
+//
+//	  var node = svg.selectAll(".node")
+//		      .data(bubble.nodes(nodes))
+//		    .enter().append("g")
+//		      .attr("class", "node")
+//		      .attr("transform", function(d) { return "translate(" + 110 + "," + 110 + ")"; });
+//
+//		  node.append("title")
+//		      .text(function(d) { return d.name; });
+//
+//		  node.append("circle")
+//		      .attr("r", function(d) { return d.count * 100; })
+//		      .style("fill", function(d) { return color(d.id); });
+//
+//		  node.append("text")
+//		      .attr("dy", ".3em")
+//		      .style("text-anchor", "middle")
+//		      .text(function(d) { return d.name; });
+//
+//		d3.select("#bubbles").style("height", diameter + "px");
+//	});
+}
 

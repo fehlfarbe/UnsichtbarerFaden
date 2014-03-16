@@ -2,7 +2,7 @@
 	<!-- <h2>Node-Editor</h2> -->
 	
 	<div class="grapheditorWrap">
-		<div class="btn-group">
+		<!-- <div class="btn-group">
 			<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
 				Steuerung <span class="caret"></span>
 			</button>
@@ -21,14 +21,17 @@
 				<li><a>[LMaus] Link selektieren</a></li>
 				<li><a>[Entf] Link löschen</a></li>
 			</ul>
-		</div>
+		</div> -->
 		
 		<!-- <input type="number" ng-model="linkProp.length" ng-change="changeLinkLength()"/> -->
 		
 		<!-- <button ng-click="resetNodes()" class="btn btn-defalut">Reset</button> -->
-		<button ng-click="saveNodes()" class="btn btn-success">Speichern</button>
-		   
+<!-- 		<button ng-click="saveNodes()" class="btn btn-success">Speichern</button>
+ -->		   
 		<div id="grapheditor" class="grapheditor"></div>
 	</div>
 
+</div>
+<div ng-controller="nodeEditor.initBubbles">
+	<div id="bubbles"></div>
 </div>

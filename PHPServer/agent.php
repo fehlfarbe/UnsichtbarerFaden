@@ -24,11 +24,11 @@ else
 $agentSymbol = $symbol;
 
 //last Articles
-if ( empty($_GET['lastArticles']) ){
+if ( empty($_GET['lastarticles']) ){
 	$lastArticles = Array();
 }	
 else 
-	$lastArticles = json_decode($_GET['lastArticles']);
+	$lastArticles = json_decode($_GET['lastarticles']);
 
 //last articleId
 if( count($lastArticles) > 0){

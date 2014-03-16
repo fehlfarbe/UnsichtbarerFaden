@@ -356,6 +356,50 @@ switch ($action) {
 		error_log(json_encode($name));
 		
 		return;
+	
+	case 'nodearticles':
+		
+		$obj = new stdClass();
+		$obj->nodes = Array();
+		$obj->links = Array();
+		
+		error_log("...");
+		
+		$query = "SELECT nodes . * , COUNT( nodes.nodeid ) AS count
+				FROM nodes
+				JOIN articlenodes ON nodes.nodeid = articlenodes.nodeid
+				GROUP BY nodes.nodeid";
+		if( $result = $con->query($query) ){
+			while($node = $result->fetch_object()){
+				$node->id = intval($node->nodeid);
+				$node->x = intval($node->x);
+				$node->y = intval($node->y);
+				$node->count = intval($node->count);
+				$obj->nodes[] = $node;
+			}				
+		} else {
+			error_log($con->error);
+		}
+		
+		$query = "SELECT DISTINCT LEAST(articlenodes.nodeid, an.nodeid) AS s, GREATEST(articlenodes.nodeid, an.nodeid) AS t
+					FROM articlenodes, articlenodes AS an
+					WHERE articlenodes.nodeid != an.nodeid AND articlenodes.articleid = an.articleid
+					ORDER BY articlenodes.articleid";
+		if( $result = $con->query($query) ){
+			while($artnode = $result->fetch_object()){
+				$l = new stdClass();
+				$l->source = intval($artnode->s);
+				$l->target = intval($artnode->t);
+				$obj->links[] = $l;
+			}
+		} else {
+			error_log($con->error);
+		}
+
+		//error_log(json_encode($obj));
+		echo json_encode($obj);
+		
+		return;
 		
 }
 

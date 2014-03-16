@@ -27,8 +27,8 @@ svg:not (.active ):not (.ctrl ) {
 
 path.link {
 	fill: none;
-	stroke: #000;
-	stroke-width: 4px;
+	stroke: #333;
+	stroke-width: 2px;
 	cursor: pointer;
 }
 
@@ -50,9 +50,17 @@ path.link.hidden {
 	stroke-width: 0;
 }
 
+path.link.active {
+	stroke: #900;
+}
+
 circle.node {
 	stroke-width: 1.5px;
 	cursor: pointer;
+}
+
+circle.node.hidden{
+	display: none;
 }
 
 circle.node.reflexive {

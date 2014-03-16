@@ -193,12 +193,23 @@ function addArticleInfo($con, $article, $lastSymbol, $lastArticles){
 
 function getThumbs($con){
 	
-	$query = "SELECT articleid, name, text, symbol, book FROM articles";
+	$query = "SELECT articles.*, AVG(nodes.x) AS x, AVG(nodes.y) AS y
+			FROM articles
+			JOIN articlenodes
+			ON articles.articleid = articlenodes.articleid
+			JOIN nodes
+			ON nodes.nodeid = articlenodes.nodeid
+			GROUP BY articles.articleid";
 	
 	$thumbs = Array();
 	if( $result = $con->query($query) ){
-		while( $thumb = $result->fetch_object() )
+		while( $thumb = $result->fetch_object() ){
+			$thumb->articleid = intval($thumb->articleid);
+			$thumb->x = intval($thumb->x);
+			$thumb->y = intval($thumb->y);
 			$thumbs[] = $thumb;
+		}
+			
 		
 		return $thumbs;
 				
