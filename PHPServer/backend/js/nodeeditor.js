@@ -339,7 +339,7 @@ nodeEditor.initNodes = function($scope, $http) {
            g.append('svg:circle')
              .attr('class', 'node')
              .attr('r', function(d){
-            	 return Math.max(15, d.count * 10);
+            	 return Math.min( 120, Math.max(15, d.count * 10));
               })
              .style('fill', function(d) {
             	 //console.log("node", mouseover_node, d);
@@ -614,42 +614,234 @@ nodeEditor.initNodes = function($scope, $http) {
 nodeEditor.initBubbles = function($scope, $http) {
 	
 	//load relations
-//	$scope.relations = $http.get('/backend.php?action=nodearticles').then(function(result) {
-//		 var nodes = result.data.nodes;
-//		 
-//		 var diameter = 960,
-//		    format = d3.format(",d"),
-//		    color = d3.scale.category20c();
-//
-//		var bubble = d3.layout.pack()
-//		    .sort(null)
-//		    .size([diameter, diameter])
-//		    .padding(1.5);
-//
-//		var svg = d3.select("#bubbles").append("svg")
-//		    .attr("width", diameter)
-//		    .attr("height", diameter)
-//		    .attr("class", "bubble");
-//
-//	  var node = svg.selectAll(".node")
-//		      .data(bubble.nodes(nodes))
-//		    .enter().append("g")
-//		      .attr("class", "node")
-//		      .attr("transform", function(d) { return "translate(" + 110 + "," + 110 + ")"; });
-//
-//		  node.append("title")
-//		      .text(function(d) { return d.name; });
-//
-//		  node.append("circle")
-//		      .attr("r", function(d) { return d.count * 100; })
-//		      .style("fill", function(d) { return color(d.id); });
-//
-//		  node.append("text")
-//		      .attr("dy", ".3em")
-//		      .style("text-anchor", "middle")
-//		      .text(function(d) { return d.name; });
-//
-//		d3.select("#bubbles").style("height", diameter + "px");
-//	});
+	//$("#nodeselect").chosen();
+	$scope.selectedNode = null;
+	$scope.mouseoverNode = null;
+	$scope.links = null
+	
+	/******************************************************
+	 * 
+	 * Vars
+	 * 
+	 *****************************************************/
+	var diameter  = $('#bubbles').width(),
+    	format = d3.format(",d"),
+    	color = d3.scale.category20c();
+	
+	/*******************************************************
+	 *
+	 * REDRAW Function
+	 * 
+	 *******************************************************/
+	function redraw(){
+		
+		var links = $scope.links;
+		
+		console.log("Links", links);
+		
+		// Nodes
+		$scope.node.selectAll("circle")
+		.style("fill", function(d) {	    	  
+   	  if( d === $scope.mouseoverNode || d === $scope.selectedNode )
+   		  return d3.rgb(color(d.id)).brighter().toString();
+   	  
+   	  return color(d.id);
+		})
+		.style("stroke", function(d) {	    	  
+   	  if( d === $scope.mouseoverNode || d === $scope.selectedNode )
+   		  return d3.rgb(color(d.id)).darker().toString();
+   	  
+   	  return color(d.id);
+		})
+		.classed('hidden', function(d){
+			if( $scope.selectedNode == null )
+   		  return false;
+   	  
+   	  	for( var i=0; i<links.length; i++){
+         		 if($scope.selectedNode === links[i].target || $scope.selectedNode === links[i].source){
+         			 if( links[i].target === d || links[i].source === d)
+         				 return false;
+         		 }
+  	 		}
+   	  
+   	  	return d !== $scope.selectedNode;
+		})
+		.attr('r', function(d){
+			if( d === $scope.mouseoverNode )
+   		  return Math.max(d.r, 50);
+   	  
+   	  return d.r;
+		});
+		
+		// Text
+		$scope.node.selectAll("text")
+		.classed('hidden', function(d){
+			if( $scope.selectedNode == null )
+	    		  return false;
+	    	  
+	    	  	for( var i=0; i<links.length; i++){
+	          		 if($scope.selectedNode === links[i].target || $scope.selectedNode === links[i].source){
+	          			 if( links[i].target === d || links[i].source === d)
+	          				 return false;
+	          		 }
+      	 		}
+	    	  
+	    	  	return d !== $scope.selectedNode;
+		})
+		.style("font-size", "1px")
+		.each(function(d){
+			try{
+				var bbox = this.getBBox(),
+		          cbbox = this.parentNode.getBBox(),
+		          scale = Math.min(cbbox.width/bbox.width, cbbox.height/bbox.height);
+		    	  d.scale = scale * 0.9;
+			} catch (e) {
+				// TODO: handle exception
+			}
+	      })
+	      .style("font-size", function(d) { return d.scale + "px"; });
+		
+	}
+	
+	/**************************************************************
+	 * onChange
+	 *************************************************************/
+	 $scope.change = function(s) {
+		 console.log("redraw", s, $scope.selectedNode);
+		 redraw();
+	 };
+	
+	 
+	 /*******************************************************************************
+	  * 
+	  * LOAD DATA
+	  *
+	  *******************************************************************************/
+	$scope.relations = $http.get('/backend.php?action=nodearticles').then(function(result) {
+        
+		function compare(a,b) {
+			  if (a.name.toLowerCase() < b.name.toLowerCase())
+			     return -1;
+			  if (a.name.toLowerCase() > b.name.toLowerCase())
+			    return 1;
+			  return 0;
+			}
+
+		$scope.nodes = result.data.nodes;
+		$scope.nodes.sort(compare);
+		
+//		for(var i=0; i<$scope.nodes.length; i++)
+//			$("#nodeselect").append("<option value='" + $scope.nodes[i].id + "'>" + $scope.nodes[i].name + "</option>");		
+//		$("#nodeselect").trigger("chosen:updated");
+        
+        var lastNodeId = 0;
+        for(var i = 0; i < $scope.nodes.length; i++)
+       	 if( $scope.nodes[i].id > lastNodeId )
+       		 lastNodeId = $scope.nodes[i].id;
+        var links = [];
+        for(var i = 0; i < result.data.links.length; i++){
+       	 var link = result.data.links[i];
+       	 var src = null;
+       	 var dst = null;
+       	 
+       	 for(var j = 0; j < $scope.nodes.length; j++){
+       		 if( $scope.nodes[j].id == link.source )
+       			 src = $scope.nodes[j];
+       		 if( $scope.nodes[j].id == link.target )
+       			 dst = $scope.nodes[j];
+       		 if(src != null && dst != null)
+       			 break;
+       	 }
+       	 
+       	 if(src != null && dst != null)
+       		 links.push({source: src, target: dst, left: false, right: true});
+         }
+        
+        /**************************************
+         * 
+         * Setup Bubble Pack
+         * 
+         **************************************/
+		
+
+		var bubble = d3.layout.pack()
+			.sort(null)
+			.value(function(d){ return d.value; })
+		    .size([diameter, diameter])
+		    .padding(1.5);
+
+		var svg = d3.select("#bubbles").append("svg")
+		    .attr("width", diameter)
+		    .attr("height", diameter)
+		    .attr("class", "bubble");
+		
+		d3.selection.prototype.moveToFront = function() {
+			  return this.each(function(){
+			    this.parentNode.appendChild(this);
+			  });
+			};
+
+		/******************************************
+		 * 
+		 * Setup Nodes
+		 *
+		 *****************************************/
+		for(var i=0; i<$scope.nodes.length; i++){
+			$scope.nodes[i].value = $scope.nodes[i].count;
+		}
+		$scope.nodes = {children: $scope.nodes};
+		
+		$scope.node = svg.selectAll(".node")
+		      .data(bubble.nodes($scope.nodes).filter(function(d) { return !d.children}))
+		    .enter().append("g")
+		      .attr("class", "node")
+		      .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
+		      .on('mouseover', function(d) {
+		    	  $scope.mouseoverNode = d;
+		    	  d3.select(this).moveToFront();
+		    	  
+		    	  console.log($scope.selected);
+		    	  redraw();
+		      })
+		      .on('mouseout', function(d) {
+		    	  $scope.mouseoverNode = null;
+		    	  redraw();
+		      })
+		      .on('mousedown', function(d) {
+		    	  
+		    	  if( $scope.selectedNode === d){
+		    		  $scope.selectedNode = null;
+		    	  } else {
+		    		  $scope.selectedNode = d;
+		    	  }
+		    	  console.log("mousedown", $scope.selectedNode);
+		    	  redraw();
+		      });
+		
+		$scope.node.append("title")
+	      .text(function(d) { return d.name + "(" + d.count + ")"; });
+
+		$scope.node.append("circle")
+	      .attr("r", function(d) { return d.r; })
+	      .style("fill", function(d) { return color(d.id); });
+
+		$scope.node.append("text")
+	      .attr("dy", ".3em")
+	      .style("text-anchor", "middle")
+	      .text(function(d) { return d.name + "(" + d.count + ")"; });
+
+		
+		/******************************************************
+		 * 
+		 * Redraw it!
+		 *
+		 ******************************************************/
+		$scope.links = links;
+		redraw();
+		d3.select("#bubbles").style("height", diameter + "px");
+		
+		return result.data.nodes;
+	});
+	
 }
 
