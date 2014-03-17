@@ -119,40 +119,50 @@ function introController($scope, $http, clickedSymbol) {
 
 function agentController($scope, $http, clickedSymbol) {
 
+   
     $http.get("/agent.php" + "?action=getthumbnails")
     .success(function (thumbs) {
-        console.log("thumb " + thumbs);
+        console.log(thumbs);
+        console.log("erster aufruf");
         fillScene(thumbs);
+        getFirstArticle();
     })
     .error(function (err) {
         console.error(err);
+        getFirstArticle();
     });
 
-    $http.get("/agent.php" + "?symbol=" + clickedSymbol.getSymbol() + "&lastArticles=[]")
-            .success(function (article) {
-                console.log(article.lastArticles);
-                lastArticles = article.lastArticles;
-                this.symbols = article.symbols;
-                updateControl(article.symbols);
-                //updateSceneParameters(article);
-                //startScene();
-            })
-            .error(function (err) {
-                console.error(err);
-            });
-
     
+    
+    function getFirstArticle() {
+        $http.get("/agent.php" + "?symbol=" + clickedSymbol.getSymbol() + "&lastArticles=[]")
+           .success(function (article) {
+               console.log("zwetier aufruf");
+               lastArticles = article.lastArticles;
+               this.symbols = article.symbols;
+               updateControl(article.symbols);
+               moveToArticle(article.id, 1000);
+               updateGraph(article.book);
+               //updateSceneParameters(article);
+               //startScene();
+           })
+           .error(function (err) {
+               console.error(err);
+           });
+    }
+
 
     function symbolOnClick() {
         $http.get("/agent.php" + "?symbol=" + clickedSymbol.getSymbol() + "&lastarticles=[" + lastArticles + "]")
             .success(function (article) {
-                console.log(lastArticles);
-                console.log(article.lastArticles);
-                console.log(article.book);
-                console.log(article);
-                lastArticles.push(article.lastArticles[0]);
+                //console.log("lastArticles " + lastArticles);
+                //console.log("article lastArticles " + article.lastArticles);
+                //console.log(article.book);
+                //console.log(article);
+                lastArticles = article.lastArticles;
                 updateControl(article.symbols);
-                moveToArticle(article.id);
+
+                moveToArticle(article.id, 0);
                 //updateSceneParameters(article);
                 //displayNewScene();
                 updateGraph(article.book);
@@ -162,6 +172,9 @@ function agentController($scope, $http, clickedSymbol) {
             });
         };
     
+
+ 
+
 
     /** Helper function, update the control with new symbols */
     function updateControl(symbols) {
