@@ -273,25 +273,40 @@ App.controller('articleoverview', function($scope, $http) {
      });
 });
 
-//backend new article controller
+/************************************************************************
+ * 
+ * backend new article controller
+ * 
+ ***********************************************************************/
 App.controller('newarticle', function($scope, $http, $location) {
 	var id = ($location.search()).id;
 	
+	$scope.showSymbolSelection = false;
+	
+	$scope.changeBookNumber = function(){
+		console.log("change Number", $('#book').val());
+		if( parseInt($('#book').val()) == 0 )
+			$scope.showSymbolSelection = true;
+		else
+			$scope.showSymbolSelection = false;
+	};
+	
+	$scope.preview = "null";
+	
 	$("#articleWrapper").block({message : "<h2>initialisiere Editor...</h2>"});
 	
-	// Setup TinyMCE
-	tinymce.init({
+	/*******************************
+	 * Setup TinyMCE
+	 *******************************/ 
+	var editor = tinymce.init({
 	    selector: "textarea",
 	    plugins: "save image media", 
 	    file_browser_callback: 
 	    	function(field_name, url, type, win) {
-	    	console.log("Filebrowser", field_name, url, type, win);
-	    	$("#upload_form").bind('ajax:complete', function(x) {
-
-	            console.log("submit", x);
-
-
-	    	});
+		    	console.log("Filebrowser", field_name, url, type, win);
+		    	$("#upload_form").bind('ajax:complete', function(x) {
+		            console.log("submit", x);
+		        });
 	    	
 	    		if (type=='media' || type=='image')
 	    			$('#upload_form input').click();
@@ -300,6 +315,16 @@ App.controller('newarticle', function($scope, $http, $location) {
 	    body_id: "sad",
 	    force_br_newlines : true,
         force_p_newlines : false,
+        onchange_callback : function(a){
+        	console.log("callback", a);
+        },
+        setup : function(ed) {
+        	console.log("ed", ed, ed.editorManager);
+            ed.on('change', function(a){
+            	console.log("onchange");
+            	$('#preview').html(tinymce.activeEditor.getContent());
+            });
+        },
 	 });
 	
 	// chosen init
@@ -334,6 +359,7 @@ App.controller('newarticle', function($scope, $http, $location) {
 						$('#headline').val(article.name);
 						$('#book').val(article.book);
 						tinyMCE.activeEditor.selection.setContent(article.text);
+						$('#preview').html(tinymce.activeEditor.getContent());
 						
 						//set chosen categories
 						console.log("categories:", article.category);
@@ -359,11 +385,9 @@ App.controller('newarticle', function($scope, $http, $location) {
 							$("#symbol").trigger("chosen:updated");
 						}
 						
-												
-						
 						$("#articleWrapper").unblock();
 						return;
-					}	        
+					}
 		     });
 		} else {
 			$("#articleWrapper").unblock();
@@ -506,11 +530,9 @@ App.nodeList = function($scope, $http, $route, $location) {
 	console.log('Hello from the Nodes overview Controller');
 	
 	//Get article
-//	$('#articleList').block({ message : "<h2>Lade Einträge</h2>"} );
 	$scope.nodes = $http.post('/backend.php?action=nodessymbols')
 	.then(function(result) {
 		console.log("Nodes", result.data);
-//		$('#articleList').unblock();
         return result.data.nodes;
      });
 	
@@ -518,12 +540,6 @@ App.nodeList = function($scope, $http, $route, $location) {
 
 App.articleList = function($scope, $http, $route, $location) {
 
-//	$scope.articles = $http.get('/backend.php?action=articles')
-//	.then(function(result) {
-//		$('#articleList').unblock();
-//        return result.data;
-//     });
-	
 	$scope.editArticle = function(id){
 		console.log("editiere..." + id);
 		$location.search('id', id).path('/newarticle');
@@ -542,7 +558,6 @@ App.articleList = function($scope, $http, $route, $location) {
 		//console.log($scope.reverse);
 		
 		$scope.predicate = type;
-		
 	};
 	
 	$scope.deleteArticle = function(id){
@@ -559,9 +574,7 @@ App.articleList = function($scope, $http, $route, $location) {
 				alert("I can't do this, Dave!");
 				console.log(data, status, headers);
 			});
-		}
-			
-		
+		}	
 	};
 };
 

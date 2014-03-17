@@ -1,14 +1,15 @@
 <div id="articleWrapper">
 	
 	<!-- headline -->
-	<div id="symbolContainer" class="articleInput">
+	<div id="symbolContainer" class="articleInput" ng-show="showSymbolSelection">
 		<div class="smallLabel">Symbol</div>
 		<div></div>
 		<select id="symbol" data-placeholder="Symbol wählen" class="chosen-select"></select>
 	</div>	
 	<div class="articleInput">
 		<div class="smallLabel">Tagebuch</div>
-		<input id="book" type="number" min="0" max="99" placeholder="Nr" class="articlebook"></input>
+		<input id="book" type="number" min="0" max="99" placeholder="Nr" class="articlebook"
+				 ng-model="confirmed" ng-change="changeBookNumber()"></input>
 	</div>	
 	<div class="articleInput">
 		<div class="smallLabel">Titel</div>
@@ -33,11 +34,18 @@
 	
 	<!-- tiny mce editor -->
 	<div id="editor" class="articleEditor">
-		<textarea id="editortext"></textarea>
+		<textarea id="editortext" ngModel="content"></textarea>
 		<iframe id = "form_target" name="form_target" style="display:none"></iframe>
 		<form id ="upload_form" method="post" action="/backend.php?action=upload" target="form_target"  enctype="multipart/form-data" style="width:0px;height:0px;overflow:hidden">
 			<input name="image" type="file" onchange="$('#upload_form').submit();">
 			<!-- <input name="image" type="file"> -->
 		</form>
 	</div>
+
+	<!-- editor preview -->
+	<div>
+		<div>Vorschau:</div>
+		<div id="preview" ng-bind-html-unsafe="preview"></div>
+	</div>	
+	
 </div>
