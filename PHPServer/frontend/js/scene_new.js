@@ -5,6 +5,8 @@ var player;
 //the actual article object
 var object;
 
+var lastObject;
+
 var MAX_MOVETIME = 12000;
 
 //factor for move x-y-velocity of camera
@@ -55,10 +57,10 @@ var Element = function ( article ) {
         //dom.appendChild( blocker );
 
         var object = new THREE.CSS3DObject(dom);
-        object.position.x = article.x * 100 - 60000;
+        object.position.x = article.x * 50;
         // object.position.y = Math.random() * 2000 - 1000;
-        object.position.y = article.y * 50 - 10000;
-        object.position.z = (Math.random() / 100 + article.book) * -5000000;
+        object.position.y = article.y * 50;
+        object.position.z = article.book  * -1000;
 
         //
 
@@ -151,8 +153,8 @@ function initScene() {
     document.body.style.backgroundColor = "#000000";
     //document.body.className = "bg";
 
-    camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 1000 );
-    //camera.position.z = 15000;
+    camera = new THREE.PerspectiveCamera(100, window.innerWidth / window.innerHeight, 1, 1000 );
+    camera.position.z = 5000;
 
     scene = new THREE.Scene();
 
@@ -245,6 +247,9 @@ function moveToArticle(id, delay, time) {
         if (scene.children[i].element.id == id) {
 
             object = scene.children[i];
+            if (!lastObject) {
+                lastObject = object;
+            }
             var articleSizeRatio;
 
             var width = object.element.clientWidth;
@@ -267,13 +272,14 @@ function moveToArticle(id, delay, time) {
 
             console.log("movetime " + getMoveTime(object));
 
-            //new TWEEN.Tween({ z: 0 })
-            //.to({ z: 200 }, 3000)
+            //new TWEEN.Tween({ z: lastObject.position.z })
+            //.to({ z: object.position.z  }, 3000)
             //.onUpdate(function () {
             //    camera.position.z += this.z;
+            //    console.log("this.z " + this.z);
             //})
             //.onComplete(function () {
-                new TWEEN.Tween(camera.position)
+                new TWEEN.Tween({ x: camera.position.x, y: camera.position.y, z: camera.position.z })
                 .to({ x: object.position.x, y: object.position.y, z: object.position.z + articleSizeRatio }, getMoveTime(object))
                 .delay(delay)
                 .onUpdate(function () {
@@ -284,6 +290,7 @@ function moveToArticle(id, delay, time) {
                 .onComplete(function() {
                     console.log("camera z " + camera.position.z);
                     console.log("object z " + object.position.z);
+                    lastObject = object;
                 })
                 .easing(TWEEN.Easing.Quadratic.Out)
                 .start();
