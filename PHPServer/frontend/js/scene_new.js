@@ -1,18 +1,28 @@
 ﻿
-var camera, scene, renderer;
+var camera, scene, renderer, controls;
 var player;
 
+//the actual article object
+var object;
+
+var MAX_MOVETIME = 12000;
+
+//factor for move x-y-velocity of camera
+var moveFactor = 1.15;
+
+//indicates the move of the camera
+var cameraMove = true;
+
 var auto = false;
+
+var mouse = { x: 0, y: 0 };
 
 var Element = function ( article ) {
 
     if (article) {
 
         var dom = document.createElement('div');
-        dom.style.width = 'auto';
-        dom.style.height = 'auto';
-        dom.style.backgroundColor = 'white';
-        dom.style.overflow = 'auto';
+        dom.className = 'article';
         //dom.style.top = "100px";
         //dom.style.color = "white";
 
@@ -48,7 +58,7 @@ var Element = function ( article ) {
         object.position.x = article.x * 100 - 60000;
         // object.position.y = Math.random() * 2000 - 1000;
         object.position.y = article.y * 50 - 10000;
-        object.position.z = (Math.random() / 100 + article.book) * -50000;
+        object.position.z = (Math.random() / 100 + article.book) * -5000000;
 
         //
 
@@ -77,68 +87,72 @@ var Element = function ( article ) {
 
         //}, false );
 
-        dom.addEventListener('click', function (event) {
+        //dom.addEventListener('click', function (event) {
 
-            event.stopPropagation();
+        //    event.stopPropagation();
 
-            //auto = false;
+        //    //auto = false;
 
-            //if ( player !== undefined ) {
+        //    //if ( player !== undefined ) {
 
-            //    player.parentNode.removeChild( player );
-            //    player = undefined;
+        //    //    player.parentNode.removeChild( player );
+        //    //    player = undefined;
 
-            //}
+        //    //}
 
-            //player = document.createElement( 'iframe' );
-            //player.style.position = 'absolute';
-            //player.style.width = '480px';
-            //player.style.height = '360px';
-            //player.style.border = '0px';
-            //player.src = 'http://www.youtube.com/embed/' + entry.id.$t.split( ':' ).pop() + '?rel=0&autoplay=1&controls=1&showinfo=0';
-            //this.appendChild( player );
+        //    //player = document.createElement( 'iframe' );
+        //    //player.style.position = 'absolute';
+        //    //player.style.width = '480px';
+        //    //player.style.height = '360px';
+        //    //player.style.border = '0px';
+        //    //player.src = 'http://www.youtube.com/embed/' + entry.id.$t.split( ':' ).pop() + '?rel=0&autoplay=1&controls=1&showinfo=0';
+        //    //this.appendChild( player );
 
-            //
+        //    //
 
-            var prev = object.position.z + 400;
+        //    var prev = object.position.z + 400;
 
-            new TWEEN.Tween(camera.position)
-                .to({ x: object.position.x, y: object.position.y, z: object.position.z + 250 }, 1500)
-                .onUpdate(function () {
-                    camera.position.z = this.z;
-                    camera.position.x = this.x;
-                    camera.position.y = this.y;
+        //    new TWEEN.Tween(camera.position)
+        //        .to({ x: object.position.x, y: object.position.y, z: object.position.z + 250 }, 1500)
+        //        .onUpdate(function () {
+        //            camera.position.z = this.z;
+        //            camera.position.x = this.x;
+        //            camera.position.y = this.y;
 
-                    console.log("camera z " + camera.position.z);
-                    console.log("object z " + object.position.z);
-                })
-                .easing(TWEEN.Easing.Exponential.Out)
-                .start();
+        //            console.log("camera z " + camera.position.z);
+        //            console.log("object z " + object.position.z);
+        //        })
+        //        .easing(TWEEN.Easing.Exponential.Out)
+        //        .start();
 
-            //new TWEEN.Tween( { value: prev } )
-            //    .to( { value: 0  }, 2000 )
-            //    .onUpdate( function () {
+        //    //new TWEEN.Tween( { value: prev } )
+        //    //    .to( { value: 0  }, 2000 )
+        //    //    .onUpdate( function () {
 
-            //        move( this.value - prev );
-            //        prev = this.value;
+        //    //        move( this.value - prev );
+        //    //        prev = this.value;
 
-            //    } )
-            //    .easing( TWEEN.Easing.Exponential.Out )
-            //    .start();
+        //    //    } )
+        //    //    .easing( TWEEN.Easing.Exponential.Out )
+        //    //    .start();
 
-        }, false);
+        //}, false);
 
         return object;
     }
+
+
 };
 
 
 function initScene() {
 
-    document.body.style.backgroundColor = "#333333";
 
-    camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 30000 );
-    camera.position.z = 15000;
+    document.body.style.backgroundColor = "#000000";
+    //document.body.className = "bg";
+
+    camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 1000 );
+    //camera.position.z = 15000;
 
     scene = new THREE.Scene();
 
@@ -148,12 +162,13 @@ function initScene() {
     renderer.domElement.style.top = 0;
     document.getElementById( 'view' ).appendChild( renderer.domElement );
 
+   
 
+    document.body.addEventListener('mousemove', onMouseMove, false);
+    document.body.addEventListener('mousedown', onMouseDown, false);
+    document.body.addEventListener('mouseup', onMouseUp, false);
 
-
-    //search( "dog" );
-
-    document.body.addEventListener( 'mousewheel', onMouseWheel, false );
+    document.body.addEventListener('mousewheel', onMouseWheel, false);
 
     //document.body.addEventListener( 'click', function ( event ) {
 
@@ -175,6 +190,8 @@ function initScene() {
 
     window.addEventListener('resize', onWindowResize, false);
 
+    //controls = new THREE.OrbitControls(camera);
+    //controls.addEventListener('change', render);
 
     animate();
 }
@@ -227,7 +244,7 @@ function moveToArticle(id, delay, time) {
     for (var i = 0; i < scene.children.length; i++) {
         if (scene.children[i].element.id == id) {
 
-            var object = scene.children[i];
+            object = scene.children[i];
             var articleSizeRatio;
 
             var width = object.element.clientWidth;
@@ -250,26 +267,29 @@ function moveToArticle(id, delay, time) {
 
             console.log("movetime " + getMoveTime(object));
 
-            new TWEEN.Tween(camera.position)
-            .to({ x: object.position.x, y: object.position.y, z: object.position.z + articleSizeRatio }, getMoveTime(object))
-            .delay(delay)
-            .onUpdate(function () {
-                camera.position.z = this.z;
-                camera.position.x = this.x;
-                camera.position.y = this.y;
-
-                //console.log("this.z " + this.z);
-                //console.log("camera z " + camera.position.z);
-                //console.log("object z " + object.position.z);
-            })
-            .onComplete(function() {
-                console.log("camera z " + camera.position.z);
-                console.log("object z " + object.position.z);
-            })
-            .easing(TWEEN.Easing.Exponential.Out)
-            .start();
-
-            
+            //new TWEEN.Tween({ z: 0 })
+            //.to({ z: 200 }, 3000)
+            //.onUpdate(function () {
+            //    camera.position.z += this.z;
+            //})
+            //.onComplete(function () {
+                new TWEEN.Tween(camera.position)
+                .to({ x: object.position.x, y: object.position.y, z: object.position.z + articleSizeRatio }, getMoveTime(object))
+                .delay(delay)
+                .onUpdate(function () {
+                    camera.position.z = this.z;
+                    camera.position.x = this.x;
+                    camera.position.y = this.y;
+                })
+                .onComplete(function() {
+                    console.log("camera z " + camera.position.z);
+                    console.log("object z " + object.position.z);
+                })
+                .easing(TWEEN.Easing.Quadratic.Out)
+                .start();
+            //})
+            //.easing(TWEEN.Easing.Quadratic.In)
+            //.start();
 
             break;
         }
@@ -283,12 +303,19 @@ function getMoveTime(object) {
 
     var lastValue = (object.position.x + object.position.y + object.position.z) / 3;
 
+    var moveTime;
+
     if (actualValue > lastValue) {
-        return (actualValue - lastValue) * 4;
+        moveTime = (actualValue - lastValue) * 5;
+        if (moveTime < MAX_MOVETIME)
+            return moveTime;
     } else {
-        return (lastValue - actualValue) * 4;
+        moveTime = (lastValue - actualValue) * 5;
+        if (moveTime < MAX_MOVETIME)
+            return moveTime;
     }
 
+    return MAX_MOVETIME;
 }
 
 
@@ -342,10 +369,40 @@ function move( delta ) {
 
 }
 
-function onMouseWheel( event ) {
+function onMouseWheel(event) {
+    if (event.wheelDelta > 0) {
+        if (camera.position.z >= (object.position.z)) {
+            camera.position.z -= event.wheelDelta;
+        }
+    } else {
+        camera.position.z -= event.wheelDelta;
+    }
+    console.log("camera z mouse wheel " + camera.position.z);
+}
 
-    move( event.wheelDelta );
+function onMouseMove(event) {
 
+    mouse.x = (event.clientX / window.innerWidth) - 0.5;
+    mouse.y = (event.clientY / window.innerHeight) - 0.5;
+
+    if (!cameraMove) {
+        object.position.x += mouse.x * moveFactor;
+        object.position.y -= mouse.y * moveFactor;
+    }
+}
+
+function onMouseDown(event) {
+
+    cameraMove = false;
+    moveFactor = 5.15;
+    object.element.style.cursor = 'pointer';
+}
+
+function onMouseUp(event) {
+
+    cameraMove = true;
+    moveFactor = 1.15;
+    object.element.style.cursor = 'default';
 }
 
 function onWindowResize() {
@@ -366,9 +423,17 @@ function animate() {
     if ( auto === true ) {
 
         move( 1 );
-
     }
 
-    renderer.render( scene, camera );
+    if (cameraMove) {
+        camera.position.x += mouse.x * moveFactor;
+        camera.position.y += mouse.y * moveFactor;
+    }
 
+    //controls.update();
+    render();
+}
+
+function render() {
+    renderer.render(scene, camera);
 }

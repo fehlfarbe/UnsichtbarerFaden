@@ -20,22 +20,21 @@ canvas {
     opacity:1;
 }
 
-#articleDiv{
-    background:#ffffff;
-    color:#000000;
-    font-family: 'Courier';
-    font-weight: bold;
-    top: -50%;
-    z-index: 1;
-    padding: 5px;
-    left: 50%;
-    position: absolute;
-    width: auto;
-    max-width: 870px;
-    max-height: 652px;
-    height: auto;
-    opacity: 0;
-    overflow:hidden;
+.article{
+    width:auto;
+    height:auto;
+    overflow:auto;
+    background-color:white;
+    line-height:1.5pt;
+    padding:12px;
+    max-width:1200px;
+    -webkit-box-shadow: 5px 5px 100px grey, -5px -5px 100px grey;
+    -moz-box-shadow: 5px 5px 100px grey, -5px -5px 100px grey;
+    box-shadow: 5px 5px 100px grey, -5px -5px 100px grey;
+}
+
+.article span {
+    line-height:1.5pt;
 }
 
 .zoom {
@@ -49,6 +48,9 @@ canvas {
     transform:scale(2);    
 }
 
+.bg {
+    background-image:url(../src/jpg/bg.jpg);
+}
 
 /** Startseite */
 
