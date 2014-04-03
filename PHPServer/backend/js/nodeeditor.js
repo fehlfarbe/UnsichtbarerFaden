@@ -25,6 +25,7 @@ nodeEditor.initNodes = function($scope, $http) {
 	//save nodes
 	$scope.saveNodes = function() {
 		$('#grapheditor').block();
+		$('#bubbles').block();
 		
 		var data = $scope.nodes;
 		console.log("send data", data);
@@ -32,9 +33,11 @@ nodeEditor.initNodes = function($scope, $http) {
 		.success(function(data, status, headers, config){
 			console.log("Nodes saved!");
 			$('#grapheditor').unblock();
+			$('#bubbles').unblock();
 		}).error(function(data, status, headers, config){
 			alert("I can't do this, Dave!");
 			$('#grapheditor').unblock();
+			$('#bubbles').unblock();
 		});
 	};
 	
@@ -637,7 +640,7 @@ nodeEditor.initBubbles = function($scope, $http) {
 		
 		var links = $scope.links;
 		
-		console.log("Links", links);
+		//console.log("Links", links);
 		
 		// Nodes
 		$scope.node.selectAll("circle")

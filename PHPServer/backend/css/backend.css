@@ -21,11 +21,15 @@ div#view{
 /** ARTICLE OVERVIEW ***/
 .article{
 	margin: 12px auto;
-	width: 500px;
+	width: 700px;
 }
 
+/* .article p{
+	padding: 0px !important;
+} */
+
 .articleCtrl{
-	width: 500px;
+	width: 700px;
 	margin: 0px auto;
 }
 

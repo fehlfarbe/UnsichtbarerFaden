@@ -1,25 +1,6 @@
 //define a global application
 var App = angular.module('App', ['nodeeditor']);
 
-//var checkLoggedin = function($q, $timeout, $http, $location, $rootScope) {
-//	// Initialize a new promise
-//	var deferred = $q.defer();
-//	// Make an AJAX call to check if the user is logged in
-//	$http.get('/loggedin').success(function(user) {
-//		// Authenticated
-//		if (user !== '0')
-//			$timeout(deferred.resolve, 0);
-//		// Not Authenticated
-//		else {
-//			$rootScope.message = 'You need to log in.';
-//			$timeout(function() {
-//				deferred.reject();
-//			}, 0);
-//			$location.url('/login');
-//		}
-//	});
-//};
-
 /****************************
  * 
  * Login service
@@ -28,27 +9,12 @@ var App = angular.module('App', ['nodeeditor']);
 App.factory('UserService', [function() {
 	var sdo = {
 		isInit: false,
-		isLogged: false, /////////////////////////////////////////////// DEBUG
+		isLogged: false,
 		username: ''
 	};
 	
 	return sdo;
 }]);
-
-//App.directive('checkUser', ['$rootScope', '$location', 'UserService', function ($root, $location, userSrv) {
-//	return {
-//		link: function (scope, elem, attrs, ctrl) {
-//			$root.$on('$routeChangeStart', function(event, currRoute, prevRoute){
-//				console.log("try it!", userSrv);
-//				if (!prevRoute.access.isFree && !userSrv.isLogged) {
-//					// reload the login route
-//					console.log("Reload");
-//					$location.url('/login');
-//				}
-//			});
-//		}
-//	};
-//}]);
 
 /*****************************
  * 
@@ -313,6 +279,27 @@ App.controller('newarticle', function($scope, $http, $location) {
 	    		console.log("clicked");
 	    	},
 	    body_id: "sad",
+	    toolbar: "undo redo | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist | link image | fontselect fontsizeselect | forecolor backcolor",
+	    content_css : "http://fonts.googleapis.com/css?family=Sanchez,http://fonts.googleapis.com/css?family=Ceviche+One",
+	    font_formats: 	"Ceviche One=ceviche one;"+
+	    				"Sanchez=sanches;"+
+	    				"Andale Mono=andale mono,times;"+
+				        "Arial=arial,helvetica,sans-serif;"+
+				        "Arial Black=arial black,avant garde;"+
+				        "Book Antiqua=book antiqua,palatino;"+
+				        "Comic Sans MS=comic sans ms,sans-serif;"+
+				        "Courier New=courier new,courier;"+
+				        "Georgia=georgia,palatino;"+
+				        "Helvetica=helvetica;"+
+				        "Impact=impact,chicago;"+
+				        "Symbol=symbol;"+
+				        "Tahoma=tahoma,arial,helvetica,sans-serif;"+
+				        "Terminal=terminal,monaco;"+
+				        "Times New Roman=times new roman,times;"+
+				        "Trebuchet MS=trebuchet ms,geneva;"+
+				        "Verdana=verdana,geneva;"+
+				        "Webdings=webdings;"+
+				        "Wingdings=wingdings,zapf dingbats",
 	    force_br_newlines : true,
         force_p_newlines : false,
         onchange_callback : function(a){

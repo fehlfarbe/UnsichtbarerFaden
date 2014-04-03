@@ -321,37 +321,27 @@ switch ($agentSymbol){
 		error_log("lastArticle". json_encode($lastArticle));
 		error_log("lastCats". json_encode($lastCategories));
 		
-		$query ="SELECT articles.articleid AS id, text, symbol, book, count(articles.articleid) AS amount FROM articles " .
+		$query = "SELECT articles.articleid AS id, text, symbol, book, count(articles.articleid) AS amount FROM articles " .
 				"JOIN articlenodes " .
 				"ON articles.articleid = articlenodes.articleid " .
-				"WHERE articlenodes.nodeid IN (".
-					arrayToString($lastCategories) .") " .
-				"AND articles.articleid != $lastArticleId " .
+				"WHERE articlenodes.nodeid IN ("
+					. arrayToString($lastCategories).") " .
+				"AND articles.articleid NOT IN (" .
+					arrayToString($lastArticles).") " .
 				"GROUP BY id, text, symbol, book " .
-				"ORDER BY amount DESC";
-
-		$articles = Array();
+				"ORDER BY amount DESC " .
+				"LIMIT 1";
+		
 		if ($result = $con->query($query)) {
-			while($article = $result->fetch_object())
-				$articles[] = $article;
+			$article = $result->fetch_object();
 			$result->close();
-			
-			echo(json_encode($articles));
-				
-			if( count($articles) == 0){
+		
+			if( $article == null){
 				error_log("No article was found!");
+				echo json_encode(null);
 				return;
 				//ToDo: restart
 			}
-			
-			//can't select all articles with most same tags, so do it with PHP
-			$maxTags = Array();
-			for($i=0; $i < count($articles); $i++)
-			if($articles[$i]->amount == $articles[0]->amount)
-				$maxTags[] = $articles[$i];
-					
-			//choose a random article from most same tags
-			$article = $maxTags[array_rand($articles)];
 			
 			unset($article->amount);
 			$article = addArticleInfo($con, $article, $symbol, $lastArticles);
