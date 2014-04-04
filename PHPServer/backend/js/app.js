@@ -280,10 +280,8 @@ App.controller('newarticle', function($scope, $http, $location) {
 	    	},
 	    body_id: "sad",
 	    toolbar: "undo redo | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist | link image | fontselect fontsizeselect | forecolor backcolor",
-	    content_css : "http://fonts.googleapis.com/css?family=Sanchez,http://fonts.googleapis.com/css?family=Ceviche+One",
-	    font_formats: 	"Ceviche One=ceviche one;"+
-	    				"Sanchez=sanches;"+
-	    				"Andale Mono=andale mono,times;"+
+	    content_css : globalCSSFonts,
+	    font_formats: 	"Andale Mono=andale mono,times;"+
 				        "Arial=arial,helvetica,sans-serif;"+
 				        "Arial Black=arial black,avant garde;"+
 				        "Book Antiqua=book antiqua,palatino;"+
@@ -299,7 +297,8 @@ App.controller('newarticle', function($scope, $http, $location) {
 				        "Trebuchet MS=trebuchet ms,geneva;"+
 				        "Verdana=verdana,geneva;"+
 				        "Webdings=webdings;"+
-				        "Wingdings=wingdings,zapf dingbats",
+				        "Wingdings=wingdings,zapf dingbats;"+
+				        globalFonts,
 	    force_br_newlines : true,
         force_p_newlines : false,
         onchange_callback : function(a){
