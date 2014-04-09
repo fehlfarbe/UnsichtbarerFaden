@@ -21,11 +21,15 @@ div#view{
 /** ARTICLE OVERVIEW ***/
 .article{
 	margin: 12px auto;
-	width: 500px;
+	width: 700px;
 }
 
+/* .article p{
+	padding: 0px !important;
+} */
+
 .articleCtrl{
-	width: 500px;
+	width: 700px;
 	margin: 0px auto;
 }
 
@@ -97,4 +101,9 @@ div#view{
 .editor-savebtn{
 	margin: 10px;
 	margin-top: 22px;
+}
+
+.articlePreview{
+	width: 65ex;
+	margin: 10px auto;
 }

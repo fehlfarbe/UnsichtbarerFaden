@@ -1,25 +1,6 @@
 //define a global application
 var App = angular.module('App', ['nodeeditor']);
 
-//var checkLoggedin = function($q, $timeout, $http, $location, $rootScope) {
-//	// Initialize a new promise
-//	var deferred = $q.defer();
-//	// Make an AJAX call to check if the user is logged in
-//	$http.get('/loggedin').success(function(user) {
-//		// Authenticated
-//		if (user !== '0')
-//			$timeout(deferred.resolve, 0);
-//		// Not Authenticated
-//		else {
-//			$rootScope.message = 'You need to log in.';
-//			$timeout(function() {
-//				deferred.reject();
-//			}, 0);
-//			$location.url('/login');
-//		}
-//	});
-//};
-
 /****************************
  * 
  * Login service
@@ -28,27 +9,12 @@ var App = angular.module('App', ['nodeeditor']);
 App.factory('UserService', [function() {
 	var sdo = {
 		isInit: false,
-		isLogged: false, /////////////////////////////////////////////// DEBUG
+		isLogged: false,
 		username: ''
 	};
 	
 	return sdo;
 }]);
-
-//App.directive('checkUser', ['$rootScope', '$location', 'UserService', function ($root, $location, userSrv) {
-//	return {
-//		link: function (scope, elem, attrs, ctrl) {
-//			$root.$on('$routeChangeStart', function(event, currRoute, prevRoute){
-//				console.log("try it!", userSrv);
-//				if (!prevRoute.access.isFree && !userSrv.isLogged) {
-//					// reload the login route
-//					console.log("Reload");
-//					$location.url('/login');
-//				}
-//			});
-//		}
-//	};
-//}]);
 
 /*****************************
  * 
@@ -264,13 +230,13 @@ App.controller('articleoverview', function($scope, $http) {
 	console.log('Hello from the Article overview Controller');
 	
 	//Get article
-	$('#articleList').block({ message : "<h2>Lade Einträge</h2>"} );
-	$scope.articles = $http.post('/backend.php?action=articles')
-	.then(function(result) {
-		console.log(result.data);
-		$('#articleList').unblock();
-        return result.data;
-     });
+//	$('#articleList').block({ message : "<h2>Lade Einträge</h2>"} );
+//	$scope.articles = $http.post('/backend.php?action=articles')
+//	.then(function(result) {
+//		console.log(result.data);
+//		$('#articleList').unblock();
+//        return result.data;
+//     });
 });
 
 /************************************************************************
@@ -313,6 +279,26 @@ App.controller('newarticle', function($scope, $http, $location) {
 	    		console.log("clicked");
 	    	},
 	    body_id: "sad",
+	    toolbar: "undo redo | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist | link image | fontselect fontsizeselect | forecolor backcolor",
+	    content_css : globalCSSFonts,
+	    font_formats: 	"Andale Mono=andale mono,times;"+
+				        "Arial=arial,helvetica,sans-serif;"+
+				        "Arial Black=arial black,avant garde;"+
+				        "Book Antiqua=book antiqua,palatino;"+
+				        "Comic Sans MS=comic sans ms,sans-serif;"+
+				        "Courier New=courier new,courier;"+
+				        "Georgia=georgia,palatino;"+
+				        "Helvetica=helvetica;"+
+				        "Impact=impact,chicago;"+
+				        "Symbol=symbol;"+
+				        "Tahoma=tahoma,arial,helvetica,sans-serif;"+
+				        "Terminal=terminal,monaco;"+
+				        "Times New Roman=times new roman,times;"+
+				        "Trebuchet MS=trebuchet ms,geneva;"+
+				        "Verdana=verdana,geneva;"+
+				        "Webdings=webdings;"+
+				        "Wingdings=wingdings,zapf dingbats;"+
+				        globalFonts,
 	    force_br_newlines : true,
         force_p_newlines : false,
         onchange_callback : function(a){
@@ -538,27 +524,123 @@ App.nodeList = function($scope, $http, $route, $location) {
 	
 }
 
-App.articleList = function($scope, $http, $route, $location) {
+App.articleList = function($scope, $http, $route, $location, $filter) {
+	
+    // init
+    $scope.sortingOrder = 'name';
+    $scope.reverse = false;
+    $scope.filteredItems = [];
+    $scope.groupedItems = [];
+    $scope.itemsPerPage = 20;
+    $scope.pagedItems = [];
+    $scope.currentPage = 0;
+    $scope.items = $http.post('/backend.php?action=articles')
+	.then(function(result) {
+		console.log("DATA", result.data);
+		$('#articleList').unblock();
+		$scope.items = result.data;
+		$scope.search();
+        return result.data;
+     });
 
+    var searchMatch = function (haystack, needle) {
+        if (!needle) {
+            return true;
+        }
+        return (""+haystack).toLowerCase().indexOf(needle.toLowerCase()) !== -1;
+    };
+
+    // init the filtered items
+    $scope.search = function () {
+        $scope.filteredItems = $filter('filter')($scope.items, function (item) {
+            for(var attr in item) {
+                if (searchMatch(item[attr], $scope.query))
+                    return true;
+            }
+            return false;
+        });
+        // take care of the sorting order
+        if ($scope.sortingOrder !== '') {
+            $scope.filteredItems = $filter('orderBy')($scope.filteredItems, $scope.sortingOrder, $scope.reverse);
+        }
+        $scope.currentPage = 0;
+        // now group by pages
+        $scope.groupToPages();
+    };
+    
+    // calculate page in place
+    $scope.groupToPages = function () {
+        $scope.pagedItems = [];
+        
+        for (var i = 0; i < $scope.filteredItems.length; i++) {
+            if (i % $scope.itemsPerPage === 0) {
+                $scope.pagedItems[Math.floor(i / $scope.itemsPerPage)] = [ $scope.filteredItems[i] ];
+            } else {
+                $scope.pagedItems[Math.floor(i / $scope.itemsPerPage)].push($scope.filteredItems[i]);
+            }
+        }
+    };
+    
+    $scope.range = function (start, end) {
+        var ret = [];
+        if (!end) {
+            end = start;
+            start = 0;
+        }
+        for (var i = start; i < end; i++) {
+            ret.push(i);
+        }
+        return ret;
+    };
+    
+    $scope.prevPage = function () {
+        if ($scope.currentPage > 0) {
+            $scope.currentPage--;
+        }
+    };
+    
+    $scope.nextPage = function () {
+        if ($scope.currentPage < $scope.pagedItems.length - 1) {
+            $scope.currentPage++;
+        }
+    };
+    
+    $scope.setPage = function () {
+        $scope.currentPage = this.n;
+    };
+
+    // functions have been describe process the data for display
+    $scope.search();
+
+    // change sorting order
+    $scope.sort_by = function(newSortingOrder) {
+        if ($scope.sortingOrder == newSortingOrder)
+            $scope.reverse = !$scope.reverse;
+
+        $scope.sortingOrder = newSortingOrder;
+    };
+    
+
+    /////////////////////////////////////// EDIT/DELETE
 	$scope.editArticle = function(id){
 		console.log("editiere..." + id);
 		$location.search('id', id).path('/newarticle');
 	};
-	
-	$scope.sortArticles = function(type){
-		
-		
-		if( $scope.predicate == type )
-			if($scope.reverse)
-				$scope.reverse = !$scope.reverse;
-			else
-				$scope.reverse = true;
-		else
-			$scope.reverse = false;
-		//console.log($scope.reverse);
-		
-		$scope.predicate = type;
-	};
+//	
+//	$scope.sortArticles = function(type){
+//		
+//		
+//		if( $scope.predicate == type )
+//			if($scope.reverse)
+//				$scope.reverse = !$scope.reverse;
+//			else
+//				$scope.reverse = true;
+//		else
+//			$scope.reverse = false;
+//		//console.log($scope.reverse);
+//		
+//		$scope.predicate = type;
+//	};
 	
 	$scope.deleteArticle = function(id){
 		

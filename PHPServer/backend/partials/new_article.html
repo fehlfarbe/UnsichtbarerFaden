@@ -43,9 +43,13 @@
 	</div>
 
 	<!-- editor preview -->
-	<div>
-		<div>Vorschau:</div>
-		<div id="preview" ng-bind-html-unsafe="preview"></div>
-	</div>	
+	<div class="panel panel-default articlePreview">
+		<div class="panel-heading">
+	    	<h3 class="panel-title">Vorschau</h3>
+	  	</div>
+  		<div id="preview" class="panel-body" ng-bind-html-unsafe="preview">
+  		</div>
+</div>
+	
 	
 </div>
