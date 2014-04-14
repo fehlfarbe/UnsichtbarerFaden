@@ -59,7 +59,7 @@ switch ($agentSymbol){
 		
 		$query = "SELECT articles.articleid AS id, text, symbol, book  
 				FROM articles
-				WHERE book = 0 AND symbol = $symbol
+				WHERE book = 0 AND symbol = $symbol AND active = 1
 				ORDER BY RAND()";
 
 		if ($result = $con->query($query)) {
@@ -100,6 +100,7 @@ switch ($agentSymbol){
 						. arrayToString($lastCategories).") " .
 				"AND articles.articleid NOT IN (" .
 					arrayToString($lastArticles).") " .
+				"AND active = 1 " .
 				"GROUP BY articles.articleid " .
 				"ORDER BY book ASC " .
 				"LIMIT 1";
@@ -140,6 +141,7 @@ switch ($agentSymbol){
 				. arrayToString($lastCategories).") " .
 				"AND articles.articleid NOT IN (" .
 				arrayToString($lastArticles).") " .
+				"AND active = 1 " .
 				"GROUP BY id, text, symbol, book " .
 				"ORDER BY amount DESC, book ASC " .
 				"LIMIT 1";
@@ -213,6 +215,7 @@ switch ($agentSymbol){
 				"WHERE articles.book >= $lastArticle->book " .
 				"AND articles.articleid NOT IN (" .
 					arrayToString($lastArticles).") " .
+				"AND active = 1 " .
 				"GROUP BY articles.articleid " .
 				"ORDER BY book ASC " .
 				"LIMIT 1";
@@ -260,6 +263,7 @@ switch ($agentSymbol){
 						. arrayToString($lastCategories).") " .
 				"AND articles.articleid NOT IN (" .
 					arrayToString($lastArticles).") " .
+				"AND active = 1 " .
 				"GROUP BY articles.articleid " .
 				"ORDER BY RAND() " .
 				"LIMIT 1";
@@ -290,6 +294,7 @@ switch ($agentSymbol){
 		$query = "SELECT articleid AS id, text, symbol, book " .
 				"FROM articles " .
 				"WHERE articleid != $lastArticleId " .
+				"AND active = 1 " .
 				"ORDER BY RAND() " .
 				"LIMIT 1";
 		
@@ -328,6 +333,7 @@ switch ($agentSymbol){
 					. arrayToString($lastCategories).") " .
 				"AND articles.articleid NOT IN (" .
 					arrayToString($lastArticles).") " .
+				"AND active = 1 " .
 				"GROUP BY id, text, symbol, book " .
 				"ORDER BY amount DESC " .
 				"LIMIT 1";

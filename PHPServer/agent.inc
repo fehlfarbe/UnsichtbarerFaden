@@ -199,6 +199,7 @@ function getThumbs($con){
 			ON articles.articleid = articlenodes.articleid
 			JOIN nodes
 			ON nodes.nodeid = articlenodes.nodeid
+			WHERE active = 1 
 			GROUP BY articles.articleid";
 	
 	$thumbs = Array();

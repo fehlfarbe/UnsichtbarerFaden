@@ -341,11 +341,14 @@ App.controller('newarticle', function($scope, $http, $location) {
 						console.log(article);
 						console.log('editor', $('#editortext'));						
 						
-						//set headline, book id, editor text
+						//set headline, book id, editor text, active
 						$('#headline').val(article.name);
 						$('#book').val(article.book);
 						tinyMCE.activeEditor.selection.setContent(article.text);
 						$('#preview').html(tinymce.activeEditor.getContent());
+
+						if( article.active != "0")
+							$('#active').attr("checked", "checked");
 						
 						//set chosen categories
 						console.log("categories:", article.category);
@@ -393,6 +396,7 @@ App.controller('newarticle', function($scope, $http, $location) {
 		article.categories = $("#category").val();
 		article.symbol = $("#symbol").val();
 		article.book = $('#book').val();
+		article.active = $('#active').is(':checked'); 
 		if( id != undefined )
 			article.id = id;
 				    			
@@ -439,7 +443,6 @@ App.controller('newarticle', function($scope, $http, $location) {
 	};
 	
 	$scope.newCategory = function(){
-		console.log("TODO new cat");
 		var name = prompt("eingeben:");
 		
 		if( !name )

@@ -11,6 +11,7 @@
 			<button type="button" class="btn btn-default" ng-click="sort_by('book')">Tagebuch</button>
 			<button type="button" class="btn btn-default" ng-click="sort_by('symID')">Symbol</button>
 			<button type="button" class="btn btn-default" ng-click="sort_by('name')">Name</button>
+			<button type="button" class="btn btn-default" ng-click="sort_by('active')">Aktiviert</button>
 		</div>
 	</div>
 
@@ -33,7 +34,7 @@
     </div>
 
 	<!-- Show articles -->
-	<div class="panel panel-primary article" ng-repeat="article in pagedItems[currentPage] | orderBy:sortingOrder:reverse">
+	<div class="panel article" ng-class="{'panel-primary': article.active == 1, 'panel-default': article.active == 0}" ng-repeat="article in pagedItems[currentPage] | orderBy:sortingOrder:reverse">
 		<div class="panel-heading">
 			<h3 class="panel-title">#{{article.id}} {{article.name}}</h3>
 		</div>

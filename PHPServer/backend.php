@@ -15,7 +15,7 @@ switch ($action) {
 	
 	case 'articles':
 		error_log("Get articles");
-		$query = 'SELECT articles.articleid AS id, articles.name AS name, text,  book, ' .
+		$query = 'SELECT articles.articleid AS id, articles.name AS name, text,  book, active, ' .
 				'symbols.id AS symID, symbols.name AS symName, symbols.icon AS symIcon, ' .
 				'nodes.nodeid AS nodeid, nodes.name AS category ' .
 				'FROM articles ' .
@@ -136,6 +136,7 @@ switch ($action) {
 		$article['text'] = $data['content'];
 		$article['symbol'] = $data['symbol'];
 		$article['book'] = $data['book'];
+		$article['active'] = $data['active'];
 		
 		$columns = implode(", ",array_keys($article));
 		$escaped_values = array_map($con->real_escape_string, array_values($article));
