@@ -1,5 +1,4 @@
 /**  Agent fuer control **/
-
 var App = angular.module('agent', []);
 	
 /** Angular service um geklicktes Symbol zwischen Controllern auszutauschen. */
@@ -19,14 +18,15 @@ App.service('clickedSymbol', function () {
 var scope;
 var lastArticles = new Array();
 
+
 //all symbols with path
-var data = [{ "symbol":"1","path":"src/svg/moeglich.svg#path1", "pos":"-5px"},
-            { "symbol": "2", "path": "src/svg/notwendig.svg#path2", "pos": "35px" },
-            { "symbol": "3", "path": "src/svg/wahr.svg#path3", "pos": "78px" },
-            { "symbol": "4", "path": "src/svg/nicht.svg#path4", "pos": "118px" },
-            { "symbol": "5", "path": "src/svg/kontingent.svg#path5", "pos": "165px" },
-            { "symbol": "6", "path": "src/svg/unendlich.svg#path6", "pos": "210px" },
-            { "symbol": "7", "path": "src/svg/wirklich.svg#path7", "pos": "260px" },
+var data = [{ "symbol":"1","path":"src/svg/moeglich.svg#path1", "pos":"-5px", "text":"Verstehe!"},
+            { "symbol": "2", "path": "src/svg/notwendig.svg#path2", "pos": "35px", "text": "Bitte Erklären." },
+            { "symbol": "3", "path": "src/svg/wahr.svg#path3", "pos": "78px", "text": "Wahr, weiter im Tagebuch..." },
+            { "symbol": "4", "path": "src/svg/nicht.svg#path4", "pos": "118px", "text": "Nein, Reise beenden..." },
+            { "symbol": "5", "path": "src/svg/kontingent.svg#path5", "pos": "165px", "text": " Vorstellbar!" },
+            { "symbol": "6", "path": "src/svg/unendlich.svg#path6", "pos": "210px", "text": "Was der Zufall bringt..." },
+            { "symbol": "7", "path": "src/svg/wirklich.svg#path7", "pos": "260px", "text": "Mehr zum Thema." },
             ];
 
 
@@ -78,6 +78,9 @@ function introController($scope, $http, clickedSymbol) {
 
     var handle = setInterval(function () { loadAnimation() }, 7 / 7 * 2000);
 
+
+
+
     function loadAnimation() {
         use.style("opacity", "0")
             .transition()
@@ -114,34 +117,29 @@ function introController($scope, $http, clickedSymbol) {
        .on("click", function (d) { clickedSymbol.setSymbol(d.symbol) });
     }
 
+
 };
 
 
 function agentController($scope, $http, clickedSymbol) {
 
-   
     $http.get("/agent.php" + "?action=getthumbnails")
-    .success(function (thumbs) {
-        console.log(thumbs);
-        console.log("erster aufruf");
-        fillScene(thumbs);
-        getFirstArticle();
-    })
-    .error(function (err) {
-        console.error(err);
-        getFirstArticle();
-    });
+    .success(function (pics) {
+        fillScene(pics);
 
-    
-    
-    function getFirstArticle() {
         $http.get("/agent.php" + "?symbol=" + clickedSymbol.getSymbol() + "&lastArticles=[]")
            .success(function (article) {
+
                console.log("zwetier aufruf");
+               console.log(article);
                lastArticles = article.lastArticles;
-               this.symbols = article.symbols;
                updateControl(article.symbols);
-               moveToArticle(article.id, 1000);
+               if (clickedSymbol.getSymbol() != 4) {
+                   moveToArticle(article.id, 0);
+                   updateGraph(article.book);
+               } else {
+                   moveToEndVideo();
+               }
                updateGraph(article.book);
                //updateSceneParameters(article);
                //startScene();
@@ -149,7 +147,13 @@ function agentController($scope, $http, clickedSymbol) {
            .error(function (err) {
                console.error(err);
            });
-    }
+    })
+    .error(function (err) {
+     console.error(err);
+    });
+    
+        
+    
 
 
     function symbolOnClick() {
@@ -158,14 +162,17 @@ function agentController($scope, $http, clickedSymbol) {
                 //console.log("lastArticles " + lastArticles);
                 //console.log("article lastArticles " + article.lastArticles);
                 //console.log(article.book);
-                //console.log(article);
                 lastArticles = article.lastArticles;
                 updateControl(article.symbols);
-
-                moveToArticle(article.id, 0);
+                if (clickedSymbol.getSymbol() != 4) {
+                    moveToArticle(article.id, 0);
+                    updateGraph(article.book);
+                } else {
+                    moveToEndVideo();
+                }
                 //updateSceneParameters(article);
                 //displayNewScene();
-                updateGraph(article.book);
+                
             })
             .error(function(err){
                 console.error(err);
@@ -173,17 +180,16 @@ function agentController($scope, $http, clickedSymbol) {
         };
     
 
- 
-
-
     /** Helper function, update the control with new symbols */
     function updateControl(symbols) {
         //durch gesamtes json objekt laufen und für jede übereinstimmung mit symbols link in neues array(zwecks d3 databinding)
         var links = new Array();
-        for (var i = 0; i < symbols.length; i++) {
-            for (var j = 0; j < data.length; j++) {
-                if (symbols[i].id == data[j].symbol) {
-                    links.push(data[j]);
+        if (symbols) {
+            for (var i = 0; i < symbols.length; i++) {
+                for (var j = 0; j < data.length; j++) {
+                    if (symbols[i].id == data[j].symbol) {
+                        links.push(data[j]);
+                    }
                 }
             }
         }
@@ -194,14 +200,39 @@ function agentController($scope, $http, clickedSymbol) {
 
         use.enter().append("use")
             .attr("xlink:href", function (d) { return d.path; })
-            .attr("x", function (d) { return d.pos; });
+            .attr("x", function (d) { return d.pos; }); 
 
         use.exit().remove();
 
         use.attr("cursor", "pointer")
-        .on("mouseover", function () { d3.select(this).style("opacity", "0.5"); })
-        .on("mouseout", function () { d3.select(this).style("opacity", "1"); })
+        .on("mouseover", function (d) { d3.select(this).style("opacity", "0.5"); showToolTipp(d.symbol);})
+        .on("mouseout", function (d) { d3.select(this).style("opacity", "1"); hideToolTipp(d.symbol);})
         .on("click", function (d) { clickedSymbol.setSymbol(d.symbol); symbolOnClick(); });
+
+
+        //toolTipp
+        var text = d3.select("#control").selectAll("div")
+            .data(links, function (d) { return links.indexOf(d); });
+
+        text.enter().append("div")
+                .text(function (d) { return d.text; })
+                .attr("class", "toolText")
+                .attr("id", function (d) { return "text" + d.symbol; })
+                .style("left", function (d) { return d.pos; });
+
+        text.exit().remove();
+
+        function hideToolTipp(id) {
+            d3.select("#text" + id).style("visibility", "hidden");
+        }
+
+        function showToolTipp(id) {
+            d3.select("#text" + id).style("visibility", "visible");
+        }
+
+
+
+        
     }
 };
 

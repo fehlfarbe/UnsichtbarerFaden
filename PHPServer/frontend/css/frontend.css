@@ -3,38 +3,11 @@
 * {
     margin:0;
     padding:0;
+    line-height:1.5;
 }
 
 canvas {
     overflow:hidden;
-}
-
-#ReloadButton{
-    position: absolute;
-    z-index:8;
-    left:55%;
-    top:80.5%;
-    font-family:Courier;
-    font-size:30px;
-    background-color:white;
-    opacity:1;
-}
-
-.article{
-    width:auto;
-    height:auto;
-    overflow:auto;
-    background-color:white;
-    line-height:1.5pt;
-    padding:12px;
-    max-width:1200px;
-    -webkit-box-shadow: 5px 5px 100px grey, -5px -5px 100px grey;
-    -moz-box-shadow: 5px 5px 100px grey, -5px -5px 100px grey;
-    box-shadow: 5px 5px 100px grey, -5px -5px 100px grey;
-}
-
-.article span {
-    line-height:1.5pt;
 }
 
 .zoom {
@@ -54,19 +27,26 @@ canvas {
 
 /** Startseite */
 
+
+
 #menu {
     width:153px;
     float:left;
     line-height:18px;
     text-align:center;
-    margin-left:100px;
+    padding-left:100px;
+    margin-top:95px;
 }
 
 #menu ul {
     list-style-type:none;    
 }
 
-#menu button {
+#menu li {
+    margin-bottom:60px;
+}
+
+#menu button, #main button {
     background-color:white;
     border-style:solid;
     border-color:black;
@@ -74,24 +54,27 @@ canvas {
     height:153px;    
     margin-left: auto;
     margin-right: auto;
-    margin-top:20px;
     padding:0;
     font-size:16pt;
-    margin-top:60px;
 }
 
-#menu #enter {
+#login {
+    margin-top:45px;
+}
+
+#enter {
     background-image:url(../src/png/emblem_klein.png);
     width:153px;
     height:153px;
     color:white;
+    margin-top:70px;
 }
 
 #menu #impressum {
+    height:153px;
+    width:153px;
     font-size:7pt;
-    text-align:left;
     display:block;
-    margin-top:60px;
     text-align:justify;
     -webkit-hyphens: auto;
     -moz-hyphens: auto;
@@ -99,22 +82,27 @@ canvas {
     hyphens: auto;    
 }
 
+#content {
+
+    height:500px;
+
+}
+
 #main {
-    width:80%;
-    float:right;
+    margin-left:253px;
     text-align:center;
     margin-top:95px;
+    min-width:1040px;
 }
 
 #main h1 {
     font-style:italic;
     font-size:38pt;
-    margin-top:40px;
 }
 
 #main #text {
     margin-top:77px;
-    padding: 0px 150px 0px 150px;
+    padding: 0 150px 0 150px;
     text-align:justify;
     -webkit-hyphens: auto;
     -moz-hyphens: auto;
@@ -156,7 +144,18 @@ canvas {
     margin-top:5%;
 }
 
+
+
 /** Faden Szene*/
+
+.toolText {
+    position:absolute;
+    color:white;
+    bottom:80px;
+    visibility:hidden;
+    width:52px;
+    background-color:black;
+}
 
 #footer {
     position:absolute;
@@ -179,6 +178,35 @@ canvas {
     /*min-width:300px;*/
     /*float:right;*/
     position:absolute;
+}
+
+#ReloadButton{
+    position: absolute;
+    z-index:8;
+    left:55%;
+    top:80.5%;
+    font-family:Courier;
+    font-size:30px;
+    background-color:white;
+    opacity:1;
+}
+
+.article{
+    width:auto;
+    max-width:800px;
+    height:auto;
+    overflow:auto;
+    background-color:white;
+    line-height:1.5;
+    padding:12px;
+    /*max-width:1200px;*/
+    -webkit-box-shadow: 5px 5px 100px grey, -5px -5px 100px grey;
+    -moz-box-shadow: 5px 5px 100px grey, -5px -5px 100px grey;
+    box-shadow: 5px 5px 100px grey, -5px -5px 100px grey;
+}
+
+.article span {
+    line-height:1.5;
 }
 
 /* tell the SVG path to be a thin blue line without any area fill */
