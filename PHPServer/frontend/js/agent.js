@@ -70,7 +70,7 @@ function startPageController($scope, $http, clickedSymbol) {
 
     use.enter().append("use")
     .attr("xlink:href", function (d) { return d.path; })
-    .attr("transform", "scale(1)")
+    .attr("transform", "scale(1.1)")
     .style("opacity", "0");
 
     var counter = 0;
