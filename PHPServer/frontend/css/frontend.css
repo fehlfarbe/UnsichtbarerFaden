@@ -27,82 +27,83 @@ canvas {
 
 /** Startseite */
 
-
-
-#menu {
-    width:153px;
-    float:left;
-    line-height:18px;
-    text-align:center;
-    padding-left:100px;
-    margin-top:95px;
+.row {
+    display:table-row;
+    /*border-spacing:50px;*/
 }
 
-#menu ul {
+.menu {
+    width:390px;
+    /*line-height:18px;
+    text-align:center;
+    display:table-cell;*/
+}
+
+.menu ul {
     list-style-type:none;    
 }
 
-#menu li {
+.menu li {
     margin-bottom:60px;
 }
 
-#menu button, #main button {
+.cell {
+    display:table-cell;
+    vertical-align:top;
+    text-align:left;
+}
+
+.content {
+    width:600px;
+    font-size:10pt;
+}
+
+button {
     background-color:white;
     border-style:solid;
     border-color:black;
-    width:153px;
-    height:153px;    
-    margin-left: auto;
-    margin-right: auto;
-    padding:0;
-    font-size:16pt;
+    width:123px;
+    height:123px;
+    font-size:13pt;
 }
 
-#login {
-    margin-top:45px;
-}
 
-#enter {
-    background-image:url(../src/png/emblem_klein.png);
-    width:153px;
-    height:153px;
-    color:white;
-    margin-top:70px;
-}
-
-#menu #impressum {
-    height:153px;
-    width:153px;
+#impressum {
+    height:123px;
+    width:123px;
     font-size:7pt;
-    display:block;
     text-align:justify;
     -webkit-hyphens: auto;
     -moz-hyphens: auto;
     -ms-hyphens: auto;
     hyphens: auto;    
+    margin-top:85px;
 }
 
-#content {
 
-    height:500px;
 
-}
 
 #main {
-    margin-left:253px;
+    width:75%;
+    height:98%;
     text-align:center;
-    margin-top:95px;
-    min-width:1040px;
+    margin-left:12.5%;
+    margin-top:1%;
+    margin-bottom:1%;
+    display:table;
+    border-spacing: 50px;
 }
 
 #main h1 {
-    font-style:italic;
-    font-size:38pt;
+    font-style:italic;  
+    font-size:50px;
+    letter-spacing:4px;  
 }
 
-#main #text {
-    margin-top:77px;
-    padding: 0 150px 0 150px;
+#text {
+    margin-left:275px;
+    float:left;
+    width:570px;
     text-align:justify;
     -webkit-hyphens: auto;
     -moz-hyphens: auto;
@@ -110,7 +111,7 @@ canvas {
     hyphens: auto;
 }
 
-#main #browserTextDiv {
+#browserTextDiv {
     width:480px;
     height:153px;
     margin-left: auto;
@@ -119,22 +120,28 @@ canvas {
     background-color:black;   
 }
 
-#main #browserText {
+#browserText {
     position:relative;
     top:25%;
     color:white;
 }
 
-#main #persons {
-    margin-top:52px;  
+#persons {
+    font-size:7pt;
+    float:right;
+    text-align:right;
 }
 
 /** Intro */
+.loadingBar {
+    text-align:center;
+    vertical-align:middle;
+}
+
 #loadingBar {
-    width:70%;
-    margin-left:15%;
-    margin-top:5%;
-    height:200px;
+    width:500px;
+    height:100px;
+    vertical-align:middle;
 }
 
 #introText {

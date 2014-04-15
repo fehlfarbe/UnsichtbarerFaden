@@ -41,6 +41,10 @@ App.config(function ($routeProvider, $httpProvider) {
         templateUrl: 'partials/faden.html',
         controller: 'agentController'
     });
+    $routeProvider.when('/info', {
+        templateUrl: 'partials/info.html',
+        //controller: 'startPageController'
+    });
     $routeProvider.when('/kontakt', {
         templateUrl: 'partials/kontakt.html',
         //		controller : 'symbols'
@@ -51,7 +55,7 @@ App.config(function ($routeProvider, $httpProvider) {
     });
     $routeProvider.when('/start', {
         templateUrl: 'partials/start.html',
-        controller: 'startPageController',
+        controller: 'startPageController', 
     });
     $routeProvider.otherwise({
         redirectTo: '/start'
@@ -61,7 +65,56 @@ App.config(function ($routeProvider, $httpProvider) {
 
 
 function startPageController($scope, $http, clickedSymbol) {
-    
+    var use = d3.select("#loadingBar").selectAll("use")
+        .data(data);
+
+    use.enter().append("use")
+    .attr("xlink:href", function (d) { return d.path; })
+    .attr("transform", "scale(1)")
+    .style("opacity", "0");
+
+    var counter = 0;
+
+    var handle = setInterval(function () { loadAnimation() }, 7 / 7 * 2000);
+
+
+
+
+    function loadAnimation() {
+        use.style("opacity", "0")
+            .transition()
+            .duration(100)
+            .style("opacity", "1")
+            .delay(function (d, i) { return i / 7 * 2000; });
+
+        counter++;
+        if (counter >= 3) {
+            clearInterval(handle);
+            setTimeout(finalAnimation(), 2000);
+            makeLinks();
+        }
+    }
+
+    function finalAnimation() {
+        use.style("opacity", "1")
+           .attr("x", "0px")
+           .transition()
+           .duration(1000)
+           .attr("x", function (d, i) { return i / 7 * 450; });
+
+        //d3.select("#loadingBar")
+        //    .style("margin-left", "15%")
+        //    .transition()
+        //    .duration(1000)
+        //    .style("margin-left", "40%");
+    }
+
+    function makeLinks() {
+        use.attr("cursor", "pointer")
+       .on("mouseover", function () { d3.select(this).style("opacity", "0.5"); })
+       .on("mouseout", function () { d3.select(this).style("opacity", "1"); })
+       .on("click", function (d) { clickedSymbol.setSymbol(d.symbol) });
+    }
 
 };
 
