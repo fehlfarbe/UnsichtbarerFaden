@@ -27,10 +27,11 @@
           <ul class="nav navbar-nav" ng-show="isLogged()">
             <!-- <li class="active"><a href="#/articleoverview">Tagebuchübersicht</a></li> -->
             <li ng-class="{ active: isActive('/articleoverview')}"><a href="#/articleoverview">Tagebuchübersicht</a></li>
-            <li ng-class="{ active: isActive('/symbols')}"><a href="#/symbols">Symbolübersicht</a></li>
-            <li ng-class="{ active: isActive('/newarticle')}"><a href="#/newarticle">Neuer Tagebucheintrag</a></li>
+            <li ng-class="{ active: isActive('/symbols')}"><a href="#/symbols">Symbole</a></li>
+            <li ng-class="{ active: isActive('/newarticle')}"><a href="#/newarticle">Neuer Eintrag</a></li>
             <li ng-class="{ active: isActive('/nodeeditor')}"><a href="#/nodeeditor">Schlagwort Editor</a></li>
             <li ng-class="{ active: isActive('/nodeoverview')}"><a href="#/nodeoverview">Schlagwort Übersicht</a></li>
+            <li ng-class="{ active: isActive('/comments')}"><a href="#/comments">Kommentare</a></li>
             <li ><a href="#" ng-click="logout()">Logout</a></li>
           </ul>
         </div><!--/.nav-collapse -->

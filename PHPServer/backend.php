@@ -402,6 +402,23 @@ switch ($action) {
 		
 		return;
 		
+	case 'comments':
+		
+		$comments = Array();
+		
+		$query = "SELECT * FROM comments ORDER BY date ASC";
+		
+		if( $result = $con->query($query) ){
+			while($c = $result->fetch_object()){
+				$comments[] = $c;
+			}
+		} else {
+			error_log($con->error);
+		}
+		
+		echo json_encode($comments);
+		
+		return;
 }
 
 

@@ -53,6 +53,10 @@ App.config(function($routeProvider, $httpProvider) {
 		templateUrl : 'partials/node_overview.html',
 		//controller : 'nodeeditor',
 	});
+	$routeProvider.when('/comments', {
+		templateUrl : 'partials/comments.html',
+		//controller : 'nodeeditor',
+	});
 	$routeProvider.otherwise({
 		redirectTo : '/login'
 	});
@@ -663,3 +667,13 @@ App.articleList = function($scope, $http, $route, $location, $filter) {
 	};
 };
 
+App.commentList = function($scope, $http, $route, $location, $filter) {
+	
+	$scope.comments = $http.post('/backend.php?action=comments')
+					.then(function(result) {
+						console.log("COMMENTS", result.data);
+				        return result.data;
+	});
+	
+	
+};
