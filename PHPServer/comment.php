@@ -11,9 +11,9 @@ if( !isset($_SESSION['captcha_spam']) OR $_POST['captcha'] != $_SESSION['captcha
 unset($_SESSION['captcha_spam']); 
 
 $articleID = intval($_POST['articleid']);
-$name = htmlentities( mysql_real_escape_string( $_POST['name']) );
-$email = htmlentities( mysql_real_escape_string($_POST['email']) );
-$text = htmlentities( mysql_real_escape_string($_POST['text']) );
+$name = htmlspecialchars( $con->real_escape_string( $_POST['name']) );
+$email = htmlspecialchars( $con->real_escape_string($_POST['email']) );
+$text = htmlspecialchars( $con->real_escape_string($_POST['text']) );
 
 
 $query = "INSERT INTO comments(articleid, name, email, text, date, new) 
