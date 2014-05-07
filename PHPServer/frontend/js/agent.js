@@ -193,7 +193,7 @@ function agentController($scope, $http, clickedSymbol) {
                } else {
                    moveToEndVideo();
                }
-               updateGraph(article.book);
+               //updateGraph(article.book);
                //updateSceneParameters(article);
                //startScene();
            })
