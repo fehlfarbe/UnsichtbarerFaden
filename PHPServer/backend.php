@@ -34,6 +34,7 @@ switch ($action) {
 				$article->id = intval($article->id);
 				$article->book = intval($article->book);
 				$article->symID = intval($article->symID);
+				$article->active = intval($article->active);
 				$articles[] = $article;
 			}
 		}

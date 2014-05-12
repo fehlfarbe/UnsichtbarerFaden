@@ -533,9 +533,12 @@ App.nodeList = function($scope, $http, $route, $location) {
 
 App.articleList = function($scope, $http, $route, $location, $filter) {
 	
+	//constants
+	var showOptions = ['alle', 'aktive', 'inaktive'];
     // init
     $scope.sortingOrder = 'name';
     $scope.reverse = false;
+    $scope.show = showOptions[0];
     $scope.filteredItems = [];
     $scope.groupedItems = [];
     $scope.itemsPerPage = 20;
@@ -561,8 +564,14 @@ App.articleList = function($scope, $http, $route, $location, $filter) {
     $scope.search = function () {
         $scope.filteredItems = $filter('filter')($scope.items, function (item) {
             for(var attr in item) {
-                if (searchMatch(item[attr], $scope.query))
-                    return true;
+                if (searchMatch(item[attr], $scope.query)){
+                	if($scope.show == showOptions[0])
+                		return true;
+                	if( $scope.show == showOptions[1] && item.active)
+                		return true;
+                	if( $scope.show == showOptions[2] && !item.active)
+                		return true;
+                }
             }
             return false;
         });
@@ -627,6 +636,15 @@ App.articleList = function($scope, $http, $route, $location, $filter) {
         $scope.sortingOrder = newSortingOrder;
     };
     
+    // show active / inactive
+    $scope.toggleShow = function(){
+    	var index = showOptions.indexOf($scope.show)
+    	$scope.show = showOptions[++index%showOptions.length];
+    	
+    	$scope.search();
+    	
+    	console.log(index, $scope.show);
+    }
 
     /////////////////////////////////////// EDIT/DELETE
 	$scope.editArticle = function(id){
