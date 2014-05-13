@@ -7,12 +7,22 @@
         </div>
 		
 		<div class="btn-group">
-			<button type="button" class="btn btn-default" ng-click="sort_by('id')">#</button>
-			<button type="button" class="btn btn-default" ng-click="sort_by('book')">Tagebuch</button>
-			<button type="button" class="btn btn-default" ng-click="sort_by('symID')">Symbol</button>
-			<button type="button" class="btn btn-default" ng-click="sort_by('name')">Name</button>
+			<button type="button" class="btn btn-default" ng-click="sort_by('id')">
+				<span class="glyphicon glyphicon-sort"></span> #
+			</button>
+			<button type="button" class="btn btn-default" ng-click="sort_by('book')">
+				<span class="glyphicon glyphicon-sort"></span> Tagebuch
+			</button>
+			<button type="button" class="btn btn-default" ng-click="sort_by('symID')">
+				<span class="glyphicon glyphicon-sort"></span> Symbol
+			</button>
+			<button type="button" class="btn btn-default" ng-click="sort_by('name')">
+				<span class="glyphicon glyphicon-sort"></span> Name
+			</button>
 			<!-- show active / inactive -->
-			<button type="button" class="btn btn-default" ng-click="toggleShow()" ng-class="{'btn-primary': show != 'alle'}">{{ show }} werden angezeigt</button>
+			<button type="button" class="btn btn-default" ng-click="toggleShow()" ng-class="{'btn-primary': show != 'alle'}">
+				<span class="glyphicon glyphicon-filter"></span>{{ show }} werden angezeigt
+			</button>
 		</div>
 	</div>
 

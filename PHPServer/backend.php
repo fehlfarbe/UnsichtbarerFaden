@@ -9,7 +9,7 @@ header('Content-Type: application/json');
 $action = $_GET['action'];
 
 $data = json_decode(file_get_contents("php://input"), true);
-error_log("DATA: " . json_encode($data));
+//error_log("DATA: " . json_encode($data));
 
 switch ($action) {
 	
@@ -24,7 +24,7 @@ switch ($action) {
 				'JOIN symbols ON articles.symbol = symbols.id';
 		
 		if( isset($data['id']) ){
-			error_log("Data ID: ". $data['id']);
+			//error_log("Data ID: ". $data['id']);
 			$query .= " WHERE articles.articleid = " . intval($data['id']);
 		}
 		
@@ -65,7 +65,7 @@ switch ($action) {
 						
 				}
 				
-				error_log("Article: " . json_encode($article));
+				//error_log("Article: " . json_encode($article));
 				$filteredArticles[] = $article;
 			}
 		}
@@ -76,10 +76,10 @@ switch ($action) {
 			//if( $filteredArticles[$i]->screen == "" )
 			//	$filteredArticles[$i]->screen = null;
 				
-			error_log($filteredArticles[$i]->id . " " . $filteredArticles[$i]->name);
-			if( $filteredArticles[$i]->category != null)
-			for($j=0; $j<count($filteredArticles[$i]->category); $j++)
-				error_log("\t" . $filteredArticles[$i]->category[$j]->id . ":" . $filteredArticles[$i]->category[$j]->name);
+			//error_log($filteredArticles[$i]->id . " " . $filteredArticles[$i]->name);
+			//if( $filteredArticles[$i]->category != null)
+			//for($j=0; $j<count($filteredArticles[$i]->category); $j++)
+			//	error_log("\t" . $filteredArticles[$i]->category[$j]->id . ":" . $filteredArticles[$i]->category[$j]->name);
 		}
 		
 		echo json_encode($filteredArticles);
@@ -117,9 +117,9 @@ switch ($action) {
 				$symbols[] = $symbol;
 			}			
 		
-		error_log("Nodes: " . json_encode($nodes));
-		error_log("Links: " . json_encode($links));
-		error_log("Symbols: " . json_encode($symbols));
+		//error_log("Nodes: " . json_encode($nodes));
+		//error_log("Links: " . json_encode($links));
+		//error_log("Symbols: " . json_encode($symbols));
 		
 		$object = new stdClass();
 		$object->nodes = $nodes;
@@ -164,19 +164,19 @@ switch ($action) {
 			$query = "INSERT INTO articles ($columns) VALUES ($values)";
 		}
 		
-		error_log($query);
+		//error_log($query);
 		
 		if( $result = $con->query($query) ){
 			$id = isset($data['id']) ? intval($data['id']) : $con->insert_id;
-			error_log("Article ID: " . $id);
+			//error_log("Article ID: " . $id);
 			$query = "DELETE FROM articlenodes WHERE articleid = " . intval($id);
 			if( $result = $con->query($query) ){
-				error_log("Deleted old articlenodes");
+				//error_log("Deleted old articlenodes");
 				for($i=0; $i<count($data['categories']); $i++){
 					$query = "INSERT INTO articlenodes SET articleid = $id, nodeid = " . 
 						intval($data['categories'][$i]);
 					$result = $con->query($query);
-					error_log($data['categories'][$i] . ":" . $result);
+					//error_log($data['categories'][$i] . ":" . $result);
 				}
 				
 				//send id
@@ -204,7 +204,7 @@ switch ($action) {
 		
 		//update nodes (name, position)
 		for($i = 0; $i < count($data['nodes']); $i++){
-			error_log("node: " + $data['nodes'][$i]['id'] . ": " . $data['nodes'][$i]['name'] );
+			//error_log("node: " + $data['nodes'][$i]['id'] . ": " . $data['nodes'][$i]['name'] );
 			$node = "nodeid = '".$data['nodes'][$i]['id']."', 
 					name = '".$data['nodes'][$i]['name']."', 
 					x = '".$data['nodes'][$i]['x']."', 
@@ -221,7 +221,7 @@ switch ($action) {
 		
 		//deleted nodes
 		for($i = 0; $i < count($data['deletedNodes']); $i++){
-			error_log("deleted: " . $data['deletedNodes'][$i]['id'] . ": " . $data['deletedNodes'][$i]['name'] );
+			//error_log("deleted: " . $data['deletedNodes'][$i]['id'] . ": " . $data['deletedNodes'][$i]['name'] );
 			$query = "DELETE FROM nodes WHERE nodeid = " . intval($data['deletedNodes'][$i]['id']);
 			
 			if( !$result = $con->query($query) ){
@@ -233,7 +233,7 @@ switch ($action) {
 		
 		//update links
 		for($i = 0; $i < count($data['links']); $i++){
-			error_log($data['links'][$i]['source']['id'] . "-> " . $data['links'][$i]['target']['id']);
+			//error_log($data['links'][$i]['source']['id'] . "-> " . $data['links'][$i]['target']['id']);
 			$link = "source = " . $data['links'][$i]['source']['id'] . ", 
 					target = " . $data['links'][$i]['target']['id'];
 			$vals = "target = VALUES(target), source = VALUES(source)";
@@ -248,7 +248,7 @@ switch ($action) {
 		
 		//deleted links
 		for($i = 0; $i < count($data['deletedLinks']); $i++){
-			error_log("deleted: " . $data['deletedLinks'][$i]['source']['id'] . "->" . $data['deletedLinks'][$i]['target']['id'] );
+			//error_log("deleted: " . $data['deletedLinks'][$i]['source']['id'] . "->" . $data['deletedLinks'][$i]['target']['id'] );
 			$source = $data['deletedLinks'][$i]['source']['id'];
 			$target = $data['deletedLinks'][$i]['target']['id'];
 			$query = "DELETE FROM links WHERE source = $source AND target = $target";
@@ -355,7 +355,7 @@ switch ($action) {
 		
 		
 		
-		error_log(json_encode($name));
+		//error_log(json_encode($name));
 		
 		return;
 	
@@ -364,9 +364,7 @@ switch ($action) {
 		$obj = new stdClass();
 		$obj->nodes = Array();
 		$obj->links = Array();
-		
-		error_log("...");
-		
+				
 		$query = "SELECT nodes . * , COUNT( nodes.nodeid ) AS count
 				FROM nodes
 				JOIN articlenodes ON nodes.nodeid = articlenodes.nodeid
