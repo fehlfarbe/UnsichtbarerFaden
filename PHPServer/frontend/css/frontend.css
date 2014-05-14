@@ -160,11 +160,12 @@ button {
 
 #footer {
     position: absolute;
-    bottom: 0;
+    bottom: 2%;
     width: 90%;
-    height: 8%;
+    height: 6%;
     z-index: 2;
     left: 5%;
+    min-height: 55px;
 }
 
 #control {
@@ -179,6 +180,11 @@ button {
     /*min-width:300px;*/
     /*float:right;*/
     position: absolute;
+}
+
+#controlSVG {
+    position: absolute;
+    width: 350px;
 }
 
 #ReloadButton {
@@ -196,7 +202,7 @@ button {
 
 .article {
     width: auto;
-    max-width: 800px;
+    max-width: 812px;
     height: auto;
     overflow: auto;
     background-color: white;
@@ -206,6 +212,11 @@ button {
     -webkit-box-shadow: 5px 5px 100px #2B1B17, -5px -5px 100px #2B1B17;
     -moz-box-shadow: 5px 5px 100px #2B1B17, -5px -5px 100px #2B1B17;
     box-shadow: 5px 5px 100px #2B1B17, -5px -5px 100px #2B1B17;
+}
+
+.article img {
+    max-width: 800px;
+    height: auto;
 }
 
 .article span {

@@ -343,8 +343,6 @@ App.directive('agentControl', function (clickedSymbol) {
             var graphDiv, controlDiv;
             var footer;
 
-            console.log("directive?");
-
             footer = d3.select(element[0])
             .append("div")
             .attr("id", "footer");
