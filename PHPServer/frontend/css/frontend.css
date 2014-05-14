@@ -212,6 +212,7 @@ button {
     -webkit-box-shadow: 5px 5px 100px #2B1B17, -5px -5px 100px #2B1B17;
     -moz-box-shadow: 5px 5px 100px #2B1B17, -5px -5px 100px #2B1B17;
     box-shadow: 5px 5px 100px #2B1B17, -5px -5px 100px #2B1B17;
+    cursor: all-scroll;
 }
 
 .article img {

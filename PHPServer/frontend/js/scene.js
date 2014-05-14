@@ -3,6 +3,8 @@ var lastObject;
 var MAX_MOVETIME = 10000;
 var MIN_MOVETIME = 5000;
 
+var moveFactor = 5;
+
 //end-Video
 var video, videoObject, videoTexture, videoImageContext, videoScreen;
 
@@ -11,6 +13,8 @@ var reloadButton;
 var actualTween;
 
 var mouse = { x: 0, y: 0 };
+
+var mouseDown = false;
 
 //indicates the move of the camera
 var cameraMove = true;
@@ -33,6 +37,7 @@ function fillScene(articles) {
         element.className = 'article';
         element.id = article.articleid;
         element.innerHTML = article.text;
+        
 
         var object = new THREE.CSS3DObject(element);
         object.position.x = article.x / 100 * 4000 - 2000;
@@ -86,6 +91,7 @@ function addRandomObjectsToScene() {
 
 
 function initScene() {
+    
 
     $("body").css({backgroundColor:"#000"});
     camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 1, 10000);
@@ -96,9 +102,9 @@ function initScene() {
     renderer.domElement.style.position = 'absolute';
     document.getElementById('view').appendChild(renderer.domElement);
 
-    //document.body.addEventListener('mousemove', onMouseMove, false);
-    //document.body.addEventListener('mousedown', onMouseDown, false);
-    //document.body.addEventListener('mouseup', onMouseUp, false);
+    document.body.addEventListener('mousemove', onMouseMove, false);
+    document.body.addEventListener('mousedown', onMouseDown, false);
+    document.body.addEventListener('mouseup', onMouseUp, false);
     document.body.addEventListener('mousewheel', onMouseWheel, false);
 
     window.addEventListener('resize', onWindowResize, false);
@@ -127,6 +133,11 @@ function initScene() {
 
 
 function moveToArticle(id, delay, time) {
+
+    //make img undraggable
+    $("img").bind('dragstart', function(){
+        return false; 
+    });
 
     addObjectToScene(id);
     for (var i = 0; i < scene.children.length; i++) {
@@ -290,7 +301,6 @@ function onMouseWheel(event) {
     } else {
         camera.position.z -= event.wheelDelta;
     }
-    console.log("camera z mouse wheel " + camera.position.z);
 }
 
 function onMouseMove(event) {
@@ -298,24 +308,29 @@ function onMouseMove(event) {
     mouse.x = (event.clientX / window.innerWidth) - 0.5;
     mouse.y = (event.clientY / window.innerHeight) - 0.5;
 
-    if (!cameraMove) {
-        object.position.x += mouse.x * moveFactor;
-        object.position.y -= mouse.y * moveFactor;
-    }
+    //if (!cameraMove) {
+    //    object.position.x += mouse.x * moveFactor;
+    //    object.position.y -= mouse.y * moveFactor;
+    //}
 }
 
 function onMouseDown(event) {
 
-    cameraMove = false;
-    moveFactor = 5.15;
-    object.element.style.cursor = 'pointer';
+
+
+    //cameraMove = false;
+    //moveFactor = 5.15;
+    //object.element.style.cursor = 'pointer';
+    mouseDown = true;
 }
 
 function onMouseUp(event) {
 
-    cameraMove = true;
-    moveFactor = 1.15;
-    object.element.style.cursor = 'default';
+    //cameraMove = true;
+    //moveFactor = 1.15;
+    //object.element.style.cursor = 'default';
+
+    mouseDown = false;
 }
 
 function onWindowResize() {
@@ -337,6 +352,11 @@ function animate() {
 
     //controls.update();
     render();
+
+    if (mouseDown) {
+        camera.position.x += mouse.x * moveFactor;
+        camera.position.y -= mouse.y * moveFactor;
+    }
 
 }
 
