@@ -147,9 +147,6 @@ function agentController($scope, $http, clickedSymbol) {
         fillScene(pics);
         $http.get("/agent.php" + "?symbol=" + clickedSymbol.getSymbol() + "&lastArticles=[]")
            .success(function (article) {
-
-               console.log("zwetier aufruf");
-               console.log(article);
                lastArticles = article.lastArticles;
                updateControl(article.symbols);
                if (clickedSymbol.getSymbol() != 4) {
@@ -178,9 +175,6 @@ function agentController($scope, $http, clickedSymbol) {
     function symbolOnClick() {
         $http.get("/agent.php" + "?symbol=" + clickedSymbol.getSymbol() + "&lastarticles=[" + lastArticles + "]")
             .success(function (article) {
-                //console.log("lastArticles " + lastArticles);
-                //console.log("article lastArticles " + article.lastArticles);
-                //console.log(article.book);
                 lastArticles = article.lastArticles;
                 updateControl(article.symbols);
                 if (clickedSymbol.getSymbol() != 4) {
@@ -189,10 +183,7 @@ function agentController($scope, $http, clickedSymbol) {
                     $("#comment-articleid").val(article.id);
                 } else {
                     moveToEndVideo();
-                }
-                //updateSceneParameters(article);
-                //displayNewScene();
-                
+                }               
             })
             .error(function(err){
                 console.error(err);

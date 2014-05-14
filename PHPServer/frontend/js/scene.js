@@ -134,12 +134,14 @@ function initScene() {
 
 function moveToArticle(id, delay, time) {
 
+    addObjectToScene(id);
+
     //make img undraggable
-    $("img").bind('dragstart', function(){
-        return false; 
+    $("img").bind('dragstart', function () {
+        console.log("make undraggable");
+        return false;
     });
 
-    addObjectToScene(id);
     for (var i = 0; i < scene.children.length; i++) {
         if (id == scene.children[i].element.id) {
 
