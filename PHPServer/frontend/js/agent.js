@@ -207,7 +207,7 @@ function agentController($scope, $http, clickedSymbol) {
 
         links.push(comment[0]);
 
-        console.log(links);
+
 
         //update symbols
         var use = d3.select("#controlSVG").selectAll("use")
@@ -282,7 +282,7 @@ function agentController($scope, $http, clickedSymbol) {
                     data: $("#comment-form").serialize(),
                     success: function(data){
                         if (data == "SUCCESS") {
-                                setMessageBox("gray", "Kommentar abgeschickt");
+                                setMessageBox("gray", "Frage abgeschickt");
                                 $("#message-box").fadeIn("slow");
                                 window.setTimeout(function() {$("#message-box").fadeOut("slow")}, 1500);
                                 $("#comment-overlay, #comment-box").hide();
@@ -291,7 +291,7 @@ function agentController($scope, $http, clickedSymbol) {
                                 $("#captcha-code").css({borderStyle:"solid", borderColor:"#c31e1e"})
                                 //alert("The security code you typed was wrong. Please try again.");
                         } else {
-                                setMessageBox("#c31e1e","Kommentar konnte nicht gesendet werden. Fehler: " + data);
+                                setMessageBox("#c31e1e","Frage konnte nicht gesendet werden. Fehler: " + data);
                                 $("#message-box").show();
                                 $("#comment-overlay, #comment-box").hide();
                                 window.setTimeout(function() {$("#message-box").hide()}, 5000);

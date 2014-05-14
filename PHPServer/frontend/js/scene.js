@@ -1,7 +1,7 @@
 
 var lastObject;
 var MAX_MOVETIME = 10000;
-var MIN_MOVETIME = 5000;
+var MIN_MOVETIME = 1000;
 
 var moveFactor = 5;
 
@@ -62,17 +62,12 @@ function addObjectToScene(id) {
 
     for (var i = 0; i < objects.length; i++) {
         if (objects[i].element.id == id) {
-            console.log("name: " + scene.children[0].name);
             if (scene.children[0].name != "video") {
                 scene.remove(scene.children[0]);
-                console.log("remove 0");
             } else {
                 scene.remove(scene.children[1]);
-                console.log("remove 1");
             }
             scene.add(objects[i]);
-            console.log("added " + objects[id]);
-            console.log(objects[id]);
 
             return objects[i];
         }
@@ -150,38 +145,7 @@ function moveToArticle(id, delay, time) {
             if (!lastObject) {
                 lastObject = object;
             }
-            var articleSizeRatio = 400;
-
-            var width = object.element.clientWidth;
-            var height = object.element.clientHeight;
-
-
-            if (!width == 0) {
-                if (width >= height) {
-                    console.log("Width goesser");
-                    //articleSizeRatio = 1 - width / height / 90;
-                    articleSizeRatio = width - 100;
-                } else {
-                    console.log("height goesser");
-                    //articleSizeRatio = 1 - height / width / 250;
-                    articleSizeRatio = height - 100;
-                }
-            }
-
-            console.log("articleSIze Ratio " + articleSizeRatio);
-            // articleSizeRatio = (1 - articleSizeRatio / 100);
-
-            console.log("new z " + object.position.z * articleSizeRatio);
-
-            console.log("movetime " + getMoveTime(object));
-
-            //new TWEEN.Tween({ z: lastObject.position.z })
-            //.to({ z: object.position.z  }, 3000)
-            //.onUpdate(function () {
-            //    camera.position.z += this.z;
-            //    console.log("this.z " + this.z);
-            //})
-            //.onComplete(function () {
+            
             actualTween = new TWEEN.Tween({ x: camera.position.x, y: camera.position.y, z: camera.position.z, yR: camera.rotation.y })
                 .to({ x: object.position.x, y: object.position.y, z: object.position.z + 1200, yR: object.rotation.y }, getMoveTime(object))
                 .delay(delay)
@@ -192,34 +156,12 @@ function moveToArticle(id, delay, time) {
                     camera.rotation.y = this.yR;
                 })
                 .onComplete(function () {
-                    console.log("camera z " + camera.position.z);
-                    console.log("object z " + object.position.z);
                     lastObject = object;
                     //camera.lookAt(object);
                 })
                 .easing(TWEEN.Easing.Quadratic.Out)
                 .start();
 
-            //new TWEEN.Tween({ x: camera.rotation.x, y: camera.rotation.y, z: camera.rotation.z })
-            //.to({ x: object.rotation.x, y: object.rotation.y, z: object.rotation.z + 400 }, getMoveTime(object))
-            //.delay(delay)
-            //.onUpdate(function () {
-            //    camera.rotation.z = this.z;
-            //    camera.rotation.x = this.x;
-            //    camera.rotation.y = this.y;
-            //})
-            //.onComplete(function() {
-            //    console.log("camera z " + camera.rotation.z);
-            //    console.log("object z " + object.rotation.z);
-            //    lastObject = object;
-            //})
-            //.easing(TWEEN.Easing.Quadratic.Out)
-            //.start();
-
-
-            //})
-            //.easing(TWEEN.Easing.Quadratic.In)
-            //.start();
 
             break;
         }
@@ -229,19 +171,19 @@ function moveToArticle(id, delay, time) {
 
 function getMoveTime(object) {
 
-    var actualValue = ((camera.position.x + camera.position.y + camera.position.z) / 3);
+    var actualValue = ((camera.position.x + camera.position.y)/8 + camera.position.z) / 3;
 
-    var lastValue = (object.position.x + object.position.y + object.position.z) / 3;
+    var lastValue = ((object.position.x + object.position.y)/8 + object.position.z) / 3;
 
     var moveTime;
 
     if (actualValue > lastValue) {
-        moveTime = (actualValue - lastValue) * 8;
+        moveTime = (actualValue - lastValue) * 6;
         console.log("moveTime " + moveTime);
         if (moveTime < MAX_MOVETIME && moveTime > MIN_MOVETIME)
             return moveTime;
     } else {
-        moveTime = (lastValue - actualValue) * 8;
+        moveTime = (lastValue - actualValue) * 6;
         console.log("moveTime " + moveTime);
         if (moveTime < MAX_MOVETIME && moveTime > MIN_MOVETIME)
             return moveTime;
