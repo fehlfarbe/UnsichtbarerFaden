@@ -154,8 +154,10 @@ button {
     color: white;
     bottom: 80px;
     visibility: hidden;
-    width: 52px;
+    width: 82px;
     background-color: black;
+    padding: 3px;
+    text-align: center;
 }
 
 #footer {
