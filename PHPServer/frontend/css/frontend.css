@@ -261,15 +261,14 @@ button {
 }
 
 
+
+
 .focus circle {
     fill: none;
     stroke: steelblue;
 }
 
-.overlay {
-    fill: none;
-    pointer-events: all;
-}
+
 
 .tip {
     line-height: 1;
@@ -285,6 +284,7 @@ button {
     fill: transparent;
     /*stroke: steelblue;
     stroke-width: 1.5px;*/
+    cursor: pointer;
 }
 
 /** Comment dialog */

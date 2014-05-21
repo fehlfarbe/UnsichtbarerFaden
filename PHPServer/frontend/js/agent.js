@@ -19,8 +19,8 @@ var lastArticles = new Array();
 
 
 //all symbols with path
-var data = [{ "symbol":"1","path":"src/svg/moeglich.svg#path1", "pos":"-5px", "text":"Verstehe!"},
-            { "symbol": "2", "path": "src/svg/notwendig.svg#path2", "pos": "35px", "text": "Bitte Erklären." },
+var data = [{ "symbol":"1","path":"src/svg/moeglich.svg#path1", "pos":"-6px", "text":"Verstehe!"},
+            { "symbol": "2", "path": "src/svg/notwendig.svg#path2", "pos": "36px", "text": "Bitte Erklären." },
             { "symbol": "3", "path": "src/svg/wahr.svg#path3", "pos": "78px", "text": "Wahr, weiter im Tagebuch..." },
             { "symbol": "4", "path": "src/svg/nicht.svg#path4", "pos": "118px", "text": "Nein, Reise beenden..." },
             { "symbol": "5", "path": "src/svg/kontingent.svg#path5", "pos": "165px", "text": " Vorstellbar!" },

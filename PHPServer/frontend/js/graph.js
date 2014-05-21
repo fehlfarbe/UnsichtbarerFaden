@@ -4,7 +4,7 @@
 
 var x, y;
 
-var svg, graph, focus, tip;
+var svg, graph, rect, tip;
 
 var bookNumbers, line;
 
@@ -42,6 +42,7 @@ function initPersonalGraph(width, height)
 
     // Add an SVG element with the desired dimensions and margin.
     svg = d3.select("#graph").append("svg")
+          .attr("id", "svgGraph")
           .attr("width", w + m[1] + m[3])
           .attr("height", h + m[0] + m[2]);
 
@@ -57,6 +58,11 @@ function initPersonalGraph(width, height)
                         .on("mouseover", tip.show)
                         .on("mouseout", tip.hide);
 
+    rect = svg.append("g")
+            .attr("id", "graphR")
+            .attr("transform", "translate(" + m[3] + "," + m[0] * -1 + ")");
+
+    
     //focus = graph.append("g")
     //            .attr("class", "focus")
     //            .style("display", "none");
@@ -109,6 +115,7 @@ function updateGraph(value)
         scaleGraph();
     }
     $("#graphG").empty();
+    $("#graphR").empty();
     bookNumbers.push(value);
     graph.append("path")
     //.data(bookNumbers)
@@ -116,15 +123,15 @@ function updateGraph(value)
            //.on("mouseover", tip.show)
            //.on("mouseout", tip.hide);
 
-    svg.selectAll(".rect")
+    rect.selectAll(".rect")
         .data(bookNumbers)
         .enter()
         .append("svg:rect")
         .attr("class", "rect")
-        .attr("x", function (d, i) { return x(i); })
-        .attr("y", function (d, i) { return y(d); })
-        .attr("width", 20)
-        .attr("height", 20)
+        .attr("x", line.x())
+        .attr("y", line.y())
+        .attr("width", 12)
+        .attr("height", 30)
         .on("mouseover", tip.show)
         .on("mouseout", tip.hide);
 
