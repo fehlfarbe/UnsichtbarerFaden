@@ -29,6 +29,11 @@ var objects = [];
 
 var objectsInScene = 0;
 
+
+//WebGL
+var webGLRenderer, webGLScene, webGLCamera;
+var NUMBER_OF_WEBGL_OBJECTS = 623;
+
 function fillScene(articles) {
 
     for (var i = 0; i < articles.length; i++) {
@@ -76,7 +81,6 @@ function addObjectToScene(id) {
 }
 
 
-
 function addRandomObjectsToScene() {
     objects = shuffleArray(objects);
     for (var i = 0; i < 25; i++) {
@@ -84,18 +88,35 @@ function addRandomObjectsToScene() {
     }
 }
 
+function addRandomWebGLObjects(number) {
+    var object, texture;
+    for (var i = 1; i <= number; i++) {
+        texture = THREE.ImageUtils.loadTexture("src/thumbnails/" + i + ".jpg");
+        object = new THREE.Mesh(new THREE.PlaneGeometry(300, 200), new THREE.MeshBasicMaterial({map:texture}));
+        object.overdraw = true;
+        
+        object.rotation.y = Math.random() * 0.4 - 0.2;
+        object.position.x = randomInt(-400,400)/100 * 4000 -2000;
+        object.position.y = randomInt(200,800)/100 * 4000 -2000;
+        object.position.z = randomInt(0, 30)/-5 * 5000;
+        webGLScene.add(object);
+    }
+        
+
+}
 
 function initScene() {
-    
-
     $("body").css({backgroundColor:"#000"});
     camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 1, 10000);
     camera.position.z = 1000;
+    camera.position.y = 8000;
 
     renderer = new THREE.CSS3DRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.domElement.style.position = 'absolute';
+    renderer.domElement.style.zIndex = '1';
     document.getElementById('view').appendChild(renderer.domElement);
+
 
     document.body.addEventListener('mousemove', onMouseMove, false);
     document.body.addEventListener('mousedown', onMouseDown, false);
@@ -120,6 +141,19 @@ function initScene() {
     reloadButton = document.getElementById("ReloadButton");
     reloadButton.onclick = function () { return window.location.reload(); };
     reloadButton.style.opacity = "0";
+
+    webGLRenderer = new THREE.WebGLRenderer({antialias:true});
+    webGLRenderer.setSize(window.innerWidth, window.innerHeight);
+    webGLRenderer.domElement.style.position = 'absolute';
+    webGLRenderer.domElement.style.zIndex = '0';
+    document.getElementById('view').appendChild(webGLRenderer.domElement);
+
+    webGLCamera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 10, 30000);
+    webGLCamera.position.z = camera.position.z;
+    webGLCamera.position.y = camera.position.y;
+
+    webGLScene = new THREE.Scene();
+    addRandomWebGLObjects(NUMBER_OF_WEBGL_OBJECTS);
 
     animate();
 }
@@ -154,6 +188,11 @@ function moveToArticle(id, delay, time) {
                     camera.position.x = this.x;
                     camera.position.y = this.y;
                     camera.rotation.y = this.yR;
+
+                    webGLCamera.position.z = this.z;
+                    webGLCamera.position.x = this.x;
+                    webGLCamera.position.y = this.y;
+                    webGLCamera.rotation.y = this.yR;
                 })
                 .onComplete(function () {
                     lastObject = object;
@@ -179,7 +218,6 @@ function getMoveTime(object) {
 
     if (actualValue > lastValue) {
         moveTime = (actualValue - lastValue) * 6;
-        console.log("moveTime " + moveTime);
         if (moveTime < MAX_MOVETIME && moveTime > MIN_MOVETIME)
             return moveTime;
     } else {
@@ -302,11 +340,19 @@ function animate() {
         camera.position.y -= mouse.y * moveFactor;
     }
 
+    //webGLCamera.rotation.x += Math.PI/180 * 2;
+    //webGLCamera.rotation.y += Math.PI * 45;
+    //webGLCamera.rotation.z += Math.PI * 45;
+
 }
 
 function render() {
 
     renderer.render(scene, camera);
-
+    webGLRenderer.render(webGLScene, webGLCamera);
 }
 
+function randomInt(min,max)
+{
+    return Math.floor(Math.random()*(max-(min+1))+(min+1));
+}

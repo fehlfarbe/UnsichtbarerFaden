@@ -10,7 +10,6 @@ App.service('clickedSymbol', function () {
         },
         setSymbol: function(value) {
             symbol = value;
-            console.log("setSymbol");
         }
     }
 });

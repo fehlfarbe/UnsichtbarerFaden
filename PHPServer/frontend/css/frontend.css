@@ -145,6 +145,8 @@ button {
     bottom: 80px;
     visibility: hidden;
     width: 72px;
+    background: rgba(255, 255, 255, 1);
+    color: #000;
 }
 
 
@@ -156,9 +158,10 @@ button {
     bottom: 80px;
     visibility: hidden;
     width: 82px;
-    background-color: black;
     padding: 3px;
     text-align: center;
+    background: rgba(0, 0, 0, 0.8);
+    border-radius: 2px;
 }
 
 #footer {
@@ -233,7 +236,7 @@ button {
 /* tell the SVG path to be a thin blue line without any area fill */
 .aGraph path {
     stroke: #778899;
-    stroke-width: 2;
+    stroke-width: 2px;
     fill: none;
 }
 
@@ -257,25 +260,31 @@ button {
     padding-left: -30px;
 }
 
-.axis {
-    shape-rendering: crispEdges;
-}
 
-.x.axis line {
-    stroke: lightgrey;
-}
-
-.x.axis .minor {
-    stroke-opacity: .5;
-}
-
-.x.axis path {
-    display: none;
-}
-
-.y.axis line, .y.axis path {
+.focus circle {
     fill: none;
-    stroke: #000;
+    stroke: steelblue;
+}
+
+.overlay {
+    fill: none;
+    pointer-events: all;
+}
+
+.tip {
+    line-height: 1;
+    font-weight: bold;
+    padding: 4px;
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    border-radius: 2px;
+    z-index: 300;
+}
+
+.rect {
+    fill: transparent;
+    /*stroke: steelblue;
+    stroke-width: 1.5px;*/
 }
 
 /** Comment dialog */
