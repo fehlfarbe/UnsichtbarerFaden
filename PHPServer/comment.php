@@ -1,11 +1,12 @@
 <?php
+
 session_start();
 include_once 'sql.inc';
 
 
 // test Captcha
 if( !isset($_SESSION['captcha_spam']) OR $_POST['captcha'] != $_SESSION['captcha_spam']){
-	echo "Falscher Captcha!";
+	echo "WRONG_CODE";
 	exit();
 }
 unset($_SESSION['captcha_spam']); 
@@ -21,11 +22,11 @@ $query = "INSERT INTO comments(articleid, name, email, text, date, new)
 
 if( $result = $con->query($query) ){
 	error_log($result);
-	echo "Kommentar gespeichert!";
+	echo "SUCCESS";
 } else {
 	error_log( $con->error );
 	header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
-	echo "Fehler bei Verarbeitung!";
+	echo "ERROR";
 	return;
 }
 

@@ -37,8 +37,6 @@ var Element = function ( article ) {
 
         dom.innerHTML = article.text;
 
-
-
         var object = new THREE.CSS3DObject(dom);
         object.position.x = article.x * 100;
         object.position.y = article.y * 100;

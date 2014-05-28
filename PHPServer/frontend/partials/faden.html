@@ -1,14 +1,34 @@
 
 <button id="ReloadButton">Reboot</button>
 
-<agent-control  on-click="symbolOnClick()"></agent-control>
+<agent-control on-click="symbolOnClick()"></agent-control>
 
 <script type="text/javascript">
     initScene();
     //initPersonalGraph();
 </script>
 
+<div id="comment-overlay"></div>
 
+<div id="comment-box">
+    <form id="comment-form" name="comment-form" action="" method="POST">
+        <!--Article ID<br>-->
+        <input id="comment-articleid" name="articleid" type="hidden" value="61">
+        Name<br>
+        <input name="name" value=""><br>
+        Email<br>
+        <input name="email" value=""><br>
+        Frage<br>
+        <textarea rows="10" cols="50" name="text"></textarea><br>
+        Captcha<br>
+        <img src="/lib/captcha/captcha.php" border="0" title="Cap-tcha!"><br>
+        <input id="captcha-code" name="captcha">
+        <div id="captcha-message"></div>
+        <br><br>
+        <input id="btn-submit" type="submit">
+    </form>
+</div>
+<div id="message-box"></div>
 
 
 	

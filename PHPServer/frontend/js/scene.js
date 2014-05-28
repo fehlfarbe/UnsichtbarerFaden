@@ -1,419 +1,358 @@
-/**
- * The webgl scene
- */
-var scene, renderer, camera, composer, group, skyBox, clock, lastTime, width, height, waitTime;
 
-var cssRenderer, cssScene, cssCamera, cssObject;
+var lastObject;
+var MAX_MOVETIME = 10000;
+var MIN_MOVETIME = 1000;
 
-var articleDiv;
+var moveFactor = 5;
 
-var bgColor, articleSrc;
-
-var particleForm, lastParticleForm, lastBgColor, lastNumberOfParticles;
-
-var numberOfLastArticles, totalArticleCount;
-
-var cameraZStartPoint = 10;
-
-var mouse = {x : 0, y : 0};
-
-var xMovement, yMovement;
-
-var startText;
-
-var hblur, vblur;
-
-var video, videoScreen, videoTexture, videoImageContext;
-
-var dotScreenShader;
+//end-Video
+var video, videoObject, videoTexture, videoImageContext, videoScreen;
 
 var reloadButton;
 
+var actualTween;
+
+var mouse = { x: 0, y: 0 };
+
+var mouseDown = false;
+
+//indicates the move of the camera
+var cameraMove = true;
+
+var camera, renderer;
 var controls;
 
+var scene = new THREE.Scene();
+//init();
+
+var objects = [];
+
+var objectsInScene = 0;
+
+
+//WebGL
+var webGLRenderer, webGLScene, webGLCamera;
+var NUMBER_OF_WEBGL_OBJECTS = 623;
+
+function fillScene(articles) {
+
+    for (var i = 0; i < articles.length; i++) {
+        var article = articles[i];
+        var element = document.createElement('div');
+        element.className = 'article';
+        element.id = article.articleid;
+        element.innerHTML = article.text;
+        
+
+        var object = new THREE.CSS3DObject(element);
+        object.position.x = article.x / 100 * 4000 - 2000;
+        object.position.y = article.y / 100 * 4000 - 2000;
+        object.position.z = article.book / -5 * 5000;
+        //object.rotation.x = Math.random() * 4 - 2;
+        object.rotation.y = Math.random() * 0.4 - 0.2;
+        //object.rotation.z = Math.random() * 4 - 2;
+
+        objects.push(object);
+    }
+    addRandomObjectsToScene();
+}
+
+//check for object in scene, when not in scene remove first object and add new
+function addObjectToScene(id) {
+    for (var i = 0; i < scene.children.length; i++) {
+        if (id == scene.children[i].element.id) {
+            return;
+        }
+    }
+
+    for (var i = 0; i < objects.length; i++) {
+        if (objects[i].element.id == id) {
+            if (scene.children[0].name != "video") {
+                scene.remove(scene.children[0]);
+            } else {
+                scene.remove(scene.children[1]);
+            }
+            scene.add(objects[i]);
+
+            return objects[i];
+        }
+    }
+
+}
+
+
+function addRandomObjectsToScene() {
+    objects = shuffleArray(objects);
+    for (var i = 0; i < 25; i++) {
+        scene.add(objects[i]);
+    }
+}
+
+function addRandomWebGLObjects(number) {
+    var object, texture;
+    for (var i = 1; i <= number; i++) {
+        texture = THREE.ImageUtils.loadTexture("src/thumbnails/" + i + ".jpg");
+        object = new THREE.Mesh(new THREE.PlaneGeometry(300, 200), new THREE.MeshBasicMaterial({map:texture}));
+        object.overdraw = true;
+        
+        object.rotation.y = Math.random() * 0.4 - 0.2;
+        object.position.x = randomInt(-400,400)/100 * 4000 -2000;
+        object.position.y = randomInt(200,800)/100 * 4000 -2000;
+        object.position.z = randomInt(0, 30)/-5 * 5000;
+        webGLScene.add(object);
+    }
+        
+
+}
+
 function initScene() {
-	scene = new THREE.Scene(); 
-	
-	width = window.innerWidth;
-	height = window.innerHeight;
+    $("body").css({backgroundColor:"#000"});
+    camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 1, 10000);
+    camera.position.z = 1000;
+    camera.position.y = 8000;
 
-//    var width = 50;
-//    var height = 10;
-    //camera = new THREE.OrthographicCamera(width / - 64, width / 64, height / 64, height / - 64, 1, 1000 );
-    camera = new THREE.PerspectiveCamera(100, width/height, 1, 1000);
-    camera.position.z = cameraZStartPoint; 
-
-    camera.lookAt(scene.position);
-    
-    cssCamera = new THREE.PerspectiveCamera(100, width/height, 1, 1000);
-    cssCamera.position.z = 5; 
-
-    if (Detector.webgl){
-    	renderer = new THREE.WebGLRenderer({antialias:true});
-    } 
-
-    THREEx.WindowResize(cssRenderer, cssCamera);  
-	THREEx.WindowResize(renderer, camera);
-	THREEx.FullScreen.bindKey({ charCode : 'm'.charCodeAt(0) });
-	  
-
-	renderer.setSize(width, height);
-	renderer.domElement.style.position = 'absolute';
-	//renderer.domElement.style.top = -10;
-	renderer.domElement.style.zIndex = 0;
-	//renderer.setClearColor(bgColor, 1);
-	
-	cssRenderer = new THREE.CSS3DRenderer();
-	cssRenderer.setSize(width-100, height-100);
-    cssRenderer.domElement.style.position = 'absolute';
-    //cssRenderer.domElement.style.left = 25 + '%';
-    
-    document.body.appendChild(renderer.domElement);
-    document.body.appendChild(cssRenderer.domElement);
-
-	cssScene = new THREE.Scene();
-
-	var skyBoxGeometry = new THREE.CubeGeometry(1000,1000,1000);
-	var skyBoxMaterial = new THREE.MeshBasicMaterial({ color: 0x333333, side: THREE.BackSide });
-	skyBox = new THREE.Mesh(skyBoxGeometry, skyBoxMaterial);
-	skyBox.name = "skyBox";
-	scene.add(skyBox);
-
-    document.addEventListener('mousemove', function(event){
-    mouse.x = (event.clientX / window.innerWidth ) - 0.5
-    mouse.y = (event.clientY / window.innerHeight) - 0.5
-    }, false)
+    renderer = new THREE.CSS3DRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.domElement.style.position = 'absolute';
+    renderer.domElement.style.zIndex = '1';
+    document.getElementById('view').appendChild(renderer.domElement);
 
 
-    clock = new THREE.Clock(true);
-    lastTime = clock.getElapsedTime();
-    waitTime = rand(0,9);
-    
-    
-    composer = new THREE.EffectComposer(renderer);
-    composer.addPass(new THREE.RenderPass(scene,camera));
-    
-    dotScreenShader = new THREE.ShaderPass(THREE.DotScreenShader);
-    dotScreenShader.uniforms['scale'].value = 4;
-	composer.addPass(dotScreenShader);
+    document.body.addEventListener('mousemove', onMouseMove, false);
+    document.body.addEventListener('mousedown', onMouseDown, false);
+    document.body.addEventListener('mouseup', onMouseUp, false);
+    document.body.addEventListener('mousewheel', onMouseWheel, false);
 
-    
-//    var effect = new THREE.ShaderPass(THREE.RGBShiftShader);
-//    effect.uniforms['amount'].value = 0.0015;
-    dotScreenShader.renderToScreen = true;
-    
-	hblur = new THREE.ShaderPass( THREE.HorizontalBlurShader );
-	hblur.uniforms['h'].value = 0.005;
-	composer.addPass( hblur );
-	hblur.renderToScreen = false;
+    window.addEventListener('resize', onWindowResize, false);
 
-	vblur = new THREE.ShaderPass( THREE.VerticalBlurShader );
-	vblur.uniforms['v'].value = 0.005;
-	composer.addPass(vblur);
-    vblur.renderToScreen = false;
-//    var light = new THREE.HemisphereLight( 0xffffff, 0xffffff, 1.00 );
-//    light.position.set( 0.75, 1, 0.25 );
-//    scene.add( light );
-    
-    var pointLight = new THREE.PointLight( 0xffffff, 1,0); 
-    pointLight.position.set( 0, 0, 10 ); 
-    pointLight.name = "pointLight";
-    scene.add( pointLight );
-    
-    //scene.add(new THREE.Mesh(new THREE.CubeGeometry(1,1,1), new THREE.MeshLambertMaterial({color: 0xff0000})));
-    //scene.add(cubes('tedra'));
-    
-    articleDiv = document.createElement('div');
-    articleDiv.className = "zoom";
-    articleDiv.style.background = '#ffffff';
-    articleDiv.style.color =  '#000000';  //'#008B8B';
-    articleDiv.style.fontFamily = 'Courier';
-    articleDiv.style.fontWeight = 'bold';
-    //articleDiv.style.top = -50 + '%';
-    articleDiv.style.zIndex = '1';
-    //articleDiv.style.marginLeft = width/2 + 'px';
-    articleDiv.style.padding = '5px';
-    //articleDiv.style.left = '50%';
-    articleDiv.style.position = 'absolute';
-    //articleDiv.style.textAlign = 'center';
-    articleDiv.style.width = 'auto';
-	articleDiv.style.maxWidth = '870px';
-	articleDiv.style.maxHeight = '652px';
-    articleDiv.style.height = 'auto';
-	articleDiv.style.opacity = '0';
-	articleDiv.style.overflow = 'auto';
-//    
-//    articleDiv.style.backgroundImage = "url('src/div_bg.png')";
-   // console.log("bg: " + articleDiv.style.backgroundImage);
-    // articleDiv.style.border = 'solid';
-    // articleDiv.style.borderColor = 'black';
-	
-	cssObject = new THREE.CSS3DObject(articleDiv);
-	cssObject.position.z = -320;
-	cssScene.add(cssObject);
-	
-	video = document.createElement('video');
-	//video.type = "video/mp4";
-	video.src = "src/video/default.mp4";
-	//video.style.zIndex="10";
-	//video.autoplay=true;
-	
-	//video = document.getElementById('myVideo');
-	video.load();
-	//video.play();
-	//document.body.appendChild(video);
-	
-	var videoImage = document.createElement('canvas');
-	videoImage.width = 1280;
-	videoImage.height = 720;
-	
-	videoImageContext = videoImage.getContext( '2d' );
-    // background color if no video present
-    videoImageContext.fillStyle = '#000000';
-    videoImageContext.fillRect( 0, 0, videoImage.width, videoImage.height );
-	
-	videoTexture = new THREE.Texture(videoImage);
-	videoTexture.minFilter = THREE.LinearFilter;
-    videoTexture.magFilter = THREE.LinearFilter
-	
-	var videoGeometry = new THREE.PlaneGeometry(10,5.67, 1, 1);
-	var videoMaterial = new THREE.MeshBasicMaterial({map: videoTexture, overdraw: true, side:THREE.DoubleSide});
-	videoScreen = new THREE.Mesh(videoGeometry, videoMaterial);
-	videoScreen.position.set(0,0, 250);
-	videoScreen.name = "videoScreen";
-	scene.add(videoScreen);
-	
+    video = document.createElement('video');
+    //video.src = "src/video/default.mp4";
+    video.src = "src/video/default.webm";
+    video.load();
+
+    videoObject = new THREE.CSS3DObject(video);
+    videoObject.position.x = 1000000;
+    videoObject.position.y = 1000000;
+    videoObject.position.z = 10000;
+    videoObject.name = "video";
+
+    scene.add(videoObject);
+
+    reloadButton = document.getElementById("ReloadButton");
+    reloadButton.onclick = function () { return window.location.reload(); };
+    reloadButton.style.opacity = "0";
+
+    webGLRenderer = new THREE.WebGLRenderer({antialias:true});
+    webGLRenderer.setSize(window.innerWidth, window.innerHeight);
+    webGLRenderer.domElement.style.position = 'absolute';
+    webGLRenderer.domElement.style.zIndex = '0';
+    document.getElementById('view').appendChild(webGLRenderer.domElement);
+
+    webGLCamera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 10, 30000);
+    webGLCamera.position.z = camera.position.z;
+    webGLCamera.position.y = camera.position.y;
+
+    webGLScene = new THREE.Scene();
+    addRandomWebGLObjects(NUMBER_OF_WEBGL_OBJECTS);
+
     animate();
-    
-	
-	$("#ReloadButton").click(function() {
-		window.location.reload();
-	});
-	$("#ReloadButton").css("opacity","0");
-
-	//controls = new THREE.OrbitControls(camera);
-	//controls.addEventListener('change', render);
-}
-
-function updateVideo(path) {
-	video.src = path;
-	video.load();
-}
-
-/** Display new Scene, fade between changes in meshForm and Background */
-function startScene() {
-    fadeIn(cssObject);
-    fillScene();
-}
-
-/** Display new Scene, fade between changes in meshForm and Background */
-function displayNewScene() {
-	fadeOutIn(cssObject);
-	fillScene();
 }
 
 
-/** helper function, update the parameters for the new scene */
-function updateSceneParameters(article) {
 
-	if (totalArticleCount === undefined) {
-		totalArticleCount = article.totalCount;
-	}
-	
-	numberOfLastArticles = article.lastArticles.length;
-	articleSrc = article.text;
-	switch (article.symbol) {
-	case 1:
-		bgColor = 0xfafafa;
-		break;
-	case 2:
-		bgColor = 0x000000;
-		break;
-	case 3:
-		bgColor = 0xfafafa;
-		break;
-	case 4:
-	    particleForm = 'end';
-		bgColor = 0x000000;
-		break;
-	case 5:
-		bgColor = 0x000000;
-		break;
-	case 6:
-		bgColor = 0x000000;
-		break;
-	case 7:
-		bgColor = 0xfafafa;
-		break;
-	}
-		
-	xMovement = 0;
-	yMovement = 0;
 
-	for (var i = 0; i < article.nodes.length; i++) {
-		xMovement += article.nodes[i].x;
-		yMovement += article.nodes[i].y;
-	}
+function moveToArticle(id, delay, time) {
 
-	xMovement /= article.nodes.length;
-	yMovement /= article.nodes.length;
+    addObjectToScene(id);
+
+    //make img undraggable
+    $("img").bind('dragstart', function () {
+        console.log("make undraggable");
+        return false;
+    });
+
+    for (var i = 0; i < scene.children.length; i++) {
+        if (id == scene.children[i].element.id) {
+
+            var object = scene.children[i];
+
+            if (!lastObject) {
+                lastObject = object;
+            }
+            
+            actualTween = new TWEEN.Tween({ x: camera.position.x, y: camera.position.y, z: camera.position.z, yR: camera.rotation.y })
+                .to({ x: object.position.x, y: object.position.y, z: object.position.z + 1200, yR: object.rotation.y }, getMoveTime(object))
+                .delay(delay)
+                .onUpdate(function () {
+                    camera.position.z = this.z;
+                    camera.position.x = this.x;
+                    camera.position.y = this.y;
+                    camera.rotation.y = this.yR;
+
+                    webGLCamera.position.z = this.z;
+                    webGLCamera.position.x = this.x;
+                    webGLCamera.position.y = this.y;
+                    webGLCamera.rotation.y = this.yR;
+                })
+                .onComplete(function () {
+                    lastObject = object;
+                    //camera.lookAt(object);
+                })
+                .easing(TWEEN.Easing.Quadratic.Out)
+                .start();
+
+
+            break;
+        }
+    }
 }
 
 
-function updateArticleDiv(text) {
-	articleDiv.innerHTML = text;
+function getMoveTime(object) {
+
+    var actualValue = ((camera.position.x + camera.position.y)/8 + camera.position.z) / 3;
+
+    var lastValue = ((object.position.x + object.position.y)/8 + object.position.z) / 3;
+
+    var moveTime;
+
+    if (actualValue > lastValue) {
+        moveTime = (actualValue - lastValue) * 6;
+        if (moveTime < MAX_MOVETIME && moveTime > MIN_MOVETIME)
+            return moveTime;
+    } else {
+        moveTime = (lastValue - actualValue) * 6;
+        console.log("moveTime " + moveTime);
+        if (moveTime < MAX_MOVETIME && moveTime > MIN_MOVETIME)
+            return moveTime;
+    }
+
+    return MAX_MOVETIME;
 }
 
-	
-/** Helper function, cleaning the scene except videoScreen */
-function cleanScene() {
-	for (var i = 0; i < scene.children.length; i++) {
-		if (scene.children[i].name != "videoScreen") {
-			scene.remove(scene.children[i]);
-		 }
-	}
-	cssScene.remove(cssObject);
-}
-	
-/** Helper function fills the scene */
-function fillScene() {
-	if (particleForm == 'end') {
-		cleanScene();
-		moveCameraToVideoScreen();
-	} else {
-		moveCamera();
-	}
+function moveToEndVideo() {
+    console.log("moveToEndVideo");
+
+
+    if (actualTween) {
+        actualTween.stop();
+    }
+
+    object = videoObject;
+
+    actualTween = new TWEEN.Tween({ x: camera.position.x, y: camera.position.y, z: camera.position.z })
+                .to({ x: object.position.x, y: object.position.y, z: object.position.z + 1600 }, 1000)
+                .onUpdate(function () {
+                    camera.position.z = this.z;
+                    camera.position.x = this.x;
+                    camera.position.y = this.y;
+                })
+                .onComplete(function () {
+                    cameraMove = false;
+                    document.body.removeEventListener('mouseup', onMouseUp);
+                    document.body.removeEventListener('mousemove', onMouseMove);
+                    camera.lookAt(videoObject.position);
+                    video.play();
+                    video.onended = function (e) { reloadButton.style.opacity = 1; };
+                })
+                .easing(TWEEN.Easing.Quadratic.Out)
+                .start();
+
+
 }
 
-function moveCamera() {
-	var newZPosition = (1 - numberOfLastArticles/totalArticleCount) * cameraZStartPoint;
-	console.log("camera.position.z " + camera.position.z);
-	console.log("newZPosition " + newZPosition);
-	if (newZPosition > 0) {
-		new TWEEN.Tween({z: camera.position.z})
-		.to({z: newZPosition}, 2000)
-		.easing(TWEEN.Easing.Sinusoidal.InOut)
-		.onUpdate(function() {
-			camera.position.z = this.z;
-		}).start();
-	} else {
-		updateVideo("src/video/end.mp4");
-		$("#ReloadButton").html("Start");
-		camera.position.z = 0;
-		particleForm = 'end';
-		moveCameraToVideoScreen();
-	}
+/**
+* Randomize array element order in-place.
+* Using Fisher-Yates shuffle algorithm.
+*/
+function shuffleArray(array) {
+    for (var i = array.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+    }
+    return array;
 }
 
-function moveCameraToVideoScreen() {
-    console.log("moveCameraToVideoScreen");
-    var posX = camera.position.x,
-    posY = camera.position.y,
-    posZ = camera.position.z;
-    new TWEEN.Tween({x:posX,y:posY,z:posZ})
-		    .to({x: videoScreen.position.x,y: videoScreen.position.y,z: videoScreen.position.z+3}, 1000)
-		    .easing(TWEEN.Easing.Sinusoidal.InOut)
-		    .onStart(function() {
-			    //camera.position.z += 1;
-			    //console.log("camera.position.z s" + camera.position.z);
-		    })
-		    .onUpdate(function() {
-			    camera.position.x = this.x;
-			    camera.position.y = this.y;
-			    camera.position.z = this.z;
-		    })
-		    .onComplete(function() {
-			    cleanScene();
-			    camera.lookAt(videoScreen.position);
-			    video.play();
-			    video.onended = function(e) { reloadButton.style.opacity = 1;};
-		    }).start();
+function onMouseWheel(event) {
+    if (event.wheelDelta > 0) {
+        //if (camera.position.z >= (object.position.z)) {
+        camera.position.z -= event.wheelDelta;
+        //}
+    } else {
+        camera.position.z -= event.wheelDelta;
+    }
 }
 
-function changeBgColor() {
-	new TWEEN.Tween({hex: lastBgColor})
-	.to({hex: bgColor}, 500)
-	.easing(TWEEN.Easing.Back.Out)
-	.onUpdate( function () {
-	    updateSkyBoxColor(this.hex);  
-	}).start();
+function onMouseMove(event) {
+
+    mouse.x = (event.clientX / window.innerWidth) - 0.5;
+    mouse.y = (event.clientY / window.innerHeight) - 0.5;
+
+    //if (!cameraMove) {
+    //    object.position.x += mouse.x * moveFactor;
+    //    object.position.y -= mouse.y * moveFactor;
+    //}
 }
 
-function fadeOutIn(object) {
-	var time = rand(2000,2500);
-	new TWEEN.Tween({v: 1.0})
-	.to({v: 0.0}, time)
-	.easing(TWEEN.Easing.Sinusoidal.InOut)
-	.onUpdate( function () {
-			object.element.style.opacity = this.v-0.1;
-	       
-	})
-	.onComplete(function () {
-		console.log("complete!!!");
-		fadeIn(object);
-	    })
-	    .start();
+function onMouseDown(event) {
+
+
+
+    //cameraMove = false;
+    //moveFactor = 5.15;
+    //object.element.style.cursor = 'pointer';
+    mouseDown = true;
 }
 
-function fadeIn(object, startScreen) {
-	var time = rand(3000,3500);
-    new TWEEN.Tween( {v: 0.0} )
-        .to( {v: 1.0}, time)
-        .easing(TWEEN.Easing.Sinusoidal.InOut)
-		.delay(500)
-        .onStart(function () {
-			updateArticleDiv(articleSrc);
-        })
-        .onUpdate(function() {
-			if (particleForm != 'end')
-				object.element.style.opacity = this.v-0.1;
-        })
-        .onComplete(function () {
-        	console.log("complete!!!");
-		}).start();
+function onMouseUp(event) {
+
+    //cameraMove = true;
+    //moveFactor = 1.15;
+    //object.element.style.cursor = 'default';
+
+    mouseDown = false;
 }
 
-/** Update the Color of the SkyBox/Background */
-function updateSkyBoxColor(color) {
-	skyBox.material.color.setHex(color);
+function onWindowResize() {
+
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    render();
+
 }
 
 function animate() {
 
-	requestAnimationFrame(animate);
-	TWEEN.update();
-	
-	if (particleForm != 'end') {
-		
-		//Mousemove
-		camera.position.x += (mouse.x*0.5 - camera.position.x);
-		camera.position.y += (mouse.y*0.5 - camera.position.y);
-		cssCamera.position.x += (mouse.x*0.15 - cssCamera.position.x);
-		cssCamera.position.y += (mouse.y*0.15 - cssCamera.position.y);
-		camera.lookAt( scene.position );
-		cssCamera.lookAt(cssScene.position);
+    requestAnimationFrame(animate);
 
-	}
-	
-	render();
-}
+    TWEEN.update();
 
-/** Helper function computes random values between max, min */
-function rand(min, max) {
-	return Math.floor(Math.random() * (max - min + 1)) + min;
+    //controls.update();
+    render();
+
+    if (mouseDown) {
+        camera.position.x += mouse.x * moveFactor;
+        camera.position.y -= mouse.y * moveFactor;
+    }
+
+    //webGLCamera.rotation.x += Math.PI/180 * 2;
+    //webGLCamera.rotation.y += Math.PI * 45;
+    //webGLCamera.rotation.z += Math.PI * 45;
+
 }
 
 function render() {
-	
-	if ( video.readyState === video.HAVE_ENOUGH_DATA )
-        {
-                videoImageContext.drawImage( video, 0, 0 );
-					//console.log("video ready state true");
-                if ( videoTexture ) {
-                        videoTexture.needsUpdate = true;
-				}
-        }
-	renderer.render(scene,camera);
-	//composer.render(scene, camera);
-	cssRenderer.render(cssScene, cssCamera);
+
+    renderer.render(scene, camera);
+    webGLRenderer.render(webGLScene, webGLCamera);
+}
+
+function randomInt(min,max)
+{
+    return Math.floor(Math.random()*(max-(min+1))+(min+1));
 }
