@@ -1,6 +1,6 @@
 <?php
 
-include_once 'auth.inc';
+include_once 'auth.php';
 
 header('Content-Type: application/json');
 

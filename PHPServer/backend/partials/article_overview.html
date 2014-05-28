@@ -1,7 +1,7 @@
 <div ng-controller="App.articleList" id="articleList">
 	
 	<div class="articleCtrl">
-		{{ items.length }} Einträge vorhanden<br />
+		{{ items.length }} Gedanken vorhanden<br />
 		<div class="input-append">
         	<input type="text" ng-model="query" ng-change="search()" class="form-control" placeholder="Suche">
         </div>
@@ -51,7 +51,7 @@
 		</div>
 		<div class="panel-body" ng-bind-html-unsafe="article.text"></div>
 		<div class="panel-body">
-			<b>Schlagworte:</b>
+			<b>Memes:</b>
 			<span ng-repeat="cat in article.category">{{cat.name}} </span>
 			<br />
 			<b>Tagebuch:</b> {{article.book}}

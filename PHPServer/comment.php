@@ -1,7 +1,7 @@
 <?php
 
 session_start();
-include_once 'sql.inc';
+include_once 'sql.php';
 
 
 // test Captcha

@@ -1,7 +1,7 @@
 <?php
 header('Content-Type: application/json');
 
-include_once 'sql.inc';
+include_once 'sql.php';
 // Melde alle PHP Fehler (siehe Changelog)
 error_reporting(E_ALL);
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {

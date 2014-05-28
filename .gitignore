@@ -13,5 +13,6 @@ PHPServer/upload/images/1393591088_004_Hund-Geste-Liebe_MÃ–GLICH.png
 *.webm
 *.mp4
 *.mp4
+*.zip
 PHPServer/frontend/src/video/default.mp4
 PHPServer/frontend/src/video/default.mp4

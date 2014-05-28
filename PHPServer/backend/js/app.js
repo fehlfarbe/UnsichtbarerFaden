@@ -51,11 +51,12 @@ App.config(function($routeProvider, $httpProvider) {
 	});
 	$routeProvider.when('/nodeoverview', {
 		templateUrl : 'partials/node_overview.html',
-		//controller : 'nodeeditor',
 	});
 	$routeProvider.when('/comments', {
 		templateUrl : 'partials/comments.html',
-		//controller : 'nodeeditor',
+	});
+	$routeProvider.when('/backup', {
+		templateUrl : 'partials/backup.html',
 	});
 	$routeProvider.otherwise({
 		redirectTo : '/login'
