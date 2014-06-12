@@ -460,9 +460,11 @@ function getSQLDump($db_user, $db_password, $db_database){
 function backupDirectory($directory){
 	// Get real path for our folder
 	$rootPath = $directory;
-	error_log("PATH: " . $rootPath);
+	//error_log("PATH: " . $rootPath);
 	
 	// Initialize archive object
+	if( file_exists('file.zip') )
+		unlink('file.zip');
 	$zip = new ZipArchive;
 	$zip->open('file.zip', ZipArchive::CREATE);
 	
@@ -476,11 +478,35 @@ function backupDirectory($directory){
 	    $filePath = $file->getRealPath();
 	    if( is_dir($filePath) )
 	    	continue;
-	    $localName = ltrim( split($rootPath, $filePath[1]), '/');
+	    $localName = explode(ltrim($rootPath, '.'), $filePath);
+	    $localName = ltrim( $localName[1], '/');
 	    $zip->addFile($filePath, $localName);
 	}
 	$zip->close();
 	
 	return "file.zip";
+}
+
+/**
+ * Returns all articles for node id
+ * @param MySQL Connection $con
+ * @param NodeId $nodeid
+ * @return multitype:Array|NULL
+ */
+function getNodeArticles($con, $nodeid){
+	$query = "SELECT articles.articleid, articles.name FROM articles 
+			JOIN articlenodes 
+			ON articles.articleid = articlenodes.articleid 
+			WHERE articlenodes.nodeid = $nodeid";
+
+	$articleNodes = Array();
+	if( $result = $con->query($query) ){
+		while( $a = $result->fetch_object() )
+			$articleNodes[] = $a;
+		return  $articleNodes;
+	} else {
+		error_log("No article with nodeid $nodeid" . $con->error);
+		return null;
+	}
 }
 ?>

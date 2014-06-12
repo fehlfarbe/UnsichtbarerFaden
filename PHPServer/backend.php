@@ -62,8 +62,11 @@ switch ($action) {
 			echo "null";
 		}		
 		return;
-	case 'nodearticles':
+	case 'nodes':
 		echo json_encode(getNodes($con));		
+		return;
+	case 'nodearticles':
+		echo json_encode(getNodeArticles($con, $data['nodeid']));
 		return;
 	case 'comments':		
 		echo json_encode(getComments($con));		
