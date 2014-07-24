@@ -1,12 +1,9 @@
 <?php
 
 //error_log(json_encode($_SERVER['USER']));
+include_once 'sqldata.php';
 
-if( isset($_SERVER['USER']))
-	$con = new mysqli("localhost","db12039510-faden","@lnitak$","db12039510-faden");
-else
-	//$con = new mysqli("localhost","faden","unsichtbar","derunsichtbarefaden");
-	$con = new mysqli("kolbe.no-ip.org","faden","unsichtbar","derunsichtbarefaden");
+$con = new mysqli($db_server, $db_user, $db_password, $db_database);
 
 /* check connection */
 if ($con->connect_errno) {

@@ -47,7 +47,7 @@ nodeEditor.initNodes = function($scope, $http) {
 	};
 
 	//load relations
-	$scope.relations = $http.get('/backend.php?action=nodearticles').then(function(result) {
+	$scope.relations = $http.get('/backend.php?action=nodes').then(function(result) {
 		 $scope.nodes = result.data;
          $scope.nodes.deletedNodes = Array();
          $scope.nodes.deletedLinks = Array();
@@ -614,13 +614,44 @@ nodeEditor.initNodes = function($scope, $http) {
 };
 
 
-nodeEditor.initBubbles = function($scope, $http) {
+/**********************************************************************************
+ * 
+ * 
+ * 	BUBBLE EDITOR
+ * 
+ * 
+ * 
+ * @param $scope
+ * @param $http
+ **********************************************************************************/
+nodeEditor.initBubbles = function($scope, $http, $location) {
 	
 	//load relations
 	//$("#nodeselect").chosen();
 	$scope.selectedNode = null;
 	$scope.mouseoverNode = null;
 	$scope.links = null
+	$scope.nodeArticles = Array();
+	
+	$scope.loadArticle = function(id){
+		$location.search('id', id).path('/newarticle');
+	}
+	
+	/******************************************************
+	 * 
+	 * Load articles with selected Node
+	 * 
+	 *****************************************************/
+	function loadNodeArticles(node){
+		console.log("load articles for node", node);
+		$http.post('/backend.php?action=nodearticles', {nodeid:node.id})
+		.success(function(data, status, headers, config) {
+			$scope.nodeArticles = data;
+		})
+		.error(function(data, status, headers, config) {
+			console.log("Error fetching nodearticles", status);
+		});
+	}
 	
 	/******************************************************
 	 * 
@@ -720,7 +751,7 @@ nodeEditor.initBubbles = function($scope, $http) {
 	  * LOAD DATA
 	  *
 	  *******************************************************************************/
-	$scope.relations = $http.get('/backend.php?action=nodearticles').then(function(result) {
+	$scope.relations = $http.get('/backend.php?action=nodes').then(function(result) {
         
 		function compare(a,b) {
 			  if (a.name.toLowerCase() < b.name.toLowerCase())
@@ -814,8 +845,10 @@ nodeEditor.initBubbles = function($scope, $http) {
 		    	  
 		    	  if( $scope.selectedNode === d){
 		    		  $scope.selectedNode = null;
+		    		  $scope.nodeArticles = Array();
 		    	  } else {
 		    		  $scope.selectedNode = d;
+		    		  loadNodeArticles($scope.selectedNode);
 		    	  }
 		    	  console.log("mousedown", $scope.selectedNode);
 		    	  redraw();

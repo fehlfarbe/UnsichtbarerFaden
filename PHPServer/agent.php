@@ -1,6 +1,6 @@
 <?php
 
-include_once 'agent.inc';
+include_once 'agent_functions.php';
 
 /******************
  * AGENT

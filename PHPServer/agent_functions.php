@@ -1,6 +1,6 @@
 <?php
 
-include_once 'sql.inc';
+include_once 'sql.php';
 
 function arrayToString($arr){
 	$str = "";

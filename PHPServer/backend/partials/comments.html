@@ -1,9 +1,10 @@
 <div ng-controller="App.commentList" id="commentList">
 
-	<div class="panel panel-primary" style="width: 400px; margin: 10px auto;" ng-repeat="comment in comments">
+	<div class="panel panel-primary" style="width: 90%; margin: 10px auto;" ng-repeat="comment in comments">
 		<div class="panel-heading">#{{ comment.id }} vom {{ comment.date }}</div>
 		<div class="panel-body">
-		<span style="font-weight: bold;">{{ comment.name }}</span> schreibt:<br>
+		<span style="font-weight: bold;">{{ comment.name }}</span> schreibt zu 
+		<span style="font-weight: bold;">[#{{ comment.articleid}}] {{ comment.articlename }}</span>:<br>
 		{{ comment.text }}
 		</div>	
 	</div>
