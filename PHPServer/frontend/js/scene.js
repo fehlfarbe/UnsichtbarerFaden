@@ -45,8 +45,8 @@ function fillScene(articles) {
         
 
         var object = new THREE.CSS3DObject(element);
-        object.position.x = article.x / 100 * 4000 - 2000;
-        object.position.y = article.y / 100 * 4000 - 2000;
+        object.position.x = article.x / 100 * 10000 - 5000;
+        object.position.y = article.y / 100 * 10000 - 5000;
         object.position.z = article.book / -5 * 5000;
         //object.rotation.x = Math.random() * 4 - 2;
         object.rotation.y = Math.random() * 0.4 - 0.2;
@@ -246,6 +246,9 @@ function moveToEndVideo() {
                     camera.position.z = this.z;
                     camera.position.x = this.x;
                     camera.position.y = this.y;
+                    webGLCamera.position.z = this.z;
+                    webGLCamera.position.x = this.x;
+                    webGLCamera.position.y = this.y;
                 })
                 .onComplete(function () {
                     cameraMove = false;

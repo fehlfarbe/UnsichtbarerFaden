@@ -38,6 +38,7 @@ canvas {
     /*line-height:18px;
     text-align:center;
     display:table-cell;*/
+    padding-right: 250px;
 }
 
 .menu ul {
@@ -55,8 +56,9 @@ canvas {
 }
 
 .content {
-    width: 600px;
+    width: 700px;
     font-size: 9pt;
+    
 }
 
 button {
@@ -99,6 +101,8 @@ button {
     font-style: italic;
     font-size: 50px;
     letter-spacing: 4px;
+    width: 700px;
+    text-align: center;
 }
 
 .text {

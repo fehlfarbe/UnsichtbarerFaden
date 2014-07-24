@@ -13,7 +13,7 @@
 
      <div class = "row">
          <div class="cell menu"><button onclick="window.location.href='#/start'" >HOME</button></div>
-        <h1 class = "cell content">Der unsichtbare Faden</h1>
+        <div class="cell content"><h1>Der unsichtbare Faden</h1></div>
     </div>
         
 
@@ -40,7 +40,62 @@
         Alle Rechte vorbehalten.</p>
         </div>
         <div class="cell content text">
+
+            <a href="http://www.derunsichtbarefaden.de/frontend/#/info/#english">(english version)</a>
+            <br />
+            <br />
             <p>Der unsichtbare Faden (seit 2003) ist eine webbasierte, interaktive und non-lineare Erzählung und Bewusstseins- bzw. Zivilisationsforschung. Die „Autorin“ (Katharina Groß) dialogisiert mit und über vier weitere Charaktere (Odo Tolkewitzer, Gerda Roth, Caroline Faux und K.) bestimmte Dinge, denen sie in der innen und äußeren Welt gewahr wird. Sie bezieht die vier Charaktere in den Schreibprozess mit ein, sind Teil von ihr und ein Instrument um sich ihre Wahrnehmung wahrnehmbar zu machen. Es handelt sich um Interpretationen von Welt und die Bemühung um Aufklärung. Alle Tagebucheinträge werden logisch-methodisch und sinngebend zu einer Erzählung neu montiert durch den ”Leser” und dessen Symbolwahl. Je nach Symbol wird entweder “zufällig” oder gezielt ein nächster Tagebucheintrag angezeigt. Dabei orientieren sich die “Randomebene” oder “Agentenebene” auf unterschiedlicher Weise an der Verschlagwortung der einzelnen Tagebucheinträge. Die Tagebucheinträge wachsen zu einem kontinuierlich rhizomatischen Gedankengeflecht. Es ist Anspruch die Datenbank mit Inhalten ein Leben lang zu pflegen</p>
+            <br>
+            <iframe src="//player.vimeo.com/video/89442466" width="500" height="281" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe> <p><a href="http://vimeo.com/89442466">Der Unsichtbare Faden_DEMO</a> from <a href="http://vimeo.com/katharinagross">Katharina Gro&szlig;</a> on <a href="https://vimeo.com">Vimeo</a>.</p>
+            <br>
+            <h5><b>Menschliches Bewusstsein und künstliche Intelligenz</b></h5>
+            <p>Täglich teilen Socialmedia-Nutzer über das Internet Informationen über sich, ihr Handeln, ihre Emotionen, Motive, Vorlieben, Träume und Wünsche aus. All diese Informationen verlinken sie mit Bildern, Videos oder Online-Texten. Viele unter ihnen betreiben dies mit großer Akribie oder erschaffen sich ein virtuelles Ich. Manche tun dies mit dem Bewusstsein, dass eines Tages vielleicht, wenn sie selbst nicht mehr unter den Lebenden sind, ihre Informationen in Form von Daten benutzt werden könnten um künstliche Intelligenzen schließlich ein menschliches Bewusstsein (Geist/ Fähigkeit zu Emotion) zu geben. </p>
+            <h5><b>Non-Lineare Erzählung</b></h5>
+            <p>Traditionell wird die Kunst des Erzählens verstanden als Darstellung des Verlaufs von wirklichen oder erdachten Ereignissen. Die Erzählkunst hat durch die Jahrhunderte hindurch nicht nur gesellschaftlichen und politischen Wandel thematisiert, sondern auch durch formale Änderungen gesellschaftlichen Wandel signalisiert, war selbst Ausdruck dieses Wandels. Charakteristisch für meine Narration sind die definitive Autorenschaft und Detailbeschreibungen, deren Notwendigkeit sich einer narrativen Handlungslogik entziehen. Die Narration(en) stellen die simultane, fragmentarische, disparate Präsenz heterogener Elemente im modernen Leben dar. Ein weiteres erzählerisches Mittel, welches vor allem im elektronischem Medium seine volle ästhetische Wirkkraft entfalten kann, ist das der Perspektivierung. Ich schildere das Geschehen aus unterschiedlichen Perspektiven (Alteregos) und befinde mich im Innern der Erzählung selbst, so dass unterschiedliche Zugänge zu meiner Psyche möglich werden. Verfahren wie der innere Monolog, der Bewusstseinsstrom und die freie Assoziation bestimmen die Erzählung. Es stellt sich die Frage, inwiefern das gesammelte Material aus Realen und Fiktiven durch dessen Montage sowie ständiger Neu- Konstruktionen der Narration zu einer Art autonomen Existenz werden kann.</p>
+            <h5><b>Entstehungsgeschichte</b></h5>
+            <p>Seit 2003 wurden Gedanken über Erlebnisse, Beobachtungen und Erfahrungen in Form von Tagebuchnotizen, Mind-Maps, Texten, Skizzen, Zeichnungen, Fotos und Filmen sowie Fundstücken analysiert und reflektiert, Zitate und Textpassagen verschiedener Philosophen, Wissenschaftler und Künstler gesammelt,. Dies mündete 2007 in einem 300 Seiten Buch, welches jedoch nicht den Anforderungen des Materials sowie der Forschung gerecht wurde, da es trotz Fußnoten und Querverweisen eine chronologisch-vorgegebene Reihenfolge besaß. Der angestrebte rizhomartige Aufbau der Erzählung sollte webbasiert umgesetzt sein.</p>
+            <h5><b>Funktionsweise des Spiels</b></h5>
+            <p>Dem Leser stehen zu Beginn alle Wahloptionen zur Verfügung.</p>
+
+            <p>Mit jedem Symbol („◆ möglich“ / „□ notwendig“ / „A wahr“ / „△ Kontingent“ / „∞ unendlich“ / „● wirklich“) stehen nur begrenzte nächste Wahloptionen zur Verfügung.</p>
+
+            <p>Ausgenommen ist die Symbolwahl „¬ nicht“. Diese Wahl führt zum Ende des Spiels.</p>
+
+            <p>Bei den drei erstgenannten Symbolen operiert die Agentenebene. Diese Ebene fungiert wie ein Touristenführer durch die Tagebücher. Die drei letztgenannten Symbole lassen die Randomebene operieren. Im Feld am unteren Bildschirmrand kann der Leser seinen „persönlichen Faden“ durch die Tagebücher verfolgen.</p>
+
+            <p>Im Backend sind die Schlagworte in einem Koordinatensystem angelegt. Jedes Schlagwort hat seine Koordinate. Der Mittelwert der Schlagwortkoordinaten (Tagebucheinträge bedienen meist mehr als ein Schlagwort) ergibt den Ort des Tagebucheintrages im virtuellen Raum. Im Frontend sind alle Artikel als sichtbar. Der Leser bewegt sich nach seiner Symbolwahl durch den virtuellen Raum zum nächsten Tagebucheintrag. Dabei liegen die jüngeren Tagebücher weiter „vorn“ im Raum.</p>
+            <br />
+            <img src="src/jpg/Symbole-und-Optionen.jpg" alt="Erklärung Symbole">
+
+            <h5><b>Stand des Projektes und geplante Weiterentwicklungen</b></h5>
+            <p>Zum jetzigen Stand sind sechs der bis bisher insgesamt 14 Tagebücher in die Datenbank eingepflegt.</p>
+            <p>Technische Weiterentwicklungen sind die Optimierung für mobile Endgeräte sowie ein persönliches Login für Leser. Des weiteren ist eine weitere Funktion geplant. Der Leser soll Fragen an die „Autorin“ hinterlassen können, welche in künftigen Tagebucheinträgen beantwortet werden sollen.</p>
+            
+            <br />
+            <br />
+            <a title="english" name="english"></a>
+            <h5><b>Synopsis</b></h5>
+            <p>The invisible thread (2006 – 2014) is a web-based , interactive and non- linear narration and research on consciousness or civilization. The ” author ” ( I ) dialogues with and about (so far) two more characters, Odo Tolkewitzer and Gerda Roth, certain things which she is aware in the inner and outer world. These are interpretations of world and efforts to both Enlightenment. She involves the two characters in the writing process, they are part of her and a tool to make her perception perceptible. All diary entries will be logically and methodologically meaningful connected to a narration by each reader in a new way in order the readers decision and selected operation. The diary entries are developing in this way to a continuously growing rhizomatic thought braid. The reader can choose between a selection of symbols on how the progress of the narration should be. Depending on the symbol either the random-level or agent-level operates. Both levels are based on the indexing of the individual diary entries. It’s claim to maintain the database with content for a lifetime.</p>
+            <h5><b>Human consciousness</b></h5>
+            <p>Daily social media users share via the Internet information about themselves, their actions, their emotions, motives, preferences, dreams and desires. They link all of this information with images, video, or online texts. Many of them do this with great meticulousness, or create a virtual self. Some do this with the knowledge that one day, perhaps, when they themselves are no longer among the living, their information could be used in form of data for artificial intelligences in order for human consciousness (spirit / ability to emotion).</p>
+            <h5><b>Non- linear narrative</b></h5>
+            <p>Traditionally the art of storytelling is understood as describing the course of real or imagined events . Through the centuries, the art of storytelling has theme not only social and political change, but also signal by formal amendments social change, was itself an expression of this change. Characteristic of my narration are the definitive authorship and detailed descriptions , the need for escape of narrative plot logic. The narrative (s ) represent the simultaneous, fragmented and disparate presence of heterogeneous elements in modern life. Another narrative tool is perspectivization. It can develop its full aesthetic force especially in the electronic medium. I describe the events from different perspectives (alter egos) and find myself inside the story itself, so that different approaches to my psyche are possible. Method as the inner monologue, stream of consciousness and free association shape the narration. This raises the question to what extent the material, real and fictional, can be a kind of autonomous existence through its assembly and permanent new structures of narration.</p>
+            <h5><b>Genesis</b></h5>
+            <p>Since 2003, thoughts on experiences, observations and experiences in the form of diary notes, mind maps, texts, sketches, drawings, photographs and films as well as found objects were analyzed and reflected and quotes and passages of various philosophers, scientists and artists were collected. This culminated in 2007 in a 300-page book, which fulfilled not, however, the requirements of the material and the research righteous. Despite footnotes and cross-references, it still possessed a chronologically-specified sequence. The aim of a rizhomize structure of the narration should be implemented web-based.</p>
+            <h5><b>Functioning of the game</b></h5>
+            <p>At the beginning, all choice options are available to the reader.</p>
+
+            <p>Each symbol (” ◆ possible ” / ” □ necessary ” / ” A true ” / ” △ contingency ” / ” ∞ infinity” / “● really ” ) has limited next choice options available.</p>
+
+            <p>Except for the choice of symbol “¬ not “, which will lead to the end of the game.</p>
+
+            <p>When choosing on of the first three symbols, the agent level operates . This level acts as a tourist guide through the diaries. When choosing on of the last three symbols, the random level operates. In the box at the bottom of the screen, the reader can see its ” personal thread ” through the diaries.</p>
+
+            <p>In the backend, the tags are created in a coordinate system . Each tag has its coordinate. The average of the tag coordinates (diary entries usually serve more than just one tag) give the location of the diary entry in the virtual space . In the frontend, all articles are visible as a thumbnail. The reader moves by his choice of symbols through the virtual space to the next diary entry . The younger diaries are more “forward” in the room.</p>
+        
+            <h5><b>Status of the project and planned developments</b></h5>
+            <p>At the present stage, six of 14 ( up to date total) diaries are added to the database.</p>
+            <p>Technical developments are optimization for mobile devices as well as a personal login for readers. Furthermore, another function is scheduled. The reader should be able to post questions to the “author”, which are to be answered in future diary entries.</p>
         </div>
     </div>
         <!--<div id="browserTextDiv">
