@@ -36,7 +36,7 @@ function getNodes($con){
 	$obj->nodes = Array();
 	$obj->links = Array();
 	
-	$query = "SELECT nodes . * , COUNT( nodes.nodeid ) AS count
+	$query = "SELECT nodes.* , COUNT( nodes.nodeid ) AS count
 				FROM nodes
 				JOIN articlenodes ON nodes.nodeid = articlenodes.nodeid
 				GROUP BY nodes.nodeid";
@@ -509,5 +509,29 @@ function getNodeArticles($con, $nodeid){
 		error_log("No article with nodeid $nodeid" . $con->error);
 		return null;
 	}
+}
+
+
+function getNodeLinkStrength($con, $nodeid){
+	$query = "
+		SELECT nodeid, count(*) AS count FROM articlenodes
+		WHERE articleid IN (
+			SELECT articleid FROM articlenodes
+			WHERE nodeid = $nodeid)
+		GROUP BY nodeid
+	";
+	
+	$links = Array();
+	if ($result = $con->query($query)) {
+		while ($l =  $result->fetch_object()){
+			$l->nodeid = intval($l->nodeid);
+			$l->count = intval($l->count);
+			$links[] = $l;
+		}
+	} else {
+		error_log("Cannot get link strength for node $nodeid");
+	}
+	
+	return $links;	
 }
 ?>
