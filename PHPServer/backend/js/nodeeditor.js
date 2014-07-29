@@ -709,12 +709,14 @@ nodeEditor.initBubbles = function($scope, $http, $location) {
 				var targetNode = getNode($scope.linkStrength[i].nodeid);
 //				var vec = [targetNode.x-$scope.selectedNode.x,
 //				           targetNode.y-$scope.selectedNode.y];
+				if( !targetNode )
+					continue;
 				var myLine = svg.append("svg:line")
 			    .attr("x1", $scope.selectedNode.x)
 			    .attr("y1", $scope.selectedNode.y)
 			    .attr("x2", targetNode.x)
 			    .attr("y2", targetNode.y)
-			    .style("stroke-width", Math.min(targetNode.count*0.3, 20) )
+			    .style("stroke-width", Math.min(targetNode.count*0.3, 5) )
 			    .style("stroke-opacity", 0.7)
 			    .style("stroke", "rgb(50,50,50)");
 			}
