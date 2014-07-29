@@ -370,7 +370,7 @@ function getNodesSymbols($con){
  */
 function getArticles($con, $id){
 	error_log("Get articles");
-	$query = 'SELECT articles.articleid AS id, articles.name AS name, text,  book, active, ' .
+	$query = 'SELECT articles.articleid AS id, articles.name AS name, text,  book, active, count, ' .
 			'symbols.id AS symID, symbols.name AS symName, symbols.icon AS symIcon, ' .
 			'nodes.nodeid AS nodeid, nodes.name AS category ' .
 			'FROM articles ' .
@@ -390,6 +390,7 @@ function getArticles($con, $id){
 			$article->book = intval($article->book);
 			$article->symID = intval($article->symID);
 			$article->active = intval($article->active);
+			$article->count = intval($article->count);
 			$articles[] = $article;
 		}
 	}
