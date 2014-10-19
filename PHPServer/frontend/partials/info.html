@@ -1,15 +1,4 @@
-﻿
-<!--<div id="menu">
-    <ul>
-        <li><button id="login" onclick="window.location.href='../../../backend'">LOGIN</button></li>
-        <li><button id="kontakt" onclick="window.location.href='http://katharinagroß.de/kontakt/'">KONTAKT</button></li>
-    
-        <li></li>
-
-    </ul>
-</div>-->
-
-<div id ="main">
+﻿<div id ="main">
 
      <div class = "row">
          <div class="cell menu"><button onclick="window.location.href='#/start'" >HOME</button></div>
@@ -41,7 +30,7 @@
         </div>
         <div class="cell content text">
 
-            <a href="http://www.derunsichtbarefaden.de/frontend/#/info/#english">(english version)</a>
+            <a href="/frontend/#/info/#english">(english version)</a>
             <br />
             <br />
             <p>Der unsichtbare Faden (seit 2003) ist eine webbasierte, interaktive und non-lineare Erzählung und Bewusstseins- bzw. Zivilisationsforschung. Die „Autorin“ (Katharina Groß) dialogisiert mit und über vier weitere Charaktere (Odo Tolkewitzer, Gerda Roth, Caroline Faux und K.) bestimmte Dinge, denen sie in der innen und äußeren Welt gewahr wird. Sie bezieht die vier Charaktere in den Schreibprozess mit ein, sind Teil von ihr und ein Instrument um sich ihre Wahrnehmung wahrnehmbar zu machen. Es handelt sich um Interpretationen von Welt und die Bemühung um Aufklärung. Alle Tagebucheinträge werden logisch-methodisch und sinngebend zu einer Erzählung neu montiert durch den ”Leser” und dessen Symbolwahl. Je nach Symbol wird entweder “zufällig” oder gezielt ein nächster Tagebucheintrag angezeigt. Dabei orientieren sich die “Randomebene” oder “Agentenebene” auf unterschiedlicher Weise an der Verschlagwortung der einzelnen Tagebucheinträge. Die Tagebucheinträge wachsen zu einem kontinuierlich rhizomatischen Gedankengeflecht. Es ist Anspruch die Datenbank mit Inhalten ein Leben lang zu pflegen</p>
@@ -54,6 +43,8 @@
             <p>Traditionell wird die Kunst des Erzählens verstanden als Darstellung des Verlaufs von wirklichen oder erdachten Ereignissen. Die Erzählkunst hat durch die Jahrhunderte hindurch nicht nur gesellschaftlichen und politischen Wandel thematisiert, sondern auch durch formale Änderungen gesellschaftlichen Wandel signalisiert, war selbst Ausdruck dieses Wandels. Charakteristisch für meine Narration sind die definitive Autorenschaft und Detailbeschreibungen, deren Notwendigkeit sich einer narrativen Handlungslogik entziehen. Die Narration(en) stellen die simultane, fragmentarische, disparate Präsenz heterogener Elemente im modernen Leben dar. Ein weiteres erzählerisches Mittel, welches vor allem im elektronischem Medium seine volle ästhetische Wirkkraft entfalten kann, ist das der Perspektivierung. Ich schildere das Geschehen aus unterschiedlichen Perspektiven (Alteregos) und befinde mich im Innern der Erzählung selbst, so dass unterschiedliche Zugänge zu meiner Psyche möglich werden. Verfahren wie der innere Monolog, der Bewusstseinsstrom und die freie Assoziation bestimmen die Erzählung. Es stellt sich die Frage, inwiefern das gesammelte Material aus Realen und Fiktiven durch dessen Montage sowie ständiger Neu- Konstruktionen der Narration zu einer Art autonomen Existenz werden kann.</p>
             <h5><b>Entstehungsgeschichte</b></h5>
             <p>Seit 2003 wurden Gedanken über Erlebnisse, Beobachtungen und Erfahrungen in Form von Tagebuchnotizen, Mind-Maps, Texten, Skizzen, Zeichnungen, Fotos und Filmen sowie Fundstücken analysiert und reflektiert, Zitate und Textpassagen verschiedener Philosophen, Wissenschaftler und Künstler gesammelt,. Dies mündete 2007 in einem 300 Seiten Buch, welches jedoch nicht den Anforderungen des Materials sowie der Forschung gerecht wurde, da es trotz Fußnoten und Querverweisen eine chronologisch-vorgegebene Reihenfolge besaß. Der angestrebte rizhomartige Aufbau der Erzählung sollte webbasiert umgesetzt sein.</p>
+            
+            <!-- 
             <h5><b>Funktionsweise des Spiels</b></h5>
             <p>Dem Leser stehen zu Beginn alle Wahloptionen zur Verfügung.</p>
 
@@ -66,7 +57,24 @@
             <p>Im Backend sind die Schlagworte in einem Koordinatensystem angelegt. Jedes Schlagwort hat seine Koordinate. Der Mittelwert der Schlagwortkoordinaten (Tagebucheinträge bedienen meist mehr als ein Schlagwort) ergibt den Ort des Tagebucheintrages im virtuellen Raum. Im Frontend sind alle Artikel als sichtbar. Der Leser bewegt sich nach seiner Symbolwahl durch den virtuellen Raum zum nächsten Tagebucheintrag. Dabei liegen die jüngeren Tagebücher weiter „vorn“ im Raum.</p>
             <br />
             <img src="src/jpg/Symbole-und-Optionen.jpg" alt="Erklärung Symbole">
+             -->
+            <h5><b>Funktionsweise des Spiels</b></h5>
+            <p>Jeder Gedanke bedient (meist mehrere) Meme oder Schlagworte. Im Backend sind alle Meme in einem Koordinatensystem angelegt. 
+            Jedes Mem hat seine Koordinate. Der Mittelwert des Memkomplex ergibt den Ort des Gedankeneintrages im 
+            virtuellen Gedanken-Raum. Der Leser bewegt sich nach seiner Symbolwahl durch den virtuellen Raum zum 
+            nächsten Gedanken. Dabei liegen die jüngeren Gedanken tiefer im Raum. Im Feld am unteren Bildschirmrand 
+            kann der Leser seinen „persönlichen Faden“ durch den Gedankenraum verfolgen.</p>
 
+			<p>Bei den diesen drei Symbolen operiert die Agentenebene. Diese Ebene fungiert wie ein Touristenführer durch die Tagebücher:
+			◆ möglich ( mind. 1 Mdm identisch) // □ notwendig (größtmögliche Memidentität) // A wahr (kein Mdm identisch)</p>
+			<p>Die drei anderen Symbole lassen die Randomebene (Zufallsebene) operieren:
+			△ Kontingent ( mind. 1 Mem identisch) // ∞ unendlich (kein Mem identisch) // ● wirklich (größtmögliche Memidentität)</p>
+			<p>Mit Klick auf ? Frage kann der Leser eine Frage oder Kommentar zum vorliegenden Gedanken für die Autorin hinterlassen. 
+			Mit jedem Symbol stehen nur begrenzte nächste Wahloptionen zur Verfügung. 
+			Ausgenommen ist die Symbolwahl ¬ nicht. Diese Wahl führt zum Ende des Spiels.</p>
+			<p>Taste F5 läd alle Gedanken neu, falls das System ins Stocken gerät. Um so länger die Reise zum nächsten Gedanken, 
+			desto entfernter liegt dieser. Bitte Geduld bewahren.</p>
+			<br />
             <h5><b>Stand des Projektes und geplante Weiterentwicklungen</b></h5>
             <p>Zum jetzigen Stand sind sechs der bis bisher insgesamt 14 Tagebücher in die Datenbank eingepflegt.</p>
             <p>Technische Weiterentwicklungen sind die Optimierung für mobile Endgeräte sowie ein persönliches Login für Leser. Des weiteren ist eine weitere Funktion geplant. Der Leser soll Fragen an die „Autorin“ hinterlassen können, welche in künftigen Tagebucheinträgen beantwortet werden sollen.</p>
