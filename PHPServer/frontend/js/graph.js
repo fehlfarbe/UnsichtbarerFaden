@@ -1,5 +1,5 @@
 /**
-* 
+* Der Graph, welcher in der unteren Leiste angezeigt wird
 */
 
 var x, y;
@@ -24,9 +24,6 @@ function initPersonalGraph(width, height)
 
     w = width - m[1] - m[3]; // width
     h = height - m[0] - m[2]; // height
-
-    //console.log("graph width: " + w);
-    //console.log("graph height: " + h);
 
     // create a simple data array that we'll plot with a line (this array represents only the Y values, X will just be the index location)
     bookNumbers = [0];
@@ -62,25 +59,6 @@ function initPersonalGraph(width, height)
             .attr("id", "graphR")
             .attr("transform", "translate(" + m[3] + "," + m[0] * -1 + ")");
 
-    
-    //focus = graph.append("g")
-    //            .attr("class", "focus")
-    //            .style("display", "none");
-
-    //focus.append("circle")
-    //                .attr("r", "4.5");
-
-    //focus.append("text")
-    //  .attr("x", 9)
-    //  .attr("dy", ".35em");
-
-    //graph.append("rect")
-    //.attr("class", "overlay")
-    //.attr("width", "500px")
-    //.attr("height", "100px")
-    //.on("mouseover", function () { focus.style("display", null); })
-    //.on("mouseout", function () { focus.style("display", "none"); })
-    //.on("mousemove", mMove);
 }
 
 function scaleGraph()
@@ -106,7 +84,7 @@ function scaleGraph()
 
 }
 
-
+// Update Graph nach Click
 function updateGraph(value)
 {
     if (parseInt(value, 10) >= parseInt(highestBookNumber, 10))
@@ -118,10 +96,8 @@ function updateGraph(value)
     $("#graphR").empty();
     bookNumbers.push(value);
     graph.append("path")
-    //.data(bookNumbers)
-           .attr("d", line(bookNumbers));
-           //.on("mouseover", tip.show)
-           //.on("mouseout", tip.hide);
+         .attr("d", line(bookNumbers));
+
 
     rect.selectAll(".rect")
         .data(bookNumbers)
@@ -134,54 +110,4 @@ function updateGraph(value)
         .attr("height", 30)
         .on("mouseover", tip.show)
         .on("mouseout", tip.hide);
-
-
-    //focus = graph.append("g")
-    //            .attr("class", "focus")
-    //            .style("display", "none");
-
-    //focus.append("circle")
-    //            .attr("r", "4.5");
-
-    //focus.append("text")
-    //        .attr("class", "text")
-    //        .attr("x", "-0")
-    //        .attr("y", "-1.5em");
-
-    //focus.append("rect")
-    //        .attr("fill", "#000")
-    //        .attr("x", "-0")
-    //        .attr("width", "10px")
-    //        .attr("height", "10px")
-    //        .attr("y", "-1em");
-
-
-    //graph.append("rect")
-    //.attr("class", "overlay")
-    //.attr("width", "500%")
-    //.attr("height", "100%")
-    //.on("mouseover", function () { focus.style("display", null); })
-    //.on("mouseout", function () { focus.style("display", "none"); })
-    //.on("mousemove", mMove);
-
-    //if (value != lastBookNumber)
-    //{
-    //d3.select("#graph").append("div").attr("id","#graphLabel").html(bookNumbers);
-    //graph.append("svg:text").text(bookNumbers);
-    //}
-    //lastBookNumber = value;
-}
-
-function mMove()
-{
-    //var m = d3.mouse(this);
-    //d3.select("#path").select("title").text(d);
-
-    //var x0 = x.invert(d3.mouse(this)[0]),
-    //    i = d3.bisect(bookNumbers, x0, 1),
-    //    d0 = bookNumbers[i - 1],
-    //    d1 = bookNumbers[i],
-    //    d = x0 - d0 > d1 - x0 ? d1 : d0;
-    //focus.attr("transform", "translate(" + x.invert(i) + "," + y(d0) + ")");
-    //focus.select("text").text(d);
 }

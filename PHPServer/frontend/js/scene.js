@@ -1,39 +1,54 @@
+/***************
 
-var lastObject;
+Die Szene besteht aus einer CSS Szene und einer WebGL Szene.
+Aus Performancegruenden wird eine geringere Anzahl an CSS Objekten erstellt.
+Um die Szene "voller und lebendiger" zu gestalten, wird eine große Anzahl an Objekten im Hintergrund mit WebGL erstellt.
+Diese sind ein objekt mit einer thumbnail Textur.
+Die CSS Objekte werden wahrend des Spiels im Hintergrund ausgetauscht, sodass immer nur die Max. festgelegte Zahl in der Szene vorhanden ist.
+
+**************/
+
+// Min und Max Werte fuer die Bewegungszeit zwischen den Artikeln
 var MAX_MOVETIME = 10000;
 var MIN_MOVETIME = 1000;
 
+// Faktor fuer die Geschwindigkeit der Mausbewegung
 var moveFactor = 5;
 
-//end-Video
+//objekte fuer das end-Video
 var video, videoObject, videoTexture, videoImageContext, videoScreen;
 
 var reloadButton;
 
+//aktueller Tween der durchgefuehrt wird
 var actualTween;
 
+// initialisierung der maus werte
 var mouse = { x: 0, y: 0 };
 
+// Wert der angibt ob Maus gedrueckt wurde
 var mouseDown = false;
-
-//indicates the move of the camera
-var cameraMove = true;
 
 var camera, renderer;
 var controls;
 
+// Die Three.js scene
 var scene = new THREE.Scene();
-//init();
 
+// Array mit allen artikeln, NICHT in der Szene enthalten
 var objects = [];
 
-var objectsInScene = 0;
-
+// Anzahl der per css erstellten Objekte. Bei einer Zahl groesser als 25, lief die Anwendung unperformant
+var NUMBER_OF_CSS_OBJECTS = 25
 
 //WebGL
 var webGLRenderer, webGLScene, webGLCamera;
+// Anzahl der ber WEBGL erstellten "Fake" Objekte (Objekte mit Textur aus thumbnails)
 var NUMBER_OF_WEBGL_OBJECTS = 623;
 
+
+// Fuellt object array mit CSS erstellten Artikelobjekten.
+// Aufruf im Controller
 function fillScene(articles) {
 
     for (var i = 0; i < articles.length; i++) {
@@ -43,21 +58,21 @@ function fillScene(articles) {
         element.id = article.articleid;
         element.innerHTML = article.text;
         
-
         var object = new THREE.CSS3DObject(element);
         object.position.x = article.x / 100 * 10000 - 5000;
         object.position.y = article.y / 100 * 10000 - 5000;
         object.position.z = article.book / -5 * 5000;
-        //object.rotation.x = Math.random() * 4 - 2;
         object.rotation.y = Math.random() * 0.4 - 0.2;
-        //object.rotation.z = Math.random() * 4 - 2;
 
         objects.push(object);
     }
     addRandomObjectsToScene();
 }
 
-//check for object in scene, when not in scene remove first object and add new
+/**
+    Wenn die ID des naechstangeforderten Objektes noch nicht in der Szene vorhanden ist, wird ein altes Objekt entfernt.
+    Und das neue hinzugefuegt. So wird die in der Konstanten angegebene Max Anzahl eingehalten
+*/
 function addObjectToScene(id) {
     for (var i = 0; i < scene.children.length; i++) {
         if (id == scene.children[i].element.id) {
@@ -77,17 +92,19 @@ function addObjectToScene(id) {
             return objects[i];
         }
     }
-
 }
 
-
+/** 
+    Fuegt max. Anzahl an zufaelligen CSS Objekten der Szene hinzu
+*/
 function addRandomObjectsToScene() {
     objects = shuffleArray(objects);
-    for (var i = 0; i < 25; i++) {
+    for (var i = 0; i < NUMBER_OF_CSS_OBJECTS; i++) {
         scene.add(objects[i]);
     }
 }
 
+// Fuegt WEBGL fake objekte der szene hinzu
 function addRandomWebGLObjects(number) {
     var object, texture;
     for (var i = 1; i <= number; i++) {
@@ -101,10 +118,12 @@ function addRandomWebGLObjects(number) {
         object.position.z = randomInt(0, 30)/-5 * 5000;
         webGLScene.add(object);
     }
-        
-
 }
 
+
+/** 
+    Initialisieren der Szene
+*/
 function initScene() {
     $("body").css({backgroundColor:"#000"});
     camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 1, 10000);
@@ -126,7 +145,6 @@ function initScene() {
     window.addEventListener('resize', onWindowResize, false);
 
     video = document.createElement('video');
-    //video.src = "src/video/default.mp4";
     video.src = "src/video/default.webm";
     video.load();
 
@@ -159,8 +177,11 @@ function initScene() {
 }
 
 
+/** 
 
-
+    Bewegung zum naechsten Artikel
+    
+*/
 function moveToArticle(id, delay, time) {
 
     addObjectToScene(id);
@@ -175,10 +196,6 @@ function moveToArticle(id, delay, time) {
         if (id == scene.children[i].element.id) {
 
             var object = scene.children[i];
-
-            if (!lastObject) {
-                lastObject = object;
-            }
             
             actualTween = new TWEEN.Tween({ x: camera.position.x, y: camera.position.y, z: camera.position.z, yR: camera.rotation.y })
                 .to({ x: object.position.x, y: object.position.y, z: object.position.z + 1200, yR: object.rotation.y }, getMoveTime(object))
@@ -194,10 +211,6 @@ function moveToArticle(id, delay, time) {
                     webGLCamera.position.y = this.y;
                     webGLCamera.rotation.y = this.yR;
                 })
-                .onComplete(function () {
-                    lastObject = object;
-                    //camera.lookAt(object);
-                })
                 .easing(TWEEN.Easing.Quadratic.Out)
                 .start();
 
@@ -207,7 +220,7 @@ function moveToArticle(id, delay, time) {
     }
 }
 
-
+// Hilfsfuntion zum Berechnen der Bewegungszeit
 function getMoveTime(object) {
 
     var actualValue = ((camera.position.x + camera.position.y)/8 + camera.position.z) / 3;
@@ -230,6 +243,7 @@ function getMoveTime(object) {
     return MAX_MOVETIME;
 }
 
+// Hilfsfunktion zur Bewegung zum Endvideo
 function moveToEndVideo() {
     console.log("moveToEndVideo");
 
@@ -251,7 +265,6 @@ function moveToEndVideo() {
                     webGLCamera.position.y = this.y;
                 })
                 .onComplete(function () {
-                    cameraMove = false;
                     document.body.removeEventListener('mouseup', onMouseUp);
                     document.body.removeEventListener('mousemove', onMouseMove);
                     camera.lookAt(videoObject.position);
@@ -261,10 +274,11 @@ function moveToEndVideo() {
                 .easing(TWEEN.Easing.Quadratic.Out)
                 .start();
 
-
 }
 
 /**
+* Helper funtion:
+*
 * Randomize array element order in-place.
 * Using Fisher-Yates shuffle algorithm.
 */
@@ -278,46 +292,33 @@ function shuffleArray(array) {
     return array;
 }
 
+/** Event: Mausrad wird gedreht */
 function onMouseWheel(event) {
     if (event.wheelDelta > 0) {
-        //if (camera.position.z >= (object.position.z)) {
         camera.position.z -= event.wheelDelta;
-        //}
     } else {
         camera.position.z -= event.wheelDelta;
     }
 }
 
+/** Event: Maus wird bewegt. */
 function onMouseMove(event) {
 
     mouse.x = (event.clientX / window.innerWidth) - 0.5;
     mouse.y = (event.clientY / window.innerHeight) - 0.5;
-
-    //if (!cameraMove) {
-    //    object.position.x += mouse.x * moveFactor;
-    //    object.position.y -= mouse.y * moveFactor;
-    //}
 }
 
+/** Event: Maustaste wird gedrueckt. */
 function onMouseDown(event) {
-
-
-
-    //cameraMove = false;
-    //moveFactor = 5.15;
-    //object.element.style.cursor = 'pointer';
     mouseDown = true;
 }
 
+/** Event: Maustaste wird losgelassen. */
 function onMouseUp(event) {
-
-    //cameraMove = true;
-    //moveFactor = 1.15;
-    //object.element.style.cursor = 'default';
-
     mouseDown = false;
 }
 
+/** Event: Groesse des Fensters wird veraendert. */
 function onWindowResize() {
 
     camera.aspect = window.innerWidth / window.innerHeight;
@@ -326,35 +327,33 @@ function onWindowResize() {
     renderer.setSize(window.innerWidth, window.innerHeight);
 
     render();
-
 }
 
+
+// TWEEN JS Animationsfunktion
 function animate() {
 
     requestAnimationFrame(animate);
 
     TWEEN.update();
 
-    //controls.update();
     render();
 
+    //camera Bewegung bei gedrueckter Maustaste
     if (mouseDown) {
         camera.position.x += mouse.x * moveFactor;
         camera.position.y -= mouse.y * moveFactor;
     }
-
-    //webGLCamera.rotation.x += Math.PI/180 * 2;
-    //webGLCamera.rotation.y += Math.PI * 45;
-    //webGLCamera.rotation.z += Math.PI * 45;
-
 }
 
+// rendert szenen aus css und webgl objekten
 function render() {
 
     renderer.render(scene, camera);
     webGLRenderer.render(webGLScene, webGLCamera);
 }
 
+//Hilfsfunktion, zufaelliger Wert aus min max
 function randomInt(min,max)
 {
     return Math.floor(Math.random()*(max-(min+1))+(min+1));

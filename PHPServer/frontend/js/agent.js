@@ -3,6 +3,7 @@ var App = angular.module('agent', []);
 	
 /** Angular service um geklicktes Symbol zwischen Controllern auszutauschen. */
 App.service('clickedSymbol', function () {
+    // default value = 2
     var symbol = "2";
     return {
         getSymbol: function () {
@@ -64,9 +65,14 @@ App.config(function ($routeProvider, $httpProvider) {
     
 });
 
+/** 
 
+    Controller fuer Startseite
+    Steuert loadingbar
+
+*/
 function startPageController($scope, $http, clickedSymbol) {
-    //wieder auf schwarz setzen bei zurueck Befehl im Browser
+    //HACK: wieder auf schwarz setzen bei zurueck Befehl im Browser
     $("body").css({backgroundColor:"#fff"});
 
     var use = d3.select("#loadingBar").selectAll("use")
@@ -102,12 +108,6 @@ function startPageController($scope, $http, clickedSymbol) {
            .transition()
            .duration(1000)
            .attr("x", function (d, i) { return i / 7 * 450; });
-
-        //d3.select("#loadingBar")
-        //    .style("margin-left", "15%")
-        //    .transition()
-        //    .duration(1000)
-        //    .style("margin-left", "40%");
     }
 
     function makeLinks() {
@@ -117,30 +117,39 @@ function startPageController($scope, $http, clickedSymbol) {
        .on("click", function (d) { clickedSymbol.setSymbol(d.symbol) });
     }
 
-    //toolTipp
-        var text = d3.select(".loadingBar").selectAll("div")
-            .data(data);
+    //toolTipp fuer icons in loadingbar
+    var text = d3.select(".loadingBar").selectAll("div")
+        .data(data);
 
-        text.enter().append("div")
-                .text(function (d) { return d.text; })
-                .attr("class", "toolTextStart")
-                .attr("id", function (d) { return "text" + d.symbol; })
-                .style("left", function (d, i) { return i / 7 * 490 + 80 + "px"; })
-                .style("bottom", function (d,i) {return i / 7 * 290 + 125 + "px"; });
+    text.enter().append("div")
+            .text(function (d) { return d.text; })
+            .attr("class", "toolTextStart")
+            .attr("id", function (d) { return "text" + d.symbol; })
+            .style("left", function (d, i) { return i / 7 * 490 + 80 + "px"; })
+            .style("bottom", function (d,i) {return i / 7 * 290 + 125 + "px"; });
 
-        text.exit().remove();
+    text.exit().remove();
 
-        function hideToolTipp(id) {
-            d3.select("#text" + id).style("visibility", "hidden");
-        }
+    function hideToolTipp(id) {
+        d3.select("#text" + id).style("visibility", "hidden");
+    }
 
-        function showToolTipp(id) {
-            d3.select("#text" + id).style("visibility", "visible");
-        }
+    function showToolTipp(id) {
+        d3.select("#text" + id).style("visibility", "visible");
+    }
 };
 
+
+/** 
+
+    Agentcontroller
+
+    Steuert Navigation durch die Szene
+
+*/
 function agentController($scope, $http, clickedSymbol) {
 
+    //erster Aufruf nach Startseite
     $http.get("/agent.php" + "?action=getthumbnails")
     .success(function (pics) {
         fillScene(pics);
@@ -148,6 +157,9 @@ function agentController($scope, $http, clickedSymbol) {
            .success(function (article) {
                lastArticles = article.lastArticles;
                updateControl(article.symbols);
+
+               /** Wenn nicht "Ende Symbol" geklickt wurde, bewege zum naechsten Artikel und update graph
+                ansonsten zu Endvideo */
                if (clickedSymbol.getSymbol() != 4) {
                    moveToArticle(article.id, 0);
                    updateGraph(article.book);
@@ -155,9 +167,6 @@ function agentController($scope, $http, clickedSymbol) {
                } else {
                    moveToEndVideo();
                }
-               //updateGraph(article.book);
-               //updateSceneParameters(article);
-               //startScene();
            })
            .error(function (err) {
                console.error(err);
@@ -168,9 +177,9 @@ function agentController($scope, $http, clickedSymbol) {
     });
     
         
-    
-
-
+    /** 
+        Aufruf bei jedem Click auf Symbol
+    */
     function symbolOnClick() {
         $http.get("/agent.php" + "?symbol=" + clickedSymbol.getSymbol() + "&lastarticles=[" + lastArticles + "]")
             .success(function (article) {
@@ -190,7 +199,7 @@ function agentController($scope, $http, clickedSymbol) {
         };
     
 
-    /** Helper function, update the control with new symbols */
+    /** Hilfsfunktion, updated das symbol mit den nächstverfügbaren symbolen */
     function updateControl(symbols) {
         //durch gesamtes json objekt laufen und für jede übereinstimmung mit symbols link in neues array(zwecks d3 databinding)
         var links = new Array();
@@ -205,8 +214,6 @@ function agentController($scope, $http, clickedSymbol) {
         }
 
         links.push(comment[0]);
-
-
 
         //update symbols
         var use = d3.select("#controlSVG").selectAll("use")
@@ -249,12 +256,16 @@ function agentController($scope, $http, clickedSymbol) {
         function showToolTipp(id) {
             d3.select("#text" + id).style("visibility", "visible");
         }
-
-
-        
-        
     }
 
+
+
+
+    /** 
+    
+    Kommentarfunktion
+    
+    */
     $(document).ready(function () {
         
         $("#comment-overlay").click(function() {
@@ -288,13 +299,11 @@ function agentController($scope, $http, clickedSymbol) {
                         } else if (data == "WRONG_CODE") {
                                 $("#captcha-message").html("Falscher Captcha-Code!").show();
                                 $("#captcha-code").css({borderStyle:"solid", borderColor:"#c31e1e"})
-                                //alert("The security code you typed was wrong. Please try again.");
                         } else {
                                 setMessageBox("#c31e1e","Frage konnte nicht gesendet werden. Fehler: " + data);
                                 $("#message-box").show();
                                 $("#comment-overlay, #comment-box").hide();
                                 window.setTimeout(function() {$("#message-box").hide()}, 5000);
-                                //alert("Message not sent, please try again. Error data: "+data);
                         }
                     }
             });
@@ -306,21 +315,28 @@ function agentController($scope, $http, clickedSymbol) {
             $("#message-box").css({left:messageLeft, top:messageTop, borderColor:borderColor});
             $("#message-box").html(text);
         }
-});
+    });
 
-function popupComment() {
-    var maskHeight = $(document).height();
-    var maskWidth = $(window).width();
+    function popupComment() {
+        var maskHeight = $(document).height();
+        var maskWidth = $(window).width();
 
-    var dialogTop = (maskHeight/3) - ($("#comment-box").height());
-    var dialogLeft = (maskWidth/2) - ($("#comment-box").width()/2);
+        var dialogTop = (maskHeight/3) - ($("#comment-box").height());
+        var dialogLeft = (maskWidth/2) - ($("#comment-box").width()/2);
 
-        $("#comment-overlay").css({height:maskHeight, width:maskWidth}).show();
-        $("#comment-box").css({ left:dialogLeft}).show();
-}
+            $("#comment-overlay").css({height:maskHeight, width:maskWidth}).show();
+            $("#comment-box").css({ left:dialogLeft}).show();
+    }
 };
 
-    /** directive tag <agent-control>, ermoeglicht Verknuepfung angular und d3 **/
+/** 
+    
+    AGENTCONTROL
+
+    directive tag <agent-control>, ermoeglicht Verknuepfung angular und d3 
+    Ueber den tag <agent-contol> wird das hier erstellte Control auf der HTML Site plaziert.
+
+**/
 App.directive('agentControl', function (clickedSymbol) {
     return {
         restrict: 'E',
@@ -349,9 +365,6 @@ App.directive('agentControl', function (clickedSymbol) {
                 .attr("id", "controlSVG");
 
             initPersonalGraph($("#graph").width(), $("#graph").height());
-
-
-            
         }
     }
 
