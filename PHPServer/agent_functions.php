@@ -45,7 +45,7 @@ function getArticle($con, $articleId){
 	
 	$articleId = intval($articleId);
 	
-	$query = "SELECT articleid AS id, text, symbol, book 
+	$query = "SELECT articleid AS id, text, symbol, book  
 			FROM articles 
 			WHERE articleid = $articleId";
 	
@@ -179,7 +179,16 @@ function getNodes($con, $articleId){
 	return $nodes;
 }
 
-function addArticleInfo($con, $article, $lastSymbol, $lastArticles){
+/**
+ * 
+ * @param mysqli $con
+ * @param article $article
+ * @param int $lastSymbol
+ * @param array $lastArticles
+ * @param bool $increment increment article count (default=true)
+ * @return article
+ */
+function addArticleInfo($con, $article, $lastSymbol, $lastArticles, $increment=true){
 	
 	$article->bookCount = getBookCount($con, $article->book);
 	$article->totalCount = getArticleCount($con);
@@ -188,9 +197,22 @@ function addArticleInfo($con, $article, $lastSymbol, $lastArticles){
 	$article->lastArticles = $lastArticles;
 	$article->lastArticles[] = intval($article->id);
 	
+	//increment article count
+	if( $increment ){
+		$query = "UPDATE articles SET count=count+1 WHERE articleid=$article->id";
+		if (!$result = $con->query($query)) {
+			error_log("Counter increment of article $article failed!");
+		}
+	}
+	
 	return $article;
 }
 
+/**
+ * 
+ * @param mysqli $con
+ * @return multitype:unknown |NULL
+ */
 function getThumbs($con){
 	
 	$query = "SELECT articles.*, AVG(nodes.x) AS x, AVG(nodes.y) AS y
@@ -210,13 +232,8 @@ function getThumbs($con){
 			$thumb->y = intval($thumb->y);
 			$thumbs[] = $thumb;
 		}
-			
-		
-		return $thumbs;
-				
+		return $thumbs;		
 	}
-	
 	return null;
-	
 }
 ?>

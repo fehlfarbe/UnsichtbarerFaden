@@ -19,6 +19,9 @@
 			<button type="button" class="btn btn-default" ng-click="sort_by('name')">
 				<span class="glyphicon glyphicon-sort"></span> Name
 			</button>
+			<button type="button" class="btn btn-default" ng-click="sort_by('count')">
+				<span class="glyphicon glyphicon-sort"></span> Aufgerufen
+			</button>
 			<!-- show active / inactive -->
 			<button type="button" class="btn btn-default" ng-click="toggleShow()" ng-class="{'btn-primary': show != 'alle'}">
 				<span class="glyphicon glyphicon-filter"></span>{{ show }} werden angezeigt
@@ -47,7 +50,7 @@
 	<!-- Show articles -->
 	<div class="panel article" ng-class="{'panel-primary': article.active == 1, 'panel-default': article.active == 0}" ng-repeat="article in pagedItems[currentPage] | orderBy:sortingOrder:reverse">
 		<div class="panel-heading">
-			<h3 class="panel-title">#{{article.id}} {{article.name}}</h3>
+			<h3 class="panel-title">#{{article.id}}</h3> {{article.name}}
 		</div>
 		<div class="panel-body" ng-bind-html-unsafe="article.text"></div>
 		<div class="panel-body">
@@ -61,6 +64,7 @@
 		<div class="panel-footer">
 			<button class="btn btn-warning" ng-click="editArticle(article.id)">Editieren</button>
 			<button class="btn btn-danger" ng-click="deleteArticle(article.id)">Löschen</button>
+			<span style="float: right;" title="Aufgerufen"><span class="glyphicon glyphicon-stats"></span> {{article.count}}</span>
 		</div>
 	</div>
 	

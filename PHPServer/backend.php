@@ -65,6 +65,10 @@ switch ($action) {
 	case 'nodes':
 		echo json_encode(getNodes($con));		
 		return;
+	case 'linkstrength':
+		echo json_encode(getNodeLinkStrength($con, $data['nodeid']));
+		error_log(json_encode(getNodeLinkStrength($con, $data['nodeid'])));
+		return;
 	case 'nodearticles':
 		echo json_encode(getNodeArticles($con, $data['nodeid']));
 		return;

@@ -23,40 +23,40 @@ App.factory('UserService', [function() {
  *****************************/
 App.config(function($routeProvider, $httpProvider) {
 	$routeProvider.when('/login', {
-		templateUrl : 'partials/login.html',
+		templateUrl : '/backend/partials/login.html',
 		controller : 'login',
 		access: {
 			isFree: true
 		}
 	});
 	$routeProvider.when('/frontpage', {
-		templateUrl : 'partials/frontpage.html',
+		templateUrl : '/backend/partials/frontpage.html',
 		controller : 'login'
 	});
 	$routeProvider.when('/symbols', {
-		templateUrl : 'partials/symbols.html',
+		templateUrl : '/backend/partials/symbols.html',
 //		controller : 'symbols'
 	});
 	$routeProvider.when('/articleoverview', {
-		templateUrl : 'partials/article_overview.html',
+		templateUrl : '/backend/partials/article_overview.html',
 		controller : 'articleoverview',
 	});
 	$routeProvider.when('/newarticle', {
-		templateUrl : 'partials/new_article.html',
+		templateUrl : '/backend/partials/new_article.html',
 		controller : 'newarticle',
 	});
 	$routeProvider.when('/nodeeditor', {
-		templateUrl : 'partials/nodeeditor.html',
+		templateUrl : '/backend/partials/nodeeditor.html',
 		controller : 'nodeeditor',
 	});
 	$routeProvider.when('/nodeoverview', {
-		templateUrl : 'partials/node_overview.html',
+		templateUrl : '/backend/partials/node_overview.html',
 	});
 	$routeProvider.when('/comments', {
-		templateUrl : 'partials/comments.html',
+		templateUrl : '/backend/partials/comments.html',
 	});
 	$routeProvider.when('/backup', {
-		templateUrl : 'partials/backup.html',
+		templateUrl : '/backend/partials/backup.html',
 	});
 	$routeProvider.otherwise({
 		redirectTo : '/login'

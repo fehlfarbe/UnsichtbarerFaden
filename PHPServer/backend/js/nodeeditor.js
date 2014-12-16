@@ -628,10 +628,12 @@ nodeEditor.initBubbles = function($scope, $http, $location) {
 	
 	//load relations
 	//$("#nodeselect").chosen();
+	var svg = null;
 	$scope.selectedNode = null;
 	$scope.mouseoverNode = null;
 	$scope.links = null
 	$scope.nodeArticles = Array();
+	$scope.linkStrength = null;
 	
 	$scope.loadArticle = function(id){
 		$location.search('id', id).path('/newarticle');
@@ -655,7 +657,35 @@ nodeEditor.initBubbles = function($scope, $http, $location) {
 	
 	/******************************************************
 	 * 
-	 * Vars
+	 * Load links with linkstrength between nodes
+	 *
+	 *****************************************************/
+	function loadLinkStrength(node) {
+		console.log("Load link strength");
+		$http.post('/backend.php?action=linkstrength', {nodeid:node.id})
+		.success(function(data, status, headers, config) {
+			console.log("linkstrength", data);
+			$scope.linkStrength = data;
+		})
+		.error(function(data, status, headers, config) {
+			console.log("Error fetching linkstrength for", node, status);
+		});
+	}
+	
+	/******************************************************
+	 * Get Node from relations
+	 *****************************************************/
+	function getNode(nodeid){
+		for(var i=0; i<$scope.nodes.children.length; i++){
+			if( parseInt($scope.nodes.children[i].nodeid) == nodeid )
+				return $scope.nodes.children[i];
+		}
+		return null;
+	}
+	
+	/******************************************************
+	 * 
+	 * Bubble Style
 	 * 
 	 *****************************************************/
 	var diameter  = $('#bubbles').width(),
@@ -669,77 +699,103 @@ nodeEditor.initBubbles = function($scope, $http, $location) {
 	 *******************************************************/
 	function redraw(){
 		
+		/*****************************
+		 * draw links between bubbles
+		 ****************************/
+		if( $scope.selectedNode && $scope.linkStrength && $scope.mouseoverNode ){
+			console.log("draw linkstrength");
+			for(var i=0; i<$scope.linkStrength.length; i++){
+				//console.log($scope.selectedNode, "-->", getNode($scope.linkStrength[i].nodeid));
+				var targetNode = getNode($scope.linkStrength[i].nodeid);
+//				var vec = [targetNode.x-$scope.selectedNode.x,
+//				           targetNode.y-$scope.selectedNode.y];
+				if( !targetNode )
+					continue;
+				var myLine = svg.append("svg:line")
+			    .attr("x1", $scope.selectedNode.x)
+			    .attr("y1", $scope.selectedNode.y)
+			    .attr("x2", targetNode.x)
+			    .attr("y2", targetNode.y)
+			    .style("stroke-width", Math.min(targetNode.count*0.3, 5) )
+			    .style("stroke-opacity", 0.7)
+			    .style("stroke", "rgb(50,50,50)");
+			}
+		} else {
+			//remove all links
+			svg.selectAll("line").remove();
+		}
+		
+		
 		var links = $scope.links;
-		
 		//console.log("Links", links);
-		
 		// Nodes
-		$scope.node.selectAll("circle")
-		.style("fill", function(d) {	    	  
-   	  if( d === $scope.mouseoverNode || d === $scope.selectedNode )
-   		  return d3.rgb(color(d.id)).brighter().toString();
-   	  
-   	  return color(d.id);
-		})
-		.style("stroke", function(d) {	    	  
-   	  if( d === $scope.mouseoverNode || d === $scope.selectedNode )
-   		  return d3.rgb(color(d.id)).darker().toString();
-   	  
-   	  return color(d.id);
-		})
-		.classed('hidden', function(d){
-			if( $scope.selectedNode == null )
-   		  return false;
-   	  
-   	  	for( var i=0; i<links.length; i++){
-         		 if($scope.selectedNode === links[i].target || $scope.selectedNode === links[i].source){
-         			 if( links[i].target === d || links[i].source === d)
-         				 return false;
-         		 }
-  	 		}
-   	  
-   	  	return d !== $scope.selectedNode;
-		})
-		.attr('r', function(d){
-			if( d === $scope.mouseoverNode )
-   		  return Math.max(d.r, 50);
-   	  
-   	  return d.r;
+		$scope.node.selectAll("circle").style("fill", function(d) {
+			if (d === $scope.mouseoverNode || d === $scope.selectedNode)
+				return d3.rgb(color(d.id)).brighter().toString();
+
+			return color(d.id);
+		}).style("stroke", function(d) {
+			if (d === $scope.mouseoverNode || d === $scope.selectedNode)
+				return d3.rgb(color(d.id)).darker().toString();
+
+			return color(d.id);
+		}).classed(
+				'hidden',
+				function(d) {
+					if ($scope.selectedNode == null)
+						return false;
+
+					for (var i = 0; i < links.length; i++) {
+						if ($scope.selectedNode === links[i].target
+								|| $scope.selectedNode === links[i].source) {
+							if (links[i].target === d || links[i].source === d)
+								return false;
+						}
+					}
+
+					return d !== $scope.selectedNode;
+				}).attr('r', function(d) {
+			if (d === $scope.mouseoverNode)
+				return Math.max(d.r, 50);
+			return d.r;
+		});
+
+		// Text
+		$scope.node.selectAll("text").classed(
+				'hidden',
+				function(d) {
+					if ($scope.selectedNode == null)
+						return false;
+
+					for (var i = 0; i < links.length; i++) {
+						if ($scope.selectedNode === links[i].target
+								|| $scope.selectedNode === links[i].source) {
+							if (links[i].target === d || links[i].source === d)
+								return false;
+						}
+					}
+
+					return d !== $scope.selectedNode;
+				}).style("font-size", "1px").each(
+				function(d) {
+					try {
+						var bbox = this.getBBox(), cbbox = this.parentNode
+								.getBBox(), scale = Math.min(cbbox.width
+								/ bbox.width, cbbox.height / bbox.height);
+						d.scale = scale * 0.9;
+					} catch (e) {
+						// TODO: handle exception
+					}
+				}).style("font-size", function(d) {
+			return d.scale + "px";
 		});
 		
-		// Text
-		$scope.node.selectAll("text")
-		.classed('hidden', function(d){
-			if( $scope.selectedNode == null )
-	    		  return false;
-	    	  
-	    	  	for( var i=0; i<links.length; i++){
-	          		 if($scope.selectedNode === links[i].target || $scope.selectedNode === links[i].source){
-	          			 if( links[i].target === d || links[i].source === d)
-	          				 return false;
-	          		 }
-      	 		}
-	    	  
-	    	  	return d !== $scope.selectedNode;
-		})
-		.style("font-size", "1px")
-		.each(function(d){
-			try{
-				var bbox = this.getBBox(),
-		          cbbox = this.parentNode.getBBox(),
-		          scale = Math.min(cbbox.width/bbox.width, cbbox.height/bbox.height);
-		    	  d.scale = scale * 0.9;
-			} catch (e) {
-				// TODO: handle exception
-			}
-	      })
-	      .style("font-size", function(d) { return d.scale + "px"; });
 		
 	}
 	
-	/**************************************************************
+	/***************************************************************************
 	 * onChange
-	 *************************************************************/
+	 **************************************************************************/
 	 $scope.change = function(s) {
 		 console.log("redraw", s, $scope.selectedNode);
 		 redraw();
@@ -796,15 +852,13 @@ nodeEditor.initBubbles = function($scope, $http, $location) {
          * Setup Bubble Pack
          * 
          **************************************/
-		
-
 		var bubble = d3.layout.pack()
 			.sort(null)
 			.value(function(d){ return d.value; })
 		    .size([diameter, diameter])
 		    .padding(1.5);
 
-		var svg = d3.select("#bubbles").append("svg")
+		svg = d3.select("#bubbles").append("svg")
 		    .attr("width", diameter)
 		    .attr("height", diameter)
 		    .attr("class", "bubble");
@@ -834,21 +888,26 @@ nodeEditor.initBubbles = function($scope, $http, $location) {
 		    	  $scope.mouseoverNode = d;
 		    	  d3.select(this).moveToFront();
 		    	  
-		    	  console.log($scope.selected);
+		    	  //console.log($scope.selected);
 		    	  redraw();
 		      })
 		      .on('mouseout', function(d) {
 		    	  $scope.mouseoverNode = null;
 		    	  redraw();
 		      })
+		      /************************************
+		       * Onclick
+		       ***********************************/
 		      .on('mousedown', function(d) {
 		    	  
 		    	  if( $scope.selectedNode === d){
 		    		  $scope.selectedNode = null;
 		    		  $scope.nodeArticles = Array();
+		    		  $scope.linkStrength = null;
 		    	  } else {
 		    		  $scope.selectedNode = d;
 		    		  loadNodeArticles($scope.selectedNode);
+		    		  loadLinkStrength($scope.selectedNode);
 		    	  }
 		    	  console.log("mousedown", $scope.selectedNode);
 		    	  redraw();
