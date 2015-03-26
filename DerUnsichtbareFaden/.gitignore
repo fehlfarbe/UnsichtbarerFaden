@@ -1,4 +1,11 @@
 *.pyc
+
 tmp/
+migrations/
+
 *.csv
 *.db
+
+res/uploads/images
+res/uploads/videos
+res/textures/

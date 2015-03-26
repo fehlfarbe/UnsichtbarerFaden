@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		
+		<title>Der unsichtbare Faden</title>
+		
+		<!-- jQuery -->
+		<script type="text/javascript" src="{{ url_for('static', filename='jquery/jquery-1.11.2.min.js') }}"></script>
+		
+		<!-- Bootstrap -->
+		<link rel="stylesheet" href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}" />
+		<script type="text/javascript" src="{{ url_for('static', filename='bootstrap/js/bootstrap.min.js') }}"></script>
+		
+		<!-- Styles -->
+		<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+		<link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
+		
+		{% block head %}{% endblock %}
+	</head>
+	<body>
+		<div class="container">
+			<div class="row">
+				<div class="col-md-2"></div>
+				<div class="col-md-10 headline"><h1>Der unsichtbare Faden</h1></div>
+			</div>
+			<div class="row">
+				<div class="col-md-2">
+					<ul class="menu">
+						<li><a href="/">HOME</a></li>
+						<li><a href="/info">INFO</a></li>
+						<li><a href="/admin">LOGIN</a></li>
+						<li><a href="/contact">KONTAKT</a></li>					
+					</ul>				
+				</div>
+				<div class="col-md-10">
+					{% block content %}{% endblock %}
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-12 footer">
+					URHEBERRECHT Die auf dieser Website verwendeten Bilder und Texte, 
+					sowie die sonstigen Inhalte sind urheberrechtlich geschützt. 
+					Alle Inhalte dürfen ohne Absprache weder von Benutzern kopiert, 
+					verbreitet oder verändert werden. 
+					© Katharina Groß 
+					© Mario Gienapp 
+					und Marcus Degenkolbe. 
+					Alle Rechte vorbehalten.
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

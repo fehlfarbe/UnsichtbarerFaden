@@ -29,4 +29,4 @@ lm.init_app(app)
 lm.login_view = 'login'
 
 ### logging
-from server import views
+from server import views, admin, login, errorhandler

@@ -6,9 +6,12 @@ Created on 17.03.2015
 import os
 
 basedir = os.path.abspath(os.path.dirname(__file__))
+BASEDIR = basedir
 
 ### directories
-IMAGE_DIR = os.path.dirname(os.path.abspath(__file__)) + '/res/uploads'
+IMAGE_DIR = os.path.dirname(os.path.abspath(__file__)) + '/res/uploads/images'
+VIDEO_DIR = os.path.dirname(os.path.abspath(__file__)) + '/res/uploads/videos'
+TEXTURE_DIR = os.path.dirname(os.path.abspath(__file__)) + '/res/textures'
 CACHE_DIR = os.path.dirname(os.path.abspath(__file__)) + '/res/cache'
 
 ### cross-site request forgery
