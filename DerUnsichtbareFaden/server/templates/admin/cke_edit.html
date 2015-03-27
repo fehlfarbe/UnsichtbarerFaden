@@ -1,0 +1,26 @@
+{% extends 'admin/model/edit.html' %}
+ 
+{% block tail %}
+{{ super() }}
+<script src="{{ url_for('static', filename='ckeditor/ckeditor.js') }}"></script>
+<script type="text/javascript">
+CKEDITOR.replace( 'text', {
+    filebrowserBrowseUrl: '/admin/browse',
+    filebrowserUploadUrl: '/admin/upload'
+});
+</script>
+
+<style>
+.bbcode{
+	padding: 10px;
+	overflow: visible;
+}
+
+.bbcode a{
+	border: 1px solid #333;
+	margin: 3px;
+	display: inline-block;
+}
+</style>
+
+{% endblock %}

@@ -3,8 +3,10 @@ Created on 17.03.2015
 
 @author: kolbe
 '''
+import os, json
 from datetime import datetime
 from . import app, db
+from utils.html2png import html2png, replace_image_urls
 from werkzeug.security import check_password_hash, generate_password_hash
 
 symbollinks = db.Table('symbol_links',
@@ -41,9 +43,17 @@ class Article(db.Model):
                     secondary=articlenodes,
                     backref="articles")
     
-    def renderImage(self, imagefile):
-        pass
-    
+    def updateTexture(self):
+        html = replace_image_urls(self.text, app.config['IMAGE_DIR'])
+        filename = os.path.join(app.config['TEXTURE_DIR'], str(self.id)+".png")
+        html2png(html, filename)
+        
+    def json(self):
+        return { 'id' : self.id,
+                'text' : self.text.decode('UTF-8'),
+                'book' : self.book
+        }
+            
     def __repr__(self):
         return u"<Article id=%s name=%r book=%r active=%s count=%s>" % \
             (self.id, self.name, self.book, self.active, self.count)
@@ -64,14 +74,14 @@ class Symbol(db.Model):
     name = db.Column(db.Unicode(64))
     icon = db.Column(db.Unicode(8))
     
-    #articles = db.relationship('Article',
-    #    backref=db.backref('symbol'), lazy='dynamic')
-    
     targets = db.relationship(
                     'Symbol',secondary=symbollinks,
                     primaryjoin=symbollinks.c.source==id,
                     secondaryjoin=symbollinks.c.target==id,
                     backref="sources")
+    
+    def json(self):
+        return {'id' : self.id, 'name' : self.name, 'icon' : self.icon}
     
     def __repr__(self):
         return "<Symbol id=%s name=%r icon=%r>" % (self.id, self.name, self.icon)
@@ -87,6 +97,9 @@ class Node(db.Model):
                 primaryjoin=nodelinks.c.source==id,
                 secondaryjoin=nodelinks.c.target==id,
                 backref="sources")
+    
+    def selection(self):
+        return self.name
     
     def __repr__(self):
         return "<Node id=%s name=%r x=%s y=%s>" % \

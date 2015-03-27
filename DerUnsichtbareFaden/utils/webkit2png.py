@@ -29,7 +29,6 @@ if __name__ == '__main__':
     parser.add_option("-u", "--url")
     
     (options, args) = parser.parse_args()
-    print options, args
     if options.url is None:
         print "NO URL!"
         sys.exit(1)

@@ -16,6 +16,7 @@ from flask.ext.babel import Babel
 ### setup App
 app = Flask(__name__)
 app.config.from_object('config')
+app.secret_key = '13fa3dca096041770b62591dc957d4fd' # for session
 
 ### setup SQLAlchemy
 db = SQLAlchemy(app)

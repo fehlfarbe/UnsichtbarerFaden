@@ -28,7 +28,7 @@ def html2png(html_data, filename):
     with open(tmp_file, "w") as f:
         f.write(html_data)
     
-    script = 'xvfb-run --server-args="-screen 0, 640x480x24" python %s/webkit2png.py --url %s --file %s' % \
+    script = 'xvfb-run -a --server-args="-screen 0, 640x480x24" python %s/webkit2png.py --url %s --file %s' % \
             (basedir, tmp_file, filename)
     subprocess.call(script, shell=True)
 
@@ -37,6 +37,6 @@ if __name__ == '__main__':
     from server import models, app
     
     for a in models.Article.query.all():
-        print "render:", a.name
+        print "render:", a.id, a.name
         filename = os.path.join(app.config['TEXTURE_DIR'], str(a.id)+".png")
         html2png(replace_image_urls(a.text, app.config['IMAGE_DIR']), filename)

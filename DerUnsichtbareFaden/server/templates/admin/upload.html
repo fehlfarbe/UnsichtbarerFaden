@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script type="text/javascript" src="{{ url_for('static', filename='jquery/jquery-1.11.2.min.js') }}"></script>
+	</head>
+	<body>	
+		{% if f %}
+		<script type="text/javascript">
+		console.log(window);
+		window.parent.CKEDITOR.tools.callFunction( {{funcNum}}, "/upload/images/{{f}}" );		
+		</script>
+		{% endif %}
+	</body>
+</html>
