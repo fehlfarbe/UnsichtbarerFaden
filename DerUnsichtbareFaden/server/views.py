@@ -3,14 +3,14 @@ Created on 17.03.2015
 
 @author: kolbe
 '''
-from . import app, models
+from . import app, models, db
 from agent import Agent
-from flask import render_template, send_from_directory, Response, session
+from flask import render_template, send_from_directory, Response, session, request
 import json
 
 @app.route('/')
 def index():
-    return render_template('home.html')
+    return render_template('home.html', symbols=models.Symbol.query.all())
 
 @app.route('/info')
 def info():
@@ -19,6 +19,19 @@ def info():
 @app.route('/contact')
 def contact():
     return render_template('contact.html')
+
+'''
+Game / Agent stuff
+'''
+@app.route('/game', methods=['GET', 'POST'])
+def game():
+    symbol = None
+    if request.method == 'POST':
+        app.logger.info(request.form['symbol'])
+        symbol = request.form.get('symbol', None)
+    if symbol is None:
+        symbol = models.Symbol.query.order_by(db.func.random()).first().id
+    return render_template('game.html', symbol=symbol)
 
 @app.route('/agent/reset')
 def agent_reset():
