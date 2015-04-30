@@ -1,3 +1,63 @@
+/*** gui ***/
+#booklevels {
+	background-color: #fff;
+	display: block;
+	position: fixed;
+	width: 80%;
+	height: 100px;
+	border: 1px solid #000;
+	z-index: 100;
+	bottom: 0px;
+	left: 0px;
+	margin: 20px;
+}
+
+#symbols {
+	background-color: #fff;
+	display: block;
+	position: fixed;
+	width: 15%;
+	height: 100px;
+	border: 1px solid #000;
+	z-index: 100;
+	bottom: 0px;
+	right: 0px;
+	margin: 20px;
+	text-align: center;
+}
+
+#symbols button {
+	height: 100%;
+	padding: 0px;
+	background-color: transparent;
+	border: none;
+	cursor: pointer;
+	font-size: xx-large;
+}
+
+#article {
+	max-width: 80%;
+	margin: 0px auto;
+	background-color: white;
+	border: 2px solid #000;
+	padding: 5px;
+}
+
+#article * {
+	max-width: 95%;
+}
+
+#article-wrap {
+	position: absolute;
+	top: 0px;
+	width: 98%;
+	margin-bottom: 200px;
+	text-align: center;
+	z-index: 50;
+}
+
+
+/*** bookLevels ***/
 path { 
     stroke: steelblue;
     stroke-width: 2;

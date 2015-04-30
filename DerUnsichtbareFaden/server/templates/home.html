@@ -4,10 +4,12 @@
 <div style="margin: 30px; text-align: center; border: 3px solid #000;">
 	<form action="/game" method="post">
 	{% for s in symbols %}
-		<button type="submit"  name="symbol" value="{{s.id}}">{{s.icon}}</button>
+		<button class="btn-symbol" type="submit"  name="symbol" value="{{s.id}}" title="{{s.name}}">
+			<span class="btn-symbol-name">{{s.name}}</span>
+			<span class="btn-symbol-icon">{{s.icon}}</span>
+		</button>
 	{% endfor %}
 	</form>
-	<h1>PLATZHALTER</h1>
 </div>
 
 

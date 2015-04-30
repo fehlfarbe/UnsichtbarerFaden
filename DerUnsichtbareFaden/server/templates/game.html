@@ -20,17 +20,19 @@
 	
 	<body>
 	<div>
-		<div data-bind="if: currentArticle()">
+		<div id="background" data-bind="foreach: allArticles" >
+			<img data-bind="attr: { src: '/texture/'+id }" style="width: 100px; height: 100px;"/>
+		</div>
+	
+		<div data-bind="if: currentArticle()" id="article-wrap">
 			<div id="article" data-bind="html: currentArticle().text"></div>
 		</div>
-		<svg id="booklevels" data-bind="graph: bookLevels" style="width: 500px; height: 200px; border: 1px solid #000;">
+		<svg id="booklevels" data-bind="graph: bookLevels">
 		
 		</svg>
 		<div id="symbols" data-bind="foreach: currentSymbols">
 			<button data-bind="text: icon, click: nextArticle"></button>
 		</div>
-	
-	
 	</div>
 	
 	<script type="text/javascript" src="{{ url_for('static', filename='js/game.js') }}"></script>

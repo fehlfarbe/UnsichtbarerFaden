@@ -63,3 +63,37 @@ body {
 p.block{
 	text-align: justify;
 }
+
+/**************************************
+	HOME
+**************************************/
+.btn-symbol{
+	height: 100%;
+	padding: 10px;
+	background-color: transparent;
+	border: none;
+	cursor: pointer;
+	vertical-align: middle;
+}
+
+.btn-symbol-icon {
+	font-size: xx-large;	
+}
+
+.btn-symbol-name {
+	display: none;
+	/*
+	position: absolute;
+	margin-top: 10px;
+	background-color: white;
+	*/
+	font-size: large;
+}
+
+.btn-symbol:hover .btn-symbol-name{
+	display: block;
+}
+
+.btn-symbol:hover .btn-symbol-icon{
+	display: none;
+}

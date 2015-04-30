@@ -42,13 +42,13 @@ function AppViewModel(startSymbol) {
 	        // This will be called once when the binding is first applied to an element,
 	        // and again whenever any observables/computeds that are accessed change
 	        // Update the DOM element based on the supplied values here.
-	    	console.log("update", ko.unwrap(valueAccessor()), element, element.id);
+	    	//console.log("update", ko.unwrap(valueAccessor()), element, element.id);
 	    	
 	    	var val = ko.unwrap(valueAccessor());
 	    	// Set the dimensions of the canvas / graph
 	    	var margin = {top: 20, right: 20, bottom: 20, left: 20},
-	    	    width = 500 - margin.left - margin.right,
-	    	    height = 200 - margin.top - margin.bottom;
+	    	    width = $(element).width() - margin.left - margin.right,
+	    	    height = $(element).height() - margin.top - margin.bottom;
 
 	    	// Define the line
 	    	var i=0;
@@ -67,15 +67,23 @@ function AppViewModel(startSymbol) {
 	        svg.append("path")
 	            .attr("class", "line")
 	            .attr("d", valueline(val));
-
-	    	console.log("update", svg);
 	    }
 	};
+	
+	this.loadArticleTextures = function(){
+		$.getJSON('/agent/articletextures', function(data){
+			console.log("all articles", data);
+			self.allArticles(data);
+		});
+	}
 	
 	this.initModel = function(symbol){
 		console.log("load game with symbol", symbol);
 		
 		// init 3D engine
+		
+		// load article textures
+		self.loadArticleTextures();
 		
 		// load first article
 		self.nextArticle(symbol);

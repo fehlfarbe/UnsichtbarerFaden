@@ -60,9 +60,17 @@ def agent(symbol):
     session['visited'] = []
     return Response('null', mimetype='application/json')
 
+@app.route('/agent/articletextures')
+def articleTextures():
+    articles = []
+    for a in models.Article.query.filter_by(active=True).all():
+        articles.append({ 'id' : a.id, 'x' : 0, 'y' : 0})
+        
+    return Response(json.dumps(articles), mimetype='application/json')
+
 @app.route('/upload/images/<string:f>')
 def getResource(f=None):
-    app.logger.info("serve " + str(f))
+    #app.logger.info("serve " + str(f))
     if f is None:
         return None
     
