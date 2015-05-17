@@ -64,7 +64,8 @@ def agent(symbol):
 def articleTextures():
     articles = []
     for a in models.Article.query.filter_by(active=True).all():
-        articles.append({ 'id' : a.id, 'x' : 0, 'y' : 0})
+        x, y = a.position()
+        articles.append({ 'id' : a.id, 'x' : x, 'y' : y, 'z' : a.book})
         
     return Response(json.dumps(articles), mimetype='application/json')
 
@@ -84,4 +85,4 @@ def texture(article_id=None):
     if article_id is None:
         return Response()
     
-    return send_from_directory(app.config['TEXTURE_DIR'], "%d.png" % article_id)
+    return send_from_directory(app.config['TEXTURE_DIR'], "%d.jpg" % article_id)

@@ -15,30 +15,34 @@
 		<!-- D3.js -->
 		<script type='text/javascript' src='{{ url_for('static', filename='d3/d3.min.js') }}' charset="utf-8"></script>
 		
+		<!-- three.js -->
+		<script type='text/javascript' src='{{ url_for('static', filename='threejs/three.min.js') }}' charset="utf-8"></script>
+		
 		<link rel="stylesheet" href="{{ url_for('static', filename='game.css') }}" />
 	</head>
 	
 	<body>
-	<div>
-		<div id="background" data-bind="foreach: allArticles" >
+		<!-- <div id="background" data-bind="foreach: allArticles" >
 			<img data-bind="attr: { src: '/texture/'+id }" style="width: 100px; height: 100px;"/>
+		</div> -->
+		<div id="viewport" data-bind="three: allArticles">
 		</div>
 	
-		<div data-bind="if: currentArticle()" id="article-wrap">
+		<!-- <div data-bind="if: currentArticle()" id="article-wrap">
 			<div id="article" data-bind="html: currentArticle().text"></div>
 		</div>
+		 -->
 		<svg id="booklevels" data-bind="graph: bookLevels">
 		
 		</svg>
 		<div id="symbols" data-bind="foreach: currentSymbols">
 			<button data-bind="text: icon, click: nextArticle"></button>
 		</div>
-	</div>
 	
-	<script type="text/javascript" src="{{ url_for('static', filename='js/game.js') }}"></script>
-	<script type="text/javascript">
-		var model = AppViewModel({{symbol}});
-		ko.applyBindings(model);
-	</script>
+		<script type="text/javascript" src="{{ url_for('static', filename='js/game.js') }}"></script>
+		<script type="text/javascript">
+			var model = AppViewModel({{symbol}});
+			ko.applyBindings(model);
+		</script>
 	</body>
 </html>

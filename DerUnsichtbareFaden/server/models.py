@@ -8,6 +8,7 @@ from datetime import datetime
 from . import app, db
 from utils.html2png import html2png, replace_image_urls
 from werkzeug.security import check_password_hash, generate_password_hash
+from numpy import average
 
 symbollinks = db.Table('symbol_links',
     db.Column('source', db.Integer, db.ForeignKey('symbol.id')),
@@ -43,15 +44,28 @@ class Article(db.Model):
                     secondary=articlenodes,
                     backref="articles")
     
+    def position(self):
+        pos_x = []
+        pos_y = []
+        for n in self.nodes:
+            pos_x.append(n.pos_x)
+            pos_y.append(n.pos_y)
+            
+        return average(pos_x), average(pos_y)
+    
     def updateTexture(self):
         html = replace_image_urls(self.text, app.config['IMAGE_DIR'])
         filename = os.path.join(app.config['TEXTURE_DIR'], str(self.id)+".png")
         html2png(html, filename)
         
     def json(self):
+        x, y = self.position()
         return { 'id' : self.id,
                 'text' : self.text.decode('UTF-8'),
-                'book' : self.book
+                'book' : self.book,
+                'x' : x,
+                'y' : y,
+                'z' : self.book
         }
             
     def __repr__(self):

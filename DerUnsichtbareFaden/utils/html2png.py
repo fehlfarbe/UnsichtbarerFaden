@@ -6,7 +6,8 @@ Created on 26.03.2015
 import sys, signal, os, time, subprocess, os
 from tempfile import gettempdir
 import lxml.etree
-from urllib import pathname2url 
+from urllib import pathname2url
+from PIL import Image
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -31,6 +32,12 @@ def html2png(html_data, filename):
     script = 'xvfb-run -a --server-args="-screen 0, 640x480x24" python %s/webkit2png.py --url %s --file %s' % \
             (basedir, tmp_file, filename)
     subprocess.call(script, shell=True)
+    try:
+        img = Image.open(filename)
+        img.thumbnail((300,300), Image.ANTIALIAS)
+        img.save(filename)
+    except:
+        pass
 
 
 if __name__ == '__main__':
@@ -38,5 +45,5 @@ if __name__ == '__main__':
     
     for a in models.Article.query.all():
         print "render:", a.id, a.name
-        filename = os.path.join(app.config['TEXTURE_DIR'], str(a.id)+".png")
+        filename = os.path.join(app.config['TEXTURE_DIR'], str(a.id)+".jpg")
         html2png(replace_image_urls(a.text, app.config['IMAGE_DIR']), filename)

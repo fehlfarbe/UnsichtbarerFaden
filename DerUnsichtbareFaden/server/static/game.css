@@ -1,4 +1,22 @@
+html, body {
+	margin: 0; /* äußeren Abstand / Rand auf zurücksetzen */
+	padding: 0; /* inneren Abstand zurücksetzen */
+	height: 99.7%; /* Seite soll über volle Höhe gehen */
+}
+
 /*** gui ***/
+#viewport {
+	padding: 0px;
+	margin: 0px;
+	width: 100%;
+	min-height: 100%;
+}
+
+/* #viewport canvas{
+	width: 100%;
+	height: 100%;
+} */
+
 #booklevels {
 	background-color: #fff;
 	display: block;
