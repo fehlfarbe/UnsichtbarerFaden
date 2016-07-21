@@ -32,7 +32,7 @@ switch ($action) {
 		echo json_encode($article);
 		return;
 	case 'delete_article':
-		if( !deleteArticle( intval($data['id'])) )
+		if( !deleteArticle( $con, intval($data['id'])) )
 			header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
 		return;
 	case 'save_nodes':
